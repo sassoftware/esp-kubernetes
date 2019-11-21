@@ -1,0 +1,46 @@
+Make the deployment from templates:
+
+   ./bin/mkdeploy  -r -n cmdline -o docker.sas.com/shhuan/esp-operator:latest -s docker.sas.com/pdt/sas-esp:6.2.0-20191002.1570027530493  -m docker.sas.com/pdt/sas-espmbs:6.2.0-20191002.1570015454647 -d sas.com -l license/SASViyaV0300_09PTGX_Linux_x86-64.txt 
+
+Do the Deployment:
+
+   ./bin/dodeploy -n cmdline
+
+kubectl -n cmdline get pods
+
+go into making an ESP custome resource for projects:
+
+     ./bin/mkproject  -x deploy/examples/example-1.xml -s array -o cr_array.yaml
+
+filebrowser to Persistent Storage
+
+kubectl apply -f cr_array.yaml
+kubectl -n cmdline get pods
+kubectl -n cmdline top pods
+
+
+    ./bin/mkproject  -x deploy/examples/example-2.xml -s source -o cr_source.yaml
+
+edit, reduce cpu, inrease max replicas
+
+kubectl apply -f cr_source.yaml
+kubectl -n cmdline get pods
+kubectl -n cmdline top pods
+
+not using any CPU, point out resources ...
+
+    ./bin/mkproject  -x deploy/examples/example-3.xml -s sink -o cr_sink.yaml
+
+kubectl apply -f cr_sink.yaml
+kubectl -n cmdline get pods
+kubectl -n cmdline top pods
+
+Show metering records....
+
+curl  espmeter.cmdline.sas.com:80/SASESP/meterData
+
+
+Look back at autoscale....
+
+kubectl -n cmdline get pods
+kubectl -n cmdline top pods

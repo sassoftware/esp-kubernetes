@@ -1,0 +1,51 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: espstudio-service
+  namespace: TEMPLATE_ESP_NAMESPACE
+spec:
+  selector:
+    app: espstudio
+  ports:
+    - name: "80"
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: espstudio-deployment
+  namespace: TEMPLATE_ESP_NAMESPACE
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: espstudio
+  template:
+    metadata:
+      labels:
+        app: espstudio
+    spec:
+      serviceAccountName: esp-operator
+      containers:
+      - name: espstudio-container
+        image: TEMPLATE_ESPSTUDIO_IMAGE
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ESP_STUDIO_DB
+          value: "/mnt/data/TEMPLATE_ESP_NAMESPACE/DB/studio"
+        - name: SAS_ESP_COMMON_KUBERNETES
+          value: "true"
+        - name: SAS_ESP_COMMON_KUBERNETES_NAMESPACE
+          value: TEMPLATE_ESP_NAMESPACE 
+        volumeMounts:
+           - mountPath: /mnt/data
+             name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: esp-pv

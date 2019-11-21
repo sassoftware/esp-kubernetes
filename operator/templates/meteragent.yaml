@@ -1,0 +1,64 @@
+kind: Service
+apiVersion: v1 
+metadata:
+  name: espmeteragent-service
+  namespace: TEMPLATE_ESP_NAMESPACE            # all objects are in TEMPLATE_ESP_NAMESPACE
+spec:
+  selector:
+    app: espmeteragent               # target any pod with the app=espmeter label
+  ports:
+    - protocol: TCP             # TCP
+      targetPort: 31415         # the port esp exposes on the pod it runs in
+      port: 80                  # the port within the K8 cluster
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: TEMPLATE_ESP_NAMESPACE            # all objects are in my own namespace "sjk"
+  name: espmeteragent-deployment
+spec:
+  replicas: 1
+  selector:
+     matchLabels:
+       app: espmeteragent
+  template:
+       metadata:
+         labels:
+           app: espmeteragent
+       spec:
+         containers:
+         - name: espmeteragent-container
+           image: TEMPLATE_ESP_METERAGENT_IMAGE
+           env:
+             #- name: SAS_DEBUG
+             #  value: "true"
+           ports:
+             - containerPort: 31415   # servers REST port
+               name: http
+           volumeMounts:
+              - name: data            # the volume specified below
+                mountPath: /opt/sas/viya/config/var/lib/mbagent/meter
+                subPath: TEMPLATE_ESP_NAMESPACE/billing
+              - name: sas-license
+                mountPath: /opt/sas/viya/config/etc/licenses
+                readOnly: true
+              - name: sas-ca-cert
+                mountPath: /opt/sas/viya/config/etc/pki/certs
+                readOnly: true
+         volumes:
+           - name: data
+             persistentVolumeClaim:
+               claimName: esp-pv
+           - name: sas-license
+             secret:
+               secretName: sas-license-secret
+               items:
+                 - key: SAS_LICENSE
+                   path: default
+           - name: sas-ca-cert
+             secret:
+               secretName: sas-ca-cert-secret
+               items:
+                 - key: SAS_CA_CERT
+                   path: SAS_CA_Certificate.pem

@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: metering
+  namespace: TEMPLATE_ESP_NAMESPACE
+spec:
+  rules:
+  - host: espmeter.TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+    http:
+      paths:
+      -  backend:
+          serviceName: espmeter-service # the service to hit
+          servicePort: 80                       # externally exposed port 

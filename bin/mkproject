@@ -1,0 +1,77 @@
+#!/bin/bash
+
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+# usage -- all args are required.
+#
+show_usage() {
+    echo "Usage: $0"
+    echo "          -x <project XML>           -- xml version of project"
+    echo "          -s <service name>          -- ingress servicce name"
+#    echo "          -l <license file>          -- SAS esp licence"
+    echo "          -o <output file>           -- file to write project CR yaml to"
+    exit 1
+}
+
+ROOT=$0
+
+# make sure we are launched from .../operator or .../single_user_clients
+#
+BASE=`basename $PWD`
+[ $BASE != "operator" ] && [ $BASE != "single_user_clients" ] && echo "cd into  .../operator or .../single_user_clients to run this script" && exit 1
+
+while getopts "?x:s:o:" opt; do
+    case "$opt" in
+        \?)
+            show_usage
+            return 1
+            ;;
+        x)  ESP_XF=$OPTARG
+            ;;
+        s)  ESP_SN=$OPTARG
+            ;;
+        o)  ESP_OF=$OPTARG
+            ;;
+        *)
+            show_usage
+    esac
+done
+
+[ -z $ESP_XF ] && show_usage
+[ -z $ESP_SN ] && show_usage
+[ -z $ESP_OF ] && show_usage
+
+[ ! -f $ESP_XF ] && echo "XML file <$ESP_XF> was not found, aborting." && exit 1
+
+
+ROOT=`readlink -f $ROOT`
+ROOT=`dirname $ROOT`
+ROOT=`readlink -f $ROOT/..`
+ROOT=${ROOT}/${BASE}
+
+#TEMPLATES=$ROOT/templates
+DEPLOYMENT=$ROOT/deploy
+
+#if [[ ! -d "$TEMPLATES" ]]; then
+#    echo "templates/ directory could not be found as: $TEMPLATES"
+#    echo "script aborting."
+#    exit 1
+#fi
+
+cp ${DEPLOYMENT}/project/project.yaml $ESP_OF
+
+if [[ 0 -ne $? ]] ; then
+    echo "could not copy templatized project <${DEPLOYMENT}/project/project.yaml>"
+    echo "  to output file <$ESP_OF>. Script aborting. "
+    exit 1
+fi
+
+XMLB64=`cat $ESP_XF | gzip - | base64 -w 0`
+
+sed -i 's|TEMPLATE_ESP_SRVCNAME|'$ESP_SN'|g' $ESP_OF
+sed -i -f - $ESP_OF <<EOF
+s|TEMPLATE_ESP_MODELB64|$XMLB64|g
+EOF
+
+

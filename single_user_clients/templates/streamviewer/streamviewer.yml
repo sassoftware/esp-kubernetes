@@ -1,0 +1,53 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: streamviewer-service
+  namespace: TEMPLATE_ESP_NAMESPACE
+spec:
+  selector:
+    app: streamviewer
+  ports:
+    - name: "80"
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: streamviewer-deployment
+  namespace: TEMPLATE_ESP_NAMESPACE
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: streamviewer
+  template:
+    metadata:
+      labels:
+        app: streamviewer
+    spec:
+      serviceAccountName: esp-operator
+      containers:
+      - name: streamviewer-container
+        image: TEMPLATE_STREAMVIEWER_IMAGE
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ESP_STREAMVIEWER_DB
+          value: "/mnt/data/TEMPLATE_ESP_NAMESPACE/DB/streamviewer"
+        - name: SV_AUTH
+          value: "false"
+        - name: SAS_ESP_COMMON_KUBERNETES
+          value: "true"
+        - name: SAS_ESP_COMMON_KUBERNETES_NAMESPACE
+          value: TEMPLATE_ESP_NAMESPACE 
+        volumeMounts:
+           - mountPath: /mnt/data
+             name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: esp-pv

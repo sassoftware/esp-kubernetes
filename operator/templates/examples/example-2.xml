@@ -1,0 +1,66 @@
+<project name='comp' pubsub='auto' threads='2' >
+  <contqueries>
+    <contquery name='cq' include-singletons='true'>
+      <windows>
+        <window-source name='src_win' index='pi_EMPTY' autogen-key='true' insert-only='true'>
+          <schema>
+            <fields>
+              <field name='id'     type='int64' key='true'/>
+              <field name='value'  type='double'/>
+              <field name='label'  type='string'/>
+            </fields>
+          </schema>
+          <connectors>
+            <connector class='kafka' name='kafka_pub'>
+                <properties>
+                  <property name='type'>pub</property>
+                  <property name='kafkahostport'>kafka-cluster-kafka-bootstrap:9092</property>
+                  <property name='kafkatopic'>sjkinput</property>
+                  <property name='kafkaconsumergroupid'>group0</property>
+<!--                  <property name='kafkapartition'>-1</property> -->
+                  <property name='urlhostport'>unused:33333</property>
+                  <property name='kafkatype'>csv</property>
+                  <property name='dateformat'>%Y-%m-%d %H:%M:%S</property>
+                  <property name='kafkainitialoffset'>largest</property>
+                </properties>
+              </connector>
+         </connectors>
+        </window-source>
+        <window-compute name='compute_win' index='pi_EMPTY'>
+          <schema>
+            <fields>
+              <field name='id' type='int64' key='true'/>
+              <field name='value' type='double'/>
+              <field name='value2' type='double'/>
+              <field name='value3' type='double'/>
+              <field name='value4' type='double'/>
+              <field name='label' type='string'/>
+            </fields>
+          </schema>
+          <output>
+             <field-expr>value</field-expr>
+             <field-expr>2*value</field-expr>
+             <field-expr>3*value</field-expr>
+             <field-expr>4*value</field-expr>
+             <field-expr>label</field-expr>
+          </output>
+<!--
+              <connectors>
+                <connector name='compute_out' class='fs'>
+                  <properties>
+                    <property name='type'>sub</property>
+                    <property name='snapshot'>false</property>
+                    <property name='fsname'>/mnt/data/cmdline/output/compute_output01.csv</property>
+                    <property name='fstype'>csv</property>
+                  </properties>
+                </connector>
+              </connectors>
+-->
+        </window-compute>
+      </windows>
+      <edges>
+       <edge source='src_win' target='compute_win'/>
+      </edges>
+    </contquery>
+  </contqueries>
+</project>

@@ -1,0 +1,57 @@
+kind: Service
+apiVersion: v1 
+metadata:
+  name: espfb-service
+  namespace: TEMPLATE_ESP_NAMESPACE            # all objects are in TEMPLATE_ESP_NAMESPACE
+spec:
+  selector:
+    app: espfb  
+  ports:
+    - protocol: TCP             # TCP
+      targetPort: 18080         # the port esp exposes on the pod it runs in
+      port: 80                  # the port within the K8 cluster
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: TEMPLATE_ESP_NAMESPACE            # all objects are in my own namespace "sjk"
+  name: espfb-deployment
+spec:
+  replicas: 1
+  selector:
+     matchLabels:
+       app: espfb
+  template:
+       metadata:
+         labels:
+           app: espfb
+       spec:
+         containers:
+         - name: espfb-container
+           image: filebrowser/filebrowser
+           securityContext:
+             runAsUser:  1001
+             runAsGroup: 1001
+           env:
+             # METER_PORT specifies REST endpoint for metering server.
+             # METER_DB   specifies location of H2 database.
+             #
+             - name: FB_DATABASE
+               value: "/mnt/data/TEMPLATE_ESP_NAMESPACE/DB/filebrowser.db"
+             - name: FB_PORT
+               value: "18080"
+             - name: FB_AUTH_METHOD
+               value: "noauth"
+             - name: FB_ROOT
+               value: "/mnt/data/TEMPLATE_ESP_NAMESPACE"
+           ports:
+             - containerPort: 18080  # servers REST port
+               name: http
+           volumeMounts:
+              - mountPath: /mnt/data  # path persistent volume gets mounted to
+                name: data            # the volume specified below
+         volumes:
+           - name: data
+             persistentVolumeClaim:
+               claimName: esp-pv

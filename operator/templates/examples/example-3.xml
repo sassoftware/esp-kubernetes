@@ -1,0 +1,69 @@
+<project name='comp' pubsub='auto' threads='2' >
+  <contqueries>
+    <contquery name='cq' include-singletons='true'>
+      <windows>
+        <window-source name='src_win' index='pi_EMPTY' autogen-key='true' insert-only='true'>
+          <schema>
+            <fields>
+              <field name='id'     type='int64' key='true'/>
+              <field name='value'  type='double'/>
+              <field name='label'  type='string'/>
+            </fields>
+          </schema>
+          <connectors>
+            <connector name='kafka_in' class='fs'>
+              <properties>
+                <property name='type'>pub</property>
+                <property name='fsname'>/mnt/data/TEMPLATE_ESP_NAMESPACE/input/kafka_input01.csv</property>
+                <property name='blocksize'>16</property>
+                <property name='fstype'>csv</property>
+                <property name='repeatcount'>1000</property>
+                <property name='rate'>25000</property>
+              </properties>
+            </connector>
+          </connectors>
+        </window-source>
+        <window-copy name='copy1' index='pi_EMPTY'>
+          <connectors>
+            <connector class='kafka' name='kafka_sub1'>
+              <properties>
+                <property name='type'>sub</property>
+                <property name='snapshot'>false</property>
+                <property name='kafkahostport'>kafka-cluster-kafka-bootstrap:9092</property>
+                <property name='kafkatopic'>sjkinput</property>
+                <property name='kafkatype'>csv</property>
+                <property name='kafkapartition'>-1</property>
+                <property name='urlhostport'>unused:33333</property>
+                <property name='numbufferedmsgs'>1000</property>
+                <property name='dateformat'>%Y-%m-%d %H:%M:%S</property>
+                <property name='kafkaglobalconfig'>queue.buffering.max.kbytes=2000000</property>
+              </properties>
+            </connector>
+          </connectors>
+        </window-copy>
+        <window-copy name='copy2' index='pi_EMPTY'>
+          <connectors>
+            <connector class='kafka' name='kafka_sub2'>
+              <properties>
+                <property name='type'>sub</property>
+                <property name='snapshot'>false</property>
+                <property name='kafkahostport'>kafka-cluster-kafka-bootstrap:9092</property>
+                <property name='kafkatopic'>sjkinput</property>
+                <property name='kafkatype'>csv</property>
+                <property name='kafkapartition'>-1</property>
+                <property name='urlhostport'>unused:33333</property>
+                <property name='numbufferedmsgs'>1000</property>
+                <property name='dateformat'>%Y-%m-%d %H:%M:%S</property>
+                <property name='kafkaglobalconfig'>queue.buffering.max.kbytes=2000000</property>
+              </properties>
+            </connector>
+          </connectors>
+        </window-copy>
+      </windows>
+      <edges>
+	<edge source='src_win' target='copy1'/>
+	<edge source='src_win' target='copy2'/>
+      </edges>
+    </contquery>
+  </contqueries>
+</project>

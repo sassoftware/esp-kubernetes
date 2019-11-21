@@ -1,0 +1,46 @@
+apiVersion: iot.sas.com/v1alpha1
+kind: ESPServer
+metadata:
+  name: TEMPLATE_ESP_SRVCNAME # give the service used to access the running project a name
+                  #     ingress is <name>.<namespace>.$ESP_DOMAIN  
+  namespace: TEMPLATE_ESP_NAMESPACE
+spec:
+  # Add fields here
+    replicas: 1        # 1 by default, if larger than 1, requires load_balance_policy
+    #failover: true  # if true, use Kafka for HA?
+    loadBalancePolicy: "kafka-hash" # in the future, we could add cluster-manager hash/round-robin...
+    resources:
+      requests:
+        memory: "2Gi"
+        cpu: "2"
+      limits:
+        memory: "4Gi"
+        cpu: "4"
+    autoscale:
+      minReplicas: 1
+      maxReplicas: 1 
+      metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 50
+    espProperties:
+      server.xml: "b64TEMPLATE_ESP_MODELB64"
+      meta.meteringhost: "espmeter-service.TEMPLATE_ESP_NAMESPACE"
+      meta.meteringport: "80"
+    env:
+        # using ESPENV you may override any ESP config property, here we pass in our 
+        #    license (base64 encoded).
+    volumeMounts:
+        - mountPath: /mnt/data  # path persistent volume gets mounted to
+          name: data            # the volume specified below
+    volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: esp-pv
+access:
+  #operator will update these after the server is deployed
+  state: "Pending" 
+  internalHttpPort:  0

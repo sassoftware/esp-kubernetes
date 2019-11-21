@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: espfb
+  namespace: TEMPLATE_ESP_NAMESPACE
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 500m
+spec:
+  rules:
+  - host: espfb.TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+    http:
+      paths:
+      -  backend:
+          serviceName: espfb-service # the service to hit
+          servicePort: 80            # externally exposed port 
