@@ -161,24 +161,24 @@ In order to handle such delays, the client applications have time-out periods. W
 
 When a time-out occurs, a window with an error message is displayed in the client application. If an error message is not displayed but the client application is not displaying the running project either, refresh the client application: 
 
-- In SAS Event Stream Processing Studio, on the **ESP Servers** page, click ![Refresh list](single_user_clients/button-refresh.png) on the toolbar. 
-- In SAS Event Stream Manager, on the page for the specific deployment, click ![Refresh list](single_user_clients/button-refresh.png) on the toolbar.
+- In SAS Event Stream Processing Studio, on the **ESP Servers** page, click ![Refresh list](images/button-refresh.png) on the toolbar. 
+- In SAS Event Stream Manager, on the page for the specific deployment, click ![Refresh list](images/button-refresh.png) on the toolbar.
 
 #### Terminate Projects That Are in an Inconsistent State 
 
 In the test mode in SAS Event Stream Processing Studio, if the project fails to load and an error is reported, the cluster might have reported an error or the cluster might still be processing the request. In both cases, you can remove the project from the cluster. Complete the following steps:
 
 1.  In SAS Event Stream Processing Studio, open the **ESP Servers** page.
-2.  Click ![Refresh list](single_user_clients/button-refresh.png) to refresh the view.
+2.  Click ![Refresh list](images/button-refresh.png) to refresh the view.
 3.  Select the ESP server that you want to delete.
-4.  Click ![Delete ESP server](single_user_clients/button-delete.png). The Remove ESP Server window appears.
+4.  Click ![Delete ESP server](images/button-delete.png). The Remove ESP Server window appears.
 5.  Click **Yes** to confirm the deletion.
 
 In SAS Event Stream Manager, if the project fails to load and an error is reported, complete the following steps:
 
 1.  In SAS Event Stream Manager, open the page for the specific deployment.
-2.  Click ![Refresh list](single_user_clients/button-refresh.png) to refresh the view. The running ESP server should be displayed.
-2.  Click ![Start or stop project in cluster](single_user_clients/button-cloud.png) and select **Stop project and delete server from cluster**. The Stop Project and Delete ESP Server from Cluster window appears.
+2.  Click ![Refresh list](images/button-refresh.png) to refresh the view. The running ESP server should be displayed.
+2.  Click ![Start or stop project in cluster](images/button-cloud.png) and select **Stop project and delete server from cluster**. The Stop Project and Delete ESP Server from Cluster window appears.
 3.  Click **Delete**.
 
 #### Change the Time-out Period
