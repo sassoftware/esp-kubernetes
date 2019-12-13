@@ -98,7 +98,7 @@ generated, examine the YAML template file named deploy/pvc.yaml.
   kind: PersistentVolumeClaim
   metadata:
      name: esp-pv
-     namespace: cmdline
+     namespace: esp
   spec:
      accessModes:
        - ReadWriteMany # esp, studio and streamviewer can all write to this space
