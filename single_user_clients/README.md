@@ -115,20 +115,20 @@ After the deployment is completed you see three new active pods in your namespac
     streamviewer-deployment-5d88c657d4-sct96   1/1     Running   0          1m
 
     [single_user_clients]$ kubectl -n esp get ingress
-    NAME           HOSTS                                  ADDRESS   PORTS   AGE
-    esm            esm.esp.esptestscot.sas.com                      80      1m
-    espstudio      espstudio.esp.esptestscot.sas.com                80      1m
-    streamviewer   streamviewer.esp.esptestscot.sas.com             80      1m
+    NAME           HOSTS                                          ADDRESS   PORTS   AGE
+    esm            esm.examplenamespace.exampledomain                       80      1m
+    espstudio      espstudio.examplenamespace.exampledomain                 80      1m
+    streamviewer   streamviewer.examplenamespace.exampledomain              80      1m
     
 The clients take approximately two minutes to start. To check for progress, you can tail the logs of the pods. For example:
 
     [single_user_clients]$ kubectl -n mynamespace logs -f esm-deployment-6f876cc6fc-gvv4w 
     
-When the clients have started, you can access each client with a URL that consists of the host name (as defined in the Ingress) and the application context name. For example, using the namespace `esp` and domain `esptestscot.sas.com`, the URLs are:
+When the clients have started, you can access each client with a URL that consists of the host name (as defined in the Ingress) and the application context name. For example, using the namespace `examplenamespace` and domain `exampledomain`, the URLs are:
 
-- `http://espstudio.esp.esptestscot.sas.com/SASEventStreamProccessingStudio`
-- `http://esm.esp.esptestscot.sas.com/SASEventStreamManager`
-- `http://streamviewer.esp.esptestscot.sas.com/SASEventStreamProccessingStreamviewer`
+- `http://espstudio.examplenamespace.exampledomain/SASEventStreamProcessingStudio`
+- `http://esm.examplenamespace.exampledomain/SASEventStreamManager`
+- `http://streamviewer.examplenamespace.exampledomain/SASEventStreamProcessingStreamviewer`
 
 ### Example
 
