@@ -179,20 +179,25 @@ for i in `find ${DEPLOYMENT} -name "*.y*ml"` ; do
     sed -i -f - $i << EOF
 s|TEMPLATE_ESP_LICB64GZ|$LICB64GZ|g
 EOF
+
     sed -i -f - $i << EOF
 s|TEMPLATE_ESP_CERTB64|$CERTB64|g
 EOF
+
     sed -i -f - $i << EOF
 s|TEMPLATE_ESP_LICB64|$LICB64|g
 EOF
     sed -i 's|TEMPLATE_ESP_NAMESPACE|'$ESP_NS'|g' $i
+
     sed -i 's|TEMPLATE_ESP_DOMAIN|'$ESP_DM'|g' $i
+
     if [[ "operator" = "$BASE" ]] ; then 
 	sed -i 's|TEMPLATE_ESP_OPERATOR_IMAGE|'$ESP_OP'|g' $i
 	sed -i 's|TEMPLATE_ESP_SERVER_IMAGE|'$ESP_SR'|g' $i
 	sed -i 's|TEMPLATE_ESP_METER_IMAGE|'$ESP_MB'|g' $i
 	sed -i 's|TEMPLATE_ESP_METERAGENT_IMAGE|'$ESP_BA'|g' $i
     fi
+
     if [[ "single_user_clients" = "$BASE" ]] ; then 
 	sed -i 's|TEMPLATE_ESM_IMAGE|'$ESP_ESM'|g' $i
 	sed -i 's|TEMPLATE_ESPSTUDIO_IMAGE|'$ESP_STD'|g' $i

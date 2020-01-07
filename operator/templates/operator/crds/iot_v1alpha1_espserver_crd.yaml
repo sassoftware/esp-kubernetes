@@ -16,7 +16,7 @@ spec:
       properties:
         access:
           properties:
-            externalUrl:
+            externalURL:
               type: string
             internalHostName:
               type: string
@@ -75,6 +75,77 @@ spec:
               type: boolean
             loadBalancePolicy:
               type: string
+            loadBalancer:
+              properties:
+                env:
+                  nullable: true
+                  items:
+                    type: object
+                  type: array
+                replicas:
+                  description: Loadbalancer specification
+                  format: int64
+                  type: integer
+                resources:
+                  type: object
+                targets:
+                  items:
+                    properties:
+                      connectors:
+                        items:
+                          properties:
+                            class:
+                              type: string
+                            properties:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            type:
+                              description: connectors optionally define how data come
+                                into the load balancer
+                              type: string
+                          required:
+                          - class
+                          - properties
+                          type: object
+                        type: array
+                      queryName:
+                        type: string
+                      schema:
+                        properties:
+                          fields:
+                            items:
+                              properties:
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                                type:
+                                  type: string
+                              required:
+                              - name
+                              - type
+                              type: object
+                            type: array
+                        type: object
+                      schemaString:
+                        type: string
+                      type:
+                        type: string
+                      windowName:
+                        type: string
+                    required:
+                    - queryName
+                    - windowName
+                    - connectors
+                    type: object
+                  type: array
+              required:
+              - replicas
+              - resources
+              - env
+              - targets
+              type: object
             model:
               type: string
             name:
@@ -97,9 +168,14 @@ spec:
                 type: object
               type: array
           required:
+          - name
           - replicas
+          - model
+          - espProperties
           - resources
           - autoscale
+          - volumes
+          - volumeMounts
           type: object
   version: v1alpha1
   versions:

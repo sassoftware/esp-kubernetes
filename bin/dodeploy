@@ -65,7 +65,9 @@ if [[ 0 -ne $? ]] ; then
     fi
 fi
 
-LIST=`find ${DEPLOYMENT} -type f \( -iname "*_crd.y*ml" ! -iname "*project.y*ml" \)`
+# Apply _crd.yaml files
+#
+LIST=`find ${DEPLOYMENT} -type f \( -iname "*_crd.y*ml" ! -iwholename "*project/*" ! -iwholename "*examples/*" \)`
 for i in ${LIST} ; do
     echo "deploying: $i"
     kubectl apply -f $i
@@ -126,17 +128,9 @@ if [ -f $DEPLOYMENT/meter.yaml ] ; then
     fi
 fi    
 
-# Apply _crd.yaml files
-#
-LIST=`find ${DEPLOYMENT} -type f \( -iname "*_crd.y*ml" ! -iname "*project.y*ml" \)`
-for i in ${LIST} ; do
-    echo "deploying: $i"
-    kubectl apply -f $i
-done
-
 # Apply non _crd.yaml files
 #
-LIST=`find ${DEPLOYMENT} -type f \( -iname "*.y*ml" ! -iname "*project.y*ml" ! -iname "pvc.yaml" ! -iname "meter.yaml" ! -iname "*_crd.y*ml" \)`
+LIST=`find ${DEPLOYMENT} -type f \( -iname "*.y*ml" ! -iwholename "*project/*" ! -iwholename "*examples/*" ! -iname "pvc.yaml" ! -iname "meter.yaml" ! -iname "*_crd.y*ml" \)`
 for i in ${LIST} ; do
     echo "deploying: $i"
     kubectl apply -f $i

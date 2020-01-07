@@ -2,13 +2,13 @@ apiVersion: iot.sas.com/v1alpha1
 kind: ESPServer
 metadata:
   name: TEMPLATE_ESP_SRVCNAME # give the service used to access the running project a name
-                  #     ingress is <name>.<namespace>.$ESP_DOMAIN  
+                              #    ingress is <name>.<namespace>.$ESP_DOMAIN  
   namespace: TEMPLATE_ESP_NAMESPACE
 spec:
   # Add fields here
     replicas: 1        # 1 by default, if larger than 1, requires load_balance_policy
     #failover: true  # if true, use Kafka for HA?
-    loadBalancePolicy: "kafka-hash" # in the future, we could add cluster-manager hash/round-robin...
+    loadBalancePolicy: "default" # in the future, we could add cluster-manager hash/round-robin...
     resources:
       requests:
         memory: "2Gi"
@@ -43,4 +43,6 @@ spec:
 access:
   #operator will update these after the server is deployed
   state: "Pending" 
+  internalHostName:  foo
   internalHttpPort:  0
+  externalURL: foo

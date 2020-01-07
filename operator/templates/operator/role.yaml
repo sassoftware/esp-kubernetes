@@ -57,5 +57,6 @@ rules:
   - espstreamviewers
   - espproperties
   - espconfigs
+  - esprouters
   verbs:
   - '*'
