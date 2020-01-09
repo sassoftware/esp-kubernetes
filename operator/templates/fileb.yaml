@@ -12,7 +12,7 @@ spec:
       port: 80                  # the port within the K8 cluster
   type: ClusterIP
 ---
-apiVersion: apps/v1
+apiVersion: apps/v1 
 kind: Deployment
 metadata:
   namespace: TEMPLATE_ESP_NAMESPACE            # all objects are in my own namespace "sjk"
