@@ -76,6 +76,7 @@ spec:
             loadBalancePolicy:
               type: string
             loadBalancer:
+              nullable: true
               properties:
                 env:
                   nullable: true
@@ -89,6 +90,7 @@ spec:
                 resources:
                   type: object
                 targets:
+                  nullable: true
                   items:
                     properties:
                       connectors:
@@ -149,10 +151,6 @@ spec:
             model:
               type: string
             name:
-              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                Important: Run "operator-sdk generate k8s" to regenerate code after
-                modifying this file Add custom validation using kubebuilder tags:
-                https://book.kubebuilder.io/beyond_basics/generating_crd.html'
               type: string
             replicas:
               format: int64
@@ -168,9 +166,7 @@ spec:
                 type: object
               type: array
           required:
-          - name
           - replicas
-          - model
           - espProperties
           - resources
           - autoscale

@@ -7,4 +7,4 @@ spec:
   # Add fields here
   espProperties:
     "server.license": "b64TEMPLATE_ESP_LICB64GZ"
-    "server.tls.issuer": "letsencrypt-staging"
+#    "server.tls.issuer": "letsencrypt-staging"
