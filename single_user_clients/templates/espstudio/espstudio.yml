@@ -36,12 +36,30 @@ spec:
         ports:
         - containerPort: 8080
         env:
-        - name: ESP_STUDIO_DB
-          value: "/mnt/data/TEMPLATE_ESP_NAMESPACE/DB/studio"
         - name: SAS_ESP_COMMON_KUBERNETES
           value: "true"
         - name: SAS_ESP_COMMON_KUBERNETES_NAMESPACE
-          value: TEMPLATE_ESP_NAMESPACE 
+          value: TEMPLATE_ESP_NAMESPACE
+        #
+        # Below is the H2 configuration
+        #
+        #- name: ESP_STUDIO_DB
+        #  value: "/mnt/data/TEMPLATE_ESP_NAMESPACE/DB/studio"
+        #
+        # Below is the postgres config
+        #
+        - name: ESP_STUDIO_DB
+          value: "true"
+        - name: spring_datasource_url
+          value: "jdbc:postgresql://postgres-service:80/esp"
+        - name: spring_datasource_username
+          value: "esp"
+        - name: spring_datasource_password
+          value: "esp_in_cloud"
+        - name: spring_datasource_platform
+          value: "postgresql"
+        - name: spring_datasource_driver_class_name
+          value: "org.postgresql.Driver"
         volumeMounts:
            - mountPath: /mnt/data
              name: data

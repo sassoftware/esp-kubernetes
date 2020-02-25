@@ -44,7 +44,18 @@ spec:
              #  value: "/mnt/data/TEMPLATE_ESP_NAMESPACE/billing"
              #(only for debugging) - name: ESPMETERING_TEST
              #   value: "true"
-           ports:
+
+             # Below is the postgres config
+             #
+             - name: spring_datasource_url
+               value: "jdbc:postgresql://postgres-service:80/esp"
+             - name: spring_datasource_username
+               value: "esp"
+             - name: spring_datasource_password
+               value: "esp_in_cloud"
+             - name: file_encoding
+               value: "UTF-8"
+             ports:
              - containerPort: 31415   # servers REST port
                name: http
            volumeMounts:

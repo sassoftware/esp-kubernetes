@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  labels:
+    app: postgres
+data:
+  PGDATA: /mnt/data/TEMPLATE_ESP_NAMESPACE/DB/postgres
+  POSTGRES_USER: esp   # also the dfeault POSTGRES_DB
+  POSTGRES_PASSWORD: esp_in_cloud
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: espdb-config
+data:
+    init-esp.sh: |-
+       #!/bin/bash
+       set -e
+       
+       psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+           CREATE SCHEMA streamviewer;
+           CREATE SCHEMA studio;
+       EOSQL      
+---
+kind: Service
+apiVersion: v1 
+metadata:
+  name: postgres-service
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP            # TCP
+      targetPort: 5432
+      port: 80              
+  type: ClusterIP
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+     matchLabels:
+       app: postgres
+  template:
+       metadata:
+         labels:
+           app: postgres
+       spec:
+         containers:
+         - name: postgres
+           image: postgres:10.4
+           securityContext:
+             runAsUser:  1001
+             runAsGroup: 1001
+           ports:
+             - containerPort: 5432  # servers REST port
+               name: postgresdb
+           envFrom:
+             - configMapRef: 
+                name: postgres-config
+           volumeMounts:
+              - name: data            # the volume specified below
+                mountPath: /mnt/data  # path persistent volume gets mounted to
+              - name: postgres-init   # the volume specified belows
+                mountPath: /docker-entrypoint-initdb.d  # path persistent volume gets mounted to
+                readOnly: true 
+         volumes:
+           - name: data
+             persistentVolumeClaim:
+               claimName: esp-pv
+           - name: postgres-init
+             configMap:
+               name: espdb-config
+               items:
+               - key: init-esp.sh
+                 path: init-esp.sh
+            
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: postgres
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 500m
+spec:
+  rules:
+  - host: postgres.sckolo.sas.com
+    http:
+      paths:
+      -  backend:
+          serviceName: postgres-service # the service to hit
+          servicePort: 80               # externally exposed port 

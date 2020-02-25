@@ -38,10 +38,6 @@ spec:
         env:
         - name: SAS_VIYA_ENABLED
           value: "false"
-        - name: SPRING_DATASOURCE_URL
-          value: "jdbc:h2:/mnt/data/TEMPLATE_ESP_NAMESPACE/DB/esm"
-        - name: ESM_USE_H2
-          value: "true"
         - name: SAS_MULTI_TENANCY_ENABLED
           value: "true"
         - name: ESM_LICENSE_FILE
@@ -49,7 +45,32 @@ spec:
         - name: SAS_ESP_COMMON_KUBERNETES
           value: "true"
         - name: SAS_ESP_COMMON_KUBERNETES_NAMESPACE
-          value: TEMPLATE_ESP_NAMESPACE 
+          value: TEMPLATE_ESP_NAMESPACE
+        #
+        # Below is the H2 configuration
+        #
+        #- name: SPRING_DATASOURCE_URL
+        #  value: "jdbc:h2:/mnt/data/TEMPLATE_ESP_NAMESPACE/DB/esm"
+        #- name: ESM_USE_H2
+        #  value: "true"
+        #
+        # END H2 config
+        #
+        # Below is the postgres configuration
+        #
+        - name: spring_datasource_url
+          value: "jdbc:postgresql://postgres-service:80/esp"
+        - name: spring_datasource_username
+          value: "esp"
+        - name: spring_datasource_password
+          value: "esp_in_cloud"
+        - name: spring_datasource_platform
+          value: "postgresql"
+        - name: spring_datasource_driver_class_name
+          value: "org.postgresql.Driver"
+        #
+        # END postgres config
+        #
         volumeMounts:
            - mountPath: /mnt/data
              name: data
