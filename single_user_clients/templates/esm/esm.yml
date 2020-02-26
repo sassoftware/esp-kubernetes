@@ -2,7 +2,6 @@ kind: Service
 apiVersion: v1
 metadata:
   name: esm-service
-  namespace: TEMPLATE_ESP_NAMESPACE
 spec:
   selector:
     app: esm
@@ -17,7 +16,6 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: esm-deployment
-  namespace: TEMPLATE_ESP_NAMESPACE
 spec:
   replicas: 1
   selector:
@@ -47,15 +45,6 @@ spec:
         - name: SAS_ESP_COMMON_KUBERNETES_NAMESPACE
           value: TEMPLATE_ESP_NAMESPACE
         #
-        # Below is the H2 configuration
-        #
-        #- name: SPRING_DATASOURCE_URL
-        #  value: "jdbc:h2:/mnt/data/TEMPLATE_ESP_NAMESPACE/DB/esm"
-        #- name: ESM_USE_H2
-        #  value: "true"
-        #
-        # END H2 config
-        #
         # Below is the postgres configuration
         #
         - name: spring_datasource_url
@@ -72,15 +61,10 @@ spec:
         # END postgres config
         #
         volumeMounts:
-           - mountPath: /mnt/data
-             name: data
            - mountPath: "/opt/sas/viya/config/etc/sysconfig/sas-esm-service/default"
              name: esm-license
              readOnly: false
       volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: esp-pv
         - name: esm-license
           secret:
             secretName: esm-license

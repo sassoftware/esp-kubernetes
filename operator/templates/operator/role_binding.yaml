@@ -2,7 +2,6 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: esp-operator
-  namespace: TEMPLATE_ESP_NAMESPACE            # all objects are in TEMPLATE_ESP_NAMESPACE  
 subjects:
 - kind: ServiceAccount
   name: esp-operator

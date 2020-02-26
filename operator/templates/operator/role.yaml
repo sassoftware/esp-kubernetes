@@ -3,7 +3,6 @@ kind: Role
 metadata:
   creationTimestamp: null
   name: esp-operator
-  namespace: TEMPLATE_ESP_NAMESPACE
 rules:
 - apiGroups:
   - ""

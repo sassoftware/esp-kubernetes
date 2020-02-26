@@ -70,12 +70,12 @@ fi
 LIST=`find ${DEPLOYMENT} -type f \( -iname "*_crd.y*ml" ! -iwholename "*project/*" ! -iwholename "*examples/*" \)`
 for i in ${LIST} ; do
     echo "deploying: $i"
-    kubectl apply -f $i
+    kubectl -n ${ESP_NS} apply -f $i
 done
 
 # apply pcv.yaml
 if [ -f $DEPLOYMENT/pvc.yaml ] ; then
-    kubectl apply -f $DEPLOYMENT/pvc.yaml
+    kubectl -n ${ESP_NS} apply -f $DEPLOYMENT/pvc.yaml
     i=0;
     OK="n"
     echo ""
@@ -100,29 +100,29 @@ if [ -f $DEPLOYMENT/pvc.yaml ] ; then
     fi
 fi
 
-# apply meter.yaml, it sets up the PV
+# apply postgres.yaml
 #
-if [ -f $DEPLOYMENT/meter.yaml ] ; then
-    kubectl apply -f $DEPLOYMENT/meter.yaml
+if [ -f $DEPLOYMENT/postgres.yaml ] ; then
+    kubectl -n ${ESP_NS} apply -f $DEPLOYMENT/postgres.yaml
     i=0;
     OK="n"
     echo ""
-    while [[ i -le 10 ]] ;
+    while [[ i -le 30 ]] ;
     do
         echo -n "."
         sleep 2;
-	kubectl -n ${ESP_NS} get pods | fgrep -i running &>/dev/null
+	kubectl -n ${ESP_NS} get pods | fgrep -i postgres | fgrep -i running &>/dev/null
         if [ $? -eq 0 ]; then
 	    OK="y"
             echo ""
-            echo "  The ESP Metering Server started sucessfuly."
+            echo "  The postgres started sucessfuly."
 	    break;
         fi
         i=$((i+1));
     done;
     echo ""    
     if [[ "n" = "$OK" ]] ; then
-	echo "  After 10 iteration, could not start the ESP Metering Server"
+	echo "  After 30 iteration, could not start the postgres DB"
 	echo "     aborting deployment"
 
     fi
@@ -133,5 +133,5 @@ fi
 LIST=`find ${DEPLOYMENT} -type f \( -iname "*.y*ml" ! -iwholename "*project/*" ! -iwholename "*examples/*" ! -iname "pvc.yaml" ! -iname "meter.yaml" ! -iname "*_crd.y*ml" \)`
 for i in ${LIST} ; do
     echo "deploying: $i"
-    kubectl apply -f $i
+    kubectl -n ${ESP_NS} apply -f $i
 done

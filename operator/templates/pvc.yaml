@@ -5,7 +5,6 @@ apiVersion: v1
 kind: PersistentVolumeClaim 
 metadata:
    name: esp-pv
-   namespace: TEMPLATE_ESP_NAMESPACE
 spec:
    accessModes:
      - ReadWriteMany # esp, studio and streamviewer can all write to this space

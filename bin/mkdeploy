@@ -7,7 +7,6 @@
 ESP_OP=$IMAGE_OPERATOR
 ESP_SR=$IMAGE_ESPSRV
 ESP_MB=$IMAGE_METERBILL
-ESP_BA=$IMAGE_BILLAGENT
 
 ESP_STD=$IMAGE_ESPSTUDIO
 ESP_SVR=$IMAGE_ESPSTRMVWR
@@ -56,7 +55,7 @@ BASE=`basename $PWD`
 [ $BASE != "operator" ] && [ $BASE != "single_user_clients" ] && echo "cd into  .../operator or .../single_user_clients to run this script" && exit 1
 
 
-while getopts "?a:c:l:n:o:s:d:m:e:t:v:ry" opt; do
+while getopts "?c:l:n:o:s:d:m:e:t:v:ry" opt; do
     case "$opt" in
         \?)
             show_usage
@@ -69,8 +68,6 @@ while getopts "?a:c:l:n:o:s:d:m:e:t:v:ry" opt; do
         n)  ESP_NS=$OPTARG
             ;;
         o)  ESP_OP=$OPTARG
-            ;;
-        a)  ESP_BA=$OPTARG
             ;;
         s)  ESP_SR=$OPTARG
             ;;
@@ -103,7 +100,6 @@ if [[ "operator" = "$BASE" ]] ; then
     [ -z $ESP_OP ] && show_usage
     [ -z $ESP_SR ] && show_usage
     [ -z $ESP_MB ] && show_usage
-    [ -z $ESP_BA ] && show_usage
 fi
 
 # studio, streamviewer and esm docker images
@@ -148,7 +144,6 @@ if [[ "$ASKUSER" = "y" ]] ; then
 	echo "TEMPLATE_ESP_OPERATOR_IMAGE   <-- $ESP_OP"
 	echo "TEMPLATE_ESP_SERVER_IMAGE     <-- $ESP_SR"
 	echo "TEMPLATE_ESP_METER_IMAGE      <-- $ESP_MB"
-	echo "TEMPLATE_ESP_METERAGENT_IMAGE <-- $ESP_BA"
     fi
     if [[ "single_user_clients" = "$BASE" ]] ; then 
 	echo "TEMPLATE_ESM_IMAGE          <-- $ESP_ESM"
@@ -195,7 +190,6 @@ EOF
 	sed -i 's|TEMPLATE_ESP_OPERATOR_IMAGE|'$ESP_OP'|g' $i
 	sed -i 's|TEMPLATE_ESP_SERVER_IMAGE|'$ESP_SR'|g' $i
 	sed -i 's|TEMPLATE_ESP_METER_IMAGE|'$ESP_MB'|g' $i
-	sed -i 's|TEMPLATE_ESP_METERAGENT_IMAGE|'$ESP_BA'|g' $i
     fi
 
     if [[ "single_user_clients" = "$BASE" ]] ; then 

@@ -5,7 +5,7 @@ metadata:
   labels:
     app: postgres
 data:
-  PGDATA: /mnt/data/TEMPLATE_ESP_NAMESPACE/DB/postgres
+  PGDATA: /mnt/data/DB/postgres
   POSTGRES_USER: esp   # also the dfeault POSTGRES_DB
   POSTGRES_PASSWORD: esp_in_cloud
 ---
@@ -65,6 +65,7 @@ spec:
            volumeMounts:
               - name: data            # the volume specified below
                 mountPath: /mnt/data  # path persistent volume gets mounted to
+                subPath: TEMPLATE_ESP_NAMESPACE
               - name: postgres-init   # the volume specified belows
                 mountPath: /docker-entrypoint-initdb.d  # path persistent volume gets mounted to
                 readOnly: true 
@@ -88,7 +89,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: 500m
 spec:
   rules:
-  - host: postgres.sckolo.sas.com
+  - host: postgres.TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:
       paths:
       -  backend:

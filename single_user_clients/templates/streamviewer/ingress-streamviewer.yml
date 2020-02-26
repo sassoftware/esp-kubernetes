@@ -2,7 +2,6 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: streamviewer
-  namespace: TEMPLATE_ESP_NAMESPACE
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: 500m
 spec:

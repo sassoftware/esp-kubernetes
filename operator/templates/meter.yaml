@@ -2,7 +2,6 @@ kind: Service
 apiVersion: v1 
 metadata:
   name: espmeter-service
-  namespace: TEMPLATE_ESP_NAMESPACE            # all objects are in TEMPLATE_ESP_NAMESPACE
 spec:
   selector:
     app: espmeter               # target any pod with the app=espmeter label
@@ -15,7 +14,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: TEMPLATE_ESP_NAMESPACE            # all objects are in my own namespace "sjk"
   name: espmeter-deployment
 spec:
   replicas: 1
@@ -31,52 +29,20 @@ spec:
          - name: espmetering-container
            image: TEMPLATE_ESP_METER_IMAGE
            env:
-             # METER_PORT specifies REST endpoint for metering server.
-             # METER_DB   specifies location of H2 database.
-             #
-             - name: METER_PORT
+             - name: server_port
                value: "31415"
-             - name: METER_DB
-               value: "/mnt/data/TEMPLATE_ESP_NAMESPACE/DB/metering"
-             #- name: ESP_BILLING_ENABLED
-             #  value: "true"
-             #- name: ESPMETERING
-             #  value: "/mnt/data/TEMPLATE_ESP_NAMESPACE/billing"
-             #(only for debugging) - name: ESPMETERING_TEST
-             #   value: "true"
-
-             # Below is the postgres config
-             #
              - name: spring_datasource_url
                value: "jdbc:postgresql://postgres-service:80/esp"
              - name: spring_datasource_username
                value: "esp"
              - name: spring_datasource_password
                value: "esp_in_cloud"
+             - name: spring_datasource_platform
+               value: "postgresql"
+             - name: spring_datasource_driver_class_name
+               value: "org.postgresql.Driver"
              - name: file_encoding
                value: "UTF-8"
-             ports:
+           ports:
              - containerPort: 31415   # servers REST port
                name: http
-           volumeMounts:
-              - mountPath: /mnt/data  # path persistent volume gets mounted to
-                name: data            # the volume specified below
-         initContainers:
-         - name: config-data
-           image: busybox
-           #
-           # Our nfs PV is owned by sas:sas which is 1001:1001, so
-           #    use those credentials to make <namespace>/{DB,input,output}
-           #    directories.
-           #
-           securityContext:
-             runAsUser:  1001
-             runAsGroup: 1001
-           command: ['sh', '-c', 'mkdir /mnt/data/TEMPLATE_ESP_NAMESPACE/billing; mkdir -p /mnt/data/TEMPLATE_ESP_NAMESPACE/DB ; mkdir -p /mnt/data/TEMPLATE_ESP_NAMESPACE/input ; mkdir -p /mnt/data/TEMPLATE_ESP_NAMESPACE/output']
-           volumeMounts:
-           - mountPath: /mnt/data
-             name: data
-         volumes:
-           - name: data
-             persistentVolumeClaim:
-               claimName: esp-pv
