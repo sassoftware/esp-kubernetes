@@ -43,6 +43,8 @@ spec:
                value: "noauth"
              - name: FB_ROOT
                value: "/mnt/data"
+             - name: FB_BASEURL
+               value: "/files"               
            ports:
              - containerPort: 18080  # servers REST port
                name: http

@@ -4,11 +4,13 @@ metadata:
   name: espfb
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: 500m
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
-  - host: espfb.TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+  - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:
       paths:
-      -  backend:
+      - backend:
           serviceName: espfb-service # the service to hit
-          servicePort: 80            # externally exposed port 
+          servicePort: 80            # externally exposed port
+        path: /files(/|$)(.*)          
