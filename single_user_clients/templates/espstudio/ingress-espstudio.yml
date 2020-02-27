@@ -6,10 +6,10 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: 500m
 spec:
   rules:
-  - host: espstudio.TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+  - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:
       paths:
-      -  backend:
+      - backend:
           serviceName: espstudio-service # the service to hit
           servicePort: 80            # externally exposed port
-
+        path: /SASEventStreamProcessingStudio

@@ -4,9 +4,14 @@ metadata:
   name: metering
 spec:
   rules:
-  - host: espmeter.TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+  - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:
       paths:
-      -  backend:
+      - backend:
           serviceName: espmeter-service # the service to hit
           servicePort: 80               # externally exposed port 
+        path: /eventStreamProcessing/v1/meterData
+      - backend:
+          serviceName: espmeter-service
+          servicePort: 80
+        path: /SASESP/meterData
