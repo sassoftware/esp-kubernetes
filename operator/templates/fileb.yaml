@@ -36,11 +36,11 @@ spec:
              # METER_DB   specifies location of H2 database.
              #
              - name: FB_DATABASE
-               value: "/mnt/data/DB/filebrowser.db"
+               value: "/db/filebrowser.db"
              - name: FB_PORT
                value: "18080"
-             - name: FB_AUTH_METHOD
-               value: "noauth"
+             - name: FB_NOAUTH
+               value: "true"
              - name: FB_ROOT
                value: "/mnt/data"
              - name: FB_BASEURL
@@ -52,6 +52,8 @@ spec:
               - name: data            # the volume specified below
                 mountPath: /mnt/data  # path persistent volume gets mounted to
                 subPath: TEMPLATE_ESP_NAMESPACE
+              - name: workdir
+                mountPath: /db
          initContainers:
          - name: config-data
            image: busybox
@@ -63,11 +65,15 @@ spec:
            securityContext:
              runAsUser:  1001
              runAsGroup: 1001
-           command: ['sh', '-c', 'mkdir -p /mnt/data/TEMPLATE_ESP_NAMESPACE/input ; mkdir -p /mnt/data/TEMPLATE_ESP_NAMESPACE/output']
+           command: ['sh', '-c', 'mkdir -p /mnt/data/sckolo/input ; mkdir -p /mnt/data/sckolo/output ; touch /db/filebrowser.db']
            volumeMounts:
-           - mountPath: /mnt/data
-             name: data                
+           - name: data
+             mountPath: /mnt/data
+           - name: workdir            
+             mountPath: /db
          volumes:
            - name: data
              persistentVolumeClaim:
                claimName: esp-pv
+           - name: workdir
+             emptyDir: {}
