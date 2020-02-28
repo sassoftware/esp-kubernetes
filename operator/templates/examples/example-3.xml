@@ -14,7 +14,7 @@
             <connector name='kafka_in' class='fs'>
               <properties>
                 <property name='type'>pub</property>
-                <property name='fsname'>/mnt/data/TEMPLATE_ESP_NAMESPACE/input/kafka_input01.csv</property>
+                <property name='fsname'>/mnt/data/input/kafka_input01.csv</property>
                 <property name='blocksize'>16</property>
                 <property name='fstype'>csv</property>
                 <property name='repeatcount'>1000</property>

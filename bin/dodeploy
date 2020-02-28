@@ -130,7 +130,7 @@ fi
 
 # Apply non _crd.yaml files
 #
-LIST=`find ${DEPLOYMENT} -type f \( -iname "*.y*ml" ! -iwholename "*project/*" ! -iwholename "*examples/*" ! -iname "pvc.yaml" ! -iname "meter.yaml" ! -iname "*_crd.y*ml" \)`
+LIST=`find ${DEPLOYMENT} -type f \( -iname "*.y*ml" ! -iwholename "*project/*" ! -iwholename "*examples/*" ! -iname "pvc.yaml" ! -iname "postgres.yaml" ! -iname "*_crd.y*ml" \)`
 for i in ${LIST} ; do
     echo "deploying: $i"
     kubectl -n ${ESP_NS} apply -f $i

@@ -41,9 +41,7 @@ spec:
               value: "31416"
             - name: ESPOP_DOMAINNAME
               value: "TEMPLATE_ESP_DOMAIN"
-            # - name: ESPOP_SERVER__SYSSITEID # if not specified here, operator will use the namespace
-            #  value: "foo"
-            # - name: ESPOP_PUBLICHOSTNAME
-            #  value: "esp-foo.sas.com" # a DNS registered host for the tenant
+            - name: ESPOP_PUBLICHOSTNAME
+              value: "TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN"
             # - name: ESPOP_OAUTH2PROXY
             # value: "oauth2" # oauth2 proxy's ingress path

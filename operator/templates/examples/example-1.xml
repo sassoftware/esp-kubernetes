@@ -16,7 +16,7 @@
                 <connector name='array_in' class='fs'>
                   <properties>
                     <property name='type'>pub</property>
-                    <property name='fsname'>/mnt/data/TEMPLATE_ESP_NAMESPACE/input/array_input01.csv</property>
+                    <property name='fsname'>/mnt/data/input/array_input01.csv</property>
                     <property name='fstype'>csv</property>
                     <property name='repeatcount'>10000000</property>
                     <property name='rate'>1000</property>
@@ -42,7 +42,7 @@
                   <properties>
                     <property name='type'>sub</property>
                     <property name='snapshot'>false</property>
-                    <property name='fsname'>/mnt/data/TEMPLATE_ESP_NAMESPACE/output/array_output01.csv</property>
+                    <property name='fsname'>/mnt/data/output/array_output01.csv</property>
                     <property name='fstype'>csv</property>
                   </properties>
                 </connector>

@@ -23,6 +23,24 @@ rules:
   verbs:
   - get
 - apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - '*'
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - list
+- apiGroups:
+  - autoscaling
+  resources:
+  - horizontalpodautoscalers
+  verbs:
+  - '*'
+- apiGroups:
   - apps
   resources:
   - deployments
@@ -50,10 +68,7 @@ rules:
   - iot.sas.com
   resources:
   - '*'
-  - espmanagements
   - espservers
-  - espstudios
-  - espstreamviewers
   - espproperties
   - espconfigs
   - esprouters

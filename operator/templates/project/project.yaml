@@ -36,6 +36,7 @@ spec:
     volumeMounts:
         - mountPath: /mnt/data  # path persistent volume gets mounted to
           name: data            # the volume specified below
+          subPath: TEMPLATE_ESP_NAMESPACE
     volumes:
         - name: data
           persistentVolumeClaim:
