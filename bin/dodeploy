@@ -96,7 +96,7 @@ if [ -f $DEPLOYMENT/pvc.yaml ] ; then
     if [[ "n" = "$OK" ]] ; then
 	echo "  After 10 iteration, Persitent Volume Claim remains unbound"
 	echo "     aborting deployment"
-	exit 1;
+	exit 1
     fi
 fi
 
@@ -107,7 +107,7 @@ if [ -f $DEPLOYMENT/postgres.yaml ] ; then
     i=0;
     OK="n"
     echo ""
-    while [[ i -le 30 ]] ;
+    while [[ i -le 40 ]] ;
     do
         echo -n "."
         sleep 2;
@@ -124,7 +124,7 @@ if [ -f $DEPLOYMENT/postgres.yaml ] ; then
     if [[ "n" = "$OK" ]] ; then
 	echo "  After 30 iteration, could not start the postgres DB"
 	echo "     aborting deployment"
-
+	exit 1;
     fi
 fi    
 

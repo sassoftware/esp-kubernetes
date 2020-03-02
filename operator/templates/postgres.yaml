@@ -68,7 +68,22 @@ spec:
                 subPath: TEMPLATE_ESP_NAMESPACE
               - name: postgres-init   # the volume specified belows
                 mountPath: /docker-entrypoint-initdb.d  # path persistent volume gets mounted to
-                readOnly: true 
+                readOnly: true
+         initContainers:
+         - name: config-data
+           image: busybox
+           #
+           # Our nfs PV is owned by sas:sas which is 1001:1001, so
+           #    use those credentials to make <namespace>/{DB,input,output}
+           #    directories.
+           #
+           securityContext:
+             runAsUser:  1001
+             runAsGroup: 1001
+           command: ['sh', '-c', 'mkdir -p /mnt/data/TEMPLATE_ESP_NAMESPACE/DB/postgres']
+           volumeMounts:
+           - name: data
+             mountPath: /mnt/data
          volumes:
            - name: data
              persistentVolumeClaim:

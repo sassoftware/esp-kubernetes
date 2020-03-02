@@ -59,13 +59,13 @@ spec:
            image: busybox
            #
            # Our nfs PV is owned by sas:sas which is 1001:1001, so
-           #    use those credentials to make <namespace>/{DB,input,output}
+           #    use those credentials to make /mnt/data/{input,output}
            #    directories.
            #
            securityContext:
              runAsUser:  1001
              runAsGroup: 1001
-           command: ['sh', '-c', 'mkdir -p /mnt/data/sckolo/input ; mkdir -p /mnt/data/sckolo/output ; touch /db/filebrowser.db']
+           command: ['sh', '-c', 'mkdir -p /mnt/data/TEMPLATE_ESP_NAMESPACE/input ; mkdir -p /mnt/data/TEMPLATE_ESP_NAMESPACE/output ; touch /db/filebrowser.db']
            volumeMounts:
            - name: data
              mountPath: /mnt/data
