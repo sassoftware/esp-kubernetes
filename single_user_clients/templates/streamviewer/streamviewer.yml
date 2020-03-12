@@ -36,6 +36,8 @@ spec:
         env:
         - name: SV_AUTH
           value: "false"
+        - name: SAS_MULTI_TENANCY_ENABLED
+          value: "true"
         - name: SAS_ESP_COMMON_KUBERNETES
           value: "true"
         - name: SAS_ESP_COMMON_KUBERNETES_NAMESPACE

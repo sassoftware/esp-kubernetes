@@ -34,6 +34,8 @@ spec:
         ports:
         - containerPort: 8080
         env:
+        - name: SAS_MULTI_TENANCY_ENABLED
+          value: "true"
         - name: SAS_ESP_COMMON_KUBERNETES
           value: "true"
         - name: SAS_ESP_COMMON_KUBERNETES_NAMESPACE

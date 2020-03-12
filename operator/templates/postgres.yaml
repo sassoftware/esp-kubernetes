@@ -19,8 +19,8 @@ data:
        set -e
        
        psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-           CREATE SCHEMA streamviewer;
-           CREATE SCHEMA studio;
+           -- CREATE SCHEMA streamviewer;
+           -- CREATE SCHEMA studio;
        EOSQL      
 ---
 kind: Service
@@ -95,18 +95,3 @@ spec:
                - key: init-esp.sh
                  path: init-esp.sh
             
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: postgres
-  annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: 500m
-spec:
-  rules:
-  - host: postgres.TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
-    http:
-      paths:
-      -  backend:
-          serviceName: postgres-service # the service to hit
-          servicePort: 80               # externally exposed port 
