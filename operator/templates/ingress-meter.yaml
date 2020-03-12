@@ -13,4 +13,4 @@ spec:
       - backend:
           serviceName: espmeter-service # the service to hit
           servicePort: 80               # externally exposed port 
-        path: /eventStreamProcessingMetering(/|$)(.*)
+        path: /SASEventStreamProcessingMetering(/|$)(.*)
