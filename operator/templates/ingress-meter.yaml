@@ -2,6 +2,9 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: metering
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    
 spec:
   rules:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
@@ -10,8 +13,4 @@ spec:
       - backend:
           serviceName: espmeter-service # the service to hit
           servicePort: 80               # externally exposed port 
-        path: /eventStreamProcessing/v1/meterData
-      - backend:
-          serviceName: espmeter-service
-          servicePort: 80
-        path: /SASESP/meterData
+        path: /eventStreamProcessingMetering(/|$)(.*)
