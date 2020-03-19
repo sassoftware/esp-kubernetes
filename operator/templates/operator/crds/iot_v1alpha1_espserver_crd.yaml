@@ -83,16 +83,19 @@ spec:
                     type: object
                   type: array
                 replicas:
+                  nullable: true
                   description: Loadbalancer specification
                   format: int64
                   type: integer
                 resources:
+                  nullable: true
                   type: object
                 targets:
                   nullable: true
                   items:
                     properties:
                       connectors:
+                        nullable: true
                         items:
                           properties:
                             class:
@@ -142,9 +145,6 @@ spec:
                     type: object
                   type: array
               required:
-              - replicas
-              - resources
-              - env
               - targets
               type: object
             model:
@@ -157,10 +157,12 @@ spec:
             resources:
               type: object
             volumeMounts:
+              nullable: true
               items:
                 type: object
               type: array
             volumes:
+              nullable: true
               items:
                 type: object
               type: array
@@ -169,8 +171,6 @@ spec:
           - espProperties
           - resources
           - autoscale
-          - volumes
-          - volumeMounts
           type: object
   version: v1alpha1
   versions:
