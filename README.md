@@ -1,7 +1,25 @@
 ## esp-kubernetes
 
-**Note:** These instructions are specific to SAS Event Stream Processing 6.2 or later.
+**Note:** These instructions are specific to SAS Event Stream Processing 7.1 or later.
 
+## changes
+
+**Note:** These changes have not been rolled into the documentation yet. all README.cm files on the develop branch still have ESP 6.2 content. 
+
+**changelog:**
+* an opensource postgres DB is used for client storage needs: Studio, Streamviewer, ESM and ESP Metering. A persitent volume is required for the storage needs of the postgres DB.
+* the filebrowser and individual ESP projects only require a persisten volume if testing with csv files.
+* each service and project no longer get a unique host via ingress for access. A single host of the form: <tenant>.<domain> is used to access all <tenant> services. 
+ 
+path based ingress:
+```
+  Project X    --   <namespace>.sas.com/SASEventStreamProcessing/X
+  Metering     --   <namespace>.sas.com/SASEventStreamProcessingMetering
+  Studio       --   <namespace>.sas.com/SASEventStreamProcessingStudio
+  Streamviewer --   <namespace>.sas.com/SASEventStreamProcessingStreamviewer
+  ESM          --   <namespace>.sas.com/SASEventStreamManager
+  FileBrowser  --   <namespace>.sas.com/files
+```
 ## Overview
 This project is a repository of tools that enable you to develop, deploy, and test an ESP server and SAS Event Stream Processing 
 clients in a Kubernetes cluster.  The tools consist of a set of deployment scripts, YAML template files, and sample projects (XML files) that you can run in the cluster. Before you use the tools available in this project, you must download the pre-built Docker images made available through your 
