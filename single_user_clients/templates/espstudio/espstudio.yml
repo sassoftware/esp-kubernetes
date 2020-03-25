@@ -1,10 +1,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: espstudio-service
+  name: sas-event-stream-processing-studio-app
 spec:
   selector:
-    app: espstudio
+    app: sas-event-stream-processing-studio-app
   ports:
     - name: "80"
       protocol: TCP
@@ -12,19 +12,35 @@ spec:
       targetPort: 8080
   type: ClusterIP
 ---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: sas-event-stream-processing-studio-app
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 500m
+spec:
+  rules:
+  - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+    http:
+      paths:
+      - backend:
+          serviceName: sas-event-stream-processing-studio-app # the service to hit
+          servicePort: 80            # externally exposed port
+        path: /SASEventStreamProcessingStudio
+---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: espstudio-deployment
+  name: sas-event-stream-processing-studio-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: espstudio
+      app: sas-event-stream-processing-studio-app
   template:
     metadata:
       labels:
-        app: espstudio
+        app: sas-event-stream-processing-studio-app
     spec:
       serviceAccountName: esp-operator
       containers:
