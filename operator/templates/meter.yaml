@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1 
 metadata:
-  name: espmeter-service
+  name: sas-event-stream-processing-metering-app
 spec:
   selector:
     app: espmeter               # target any pod with the app=espmeter label
@@ -11,10 +11,27 @@ spec:
       port: 80                  # the port within the K8 cluster
   type: ClusterIP
 ---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: sas-event-stream-processing-metering-app
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    
+spec:
+  rules:
+  - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+    http:
+      paths:
+      - backend:
+          serviceName: sas-event-stream-processing-metering-app # the service to hit
+          servicePort: 80                                       # externally exposed port 
+        path: /SASEventStreamProcessingMetering(/|$)(.*)
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: espmeter-deployment
+  name: sas-event-stream-processing-metering-app
 spec:
   replicas: 1
   selector:

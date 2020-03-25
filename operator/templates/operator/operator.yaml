@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: esp-operator
+  name: sas-esp-operator
 spec:
   replicas: 1
   selector:
@@ -14,7 +14,7 @@ spec:
     spec:
       serviceAccountName: esp-operator
       containers:
-        - name: esp-operator
+        - name: sas-esp-operator
           # Replace this with the built image name
           image: TEMPLATE_ESP_OPERATOR_IMAGE
           command:
@@ -30,7 +30,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
-              value: "esp-operator"
+              value: "sas-esp-operator"
             #inside the controller, "ESPOP_" is the prefix that will be ignored, then "__" will be replaced by ".". i.e. ESPOP_SERVER_IMAGE is converted to
             #  server.image that will override the value set in config.yaml
             - name: ESPOP_SERVER__IMAGE
