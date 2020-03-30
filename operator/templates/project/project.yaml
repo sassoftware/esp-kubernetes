@@ -28,7 +28,7 @@ spec:
             averageUtilization: 50
     espProperties:
       server.xml: "b64TEMPLATE_ESP_MODELB64"
-      meta.meteringhost: "espmeter-service.TEMPLATE_ESP_NAMESPACE"
+      meta.meteringhost: "sas-event-stream-processing-metering-app.TEMPLATE_ESP_NAMESPACE"
       meta.meteringport: "80"
     env:
         # using ESPENV you may override any ESP config property, here we pass in our 

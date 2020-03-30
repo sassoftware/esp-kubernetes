@@ -48,8 +48,10 @@ spec:
            env:
              - name: server_port
                value: "31415"
+             - name:  application_schema
+               value: metering
              - name: spring_datasource_url
-               value: "jdbc:postgresql://postgres-service:80/esp"
+               value: "jdbc:postgresql://postgres-service:80/esp?currentSchema=${application.schema}"
              - name: spring_datasource_username
                value: "esp"
              - name: spring_datasource_password
