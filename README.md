@@ -1,6 +1,6 @@
 ## esp-kubernetes
 
-**Note:** These instructions are specific to SAS Event Stream Processing 6.2 or later.
+**Note:** These instructions are specific to SAS Event Stream Processing 7.1 or later.
 
 ## Overview
 This project is a repository of tools that enable you to develop, deploy, and test an ESP server and SAS Event Stream Processing 
@@ -23,7 +23,6 @@ export IMAGE_ESPSTRMVWR="docker.sas.com/pdt/sas-espstreamviewer:6.2.0-20191029.1
 export IMAGE_ESPSTUDIO="docker.sas.com/pdt/sas-espstudio:6.2.0-20191029.1572338415245"
 export IMAGE_METERBILL="docker.sas.com/pdt/sas-espmbs:6.2.0-20191029.1572348254917"
 export IMAGE_OPERATOR="docker.sas.com/pdt/sas-espcompop:6.2.0-20191029.1572348554623"
-export IMAGE_BILLAGENT="repulpmaster.unx.sas.com/lookaside/18b072c9-60bc-45ca-a854-43c3ae8c13b7:latest"
 ```
 
 ## Prerequsities
@@ -39,6 +38,7 @@ and the ESP operator. Follow the README in this location to deploy a command lin
 The following Docker images are deployed from this location:
   * SAS Event Stream Processing metering server
   * ESP operator
+  * Open source Postgres database 
   * Open source filebrowser to manage the persistent volume
 
 
