@@ -3,23 +3,10 @@
 **Note:** These instructions are specific to SAS Event Stream Processing 7.1 or later.
 
 ## changes
+For changes between releases please vist the [Changelog](CHANGELOG.md)
 
 **Note:** These changes have not been rolled into the documentation yet. all README.cm files on the develop branch still have ESP 6.2 content. 
 
-**changelog:**
-* an opensource postgres DB is used for client storage needs: Studio, Streamviewer, ESM and ESP Metering. A persitent volume is required for the storage needs of the postgres DB.
-* the filebrowser and individual ESP projects only require a persisten volume if testing with csv files.
-* each service and project no longer get a unique host via ingress for access. A single host of the form: <tenant>.<domain> is used to access all <tenant> services. 
- 
-path based ingress:
-```
-  Project X    --   <namespace>.sas.com/SASEventStreamProcessing/X
-  Metering     --   <namespace>.sas.com/SASEventStreamProcessingMetering
-  Studio       --   <namespace>.sas.com/SASEventStreamProcessingStudio
-  Streamviewer --   <namespace>.sas.com/SASEventStreamProcessingStreamviewer
-  ESM          --   <namespace>.sas.com/SASEventStreamManager
-  FileBrowser  --   <namespace>.sas.com/files
-```
 ## Overview
 This project is a repository of tools that enable you to develop, deploy, and test an ESP server and SAS Event Stream Processing 
 clients in a Kubernetes cluster.  The tools consist of a set of deployment scripts, YAML template files, and sample projects (XML files) that you can run in the cluster. Before you use the tools available in this project, you must download the pre-built Docker images made available through your 
@@ -41,7 +28,6 @@ export IMAGE_ESPSTRMVWR="docker.sas.com/pdt/sas-espstreamviewer:6.2.0-20191029.1
 export IMAGE_ESPSTUDIO="docker.sas.com/pdt/sas-espstudio:6.2.0-20191029.1572338415245"
 export IMAGE_METERBILL="docker.sas.com/pdt/sas-espmbs:6.2.0-20191029.1572348254917"
 export IMAGE_OPERATOR="docker.sas.com/pdt/sas-espcompop:6.2.0-20191029.1572348554623"
-export IMAGE_BILLAGENT="repulpmaster.unx.sas.com/lookaside/18b072c9-60bc-45ca-a854-43c3ae8c13b7:latest"
 ```
 
 ## Prerequsities
@@ -57,6 +43,7 @@ and the ESP operator. Follow the README in this location to deploy a command lin
 The following Docker images are deployed from this location:
   * SAS Event Stream Processing metering server
   * ESP operator
+  * Open source postgres database
   * Open source filebrowser to manage the persistent volume
 
 
@@ -68,6 +55,15 @@ The following Docker images are deployed from this location:
   * SAS Event Stream Processing Streamviewer
   * SAS Event Stream Manager
 
+* [Multi-User Clients](/multi_user_clients) - Contains scripts, YAML template files, and projects to deploy SAS Event Stream Processing 
+graphics clients.  Do not deploy the multi-user clients until *after* you have deployed the [Operator](/operator). You must run scripts from this directory in the same K8 namespace as that of the operator.
+
+The following Docker images are deployed from this location: 
+  * SAS Event Stream Processing Studio
+  * SAS Event Stream Processing Streamviewer
+  * SAS Event Stream Manager
+  * Open source UAA server
+  * SAS Oauth2 proxy server
 
 Each of these subdirectories contain README files with more specific, detailed instructions.
 

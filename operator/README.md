@@ -77,13 +77,21 @@ This invocation performs parameter substitutions and produces a set of
 deployable manifests in the deploy/ directory. 
 
 **Note:** The *-d* (Ingress domain root) parameter is used to create Ingress routes for the
-metering server and the ESP server pods that are created by the adapter. For
-example, if the domain is sas.com, then the metering server exposes itself
-on the Ingress host as `espmeter.<namespace>.sas.com`. For pods that are created by the ESP operator, 
-each pod created has a specified
-service name.  The ESP operator exposes the REST port of the
-pod on `<service name>.<namespace>.sas.com`. Examples of
-this appear later in this README file.
+metering server and the ESP server pods that are created by the adapter. All Event stream processing components
+within the kubernetes cluster are now accessed via specific context roots and a single ingress host.
+The ingress host is of the form `<namespace>.<ingress domain root>`. The following url and context roots are valid:
+
+```
+  metering server    --  `<namespace>.<ingress domain root>`/SASEventStreamProcessingMetering/<metering REST url>
+  for project P, with service name <service name>
+                     --  `<namespace>.<ingress domain root>`/SASEventStreamProcessingServer/<service name>/<ESP server REST url>
+  filebrowser        --  `<namespace>.<ingress domain root>`/files
+```
+
+For example, if the ingress domain root is `sas.com`, and the namespace is `esp`, then a simple query of metering data would be:
+```
+     curl http://esp.sas.com:80/SASEventStreamProcessingMetering/eventStreamProcessing/v1/meterData	
+```
 
 ### Persistent Volume
 
@@ -107,16 +115,16 @@ generated, examine the YAML template file named deploy/pvc.yaml.
          storage: 5Gi  # volume size requested
 ```
 
-This file specifies the *PersistentVolumeClaim* that the ESP metering server and the ESP
+This file specifies the *PersistentVolumeClaim* that the Postgres database, the open source filebrowser app,  and the ESP
 server pods make in Kubernetes. 
 
 **Important**: The system administrator must have already set up a persistent volume that can bind to this claim.
 
 In general, the processes associated with the ESP server run user:**sas**, group:**sas**. Commonly, 
-this is associated with uid:**1001**, gid:**1001**. These values are relevant in
-the manifest only when starting the metering server. 
+this is associated with uid:**1001**, gid:**1001**. An example of this is in the deployment of the open source filebrowser
+application.
 
-In the YAML template file deploy/meter.yaml. the relevant section is as follows:
+In the YAML template file deploy/file.yaml. the relevant section is as follows:
 
 ```yaml
          initContainers:
@@ -130,22 +138,20 @@ In the YAML template file deploy/meter.yaml. the relevant section is as follows:
            securityContext:
              runAsUser:  1001
              runAsGroup: 1001
-           command: ['sh', '-c', 'mkdir -p /mnt/data/cmdline/DB ; mkdir -p /mnt/data/cmdline/input ; mkdir -p /mnt/data/cmdline/output']
+           command: ['sh', '-c', 'mkdir -p /mnt/data/cmdline/input ; mkdir -p /mnt/data/cmdline/output ; touch /db/filebrowser.db']
            volumeMounts:
            - mountPath: /mnt/data
              name: data
 ```
 
 This specifies an initialization container that runs prior to starting the
-ESP metering server. Its purpose is to create the following three directories:
+filebrowser application. It creates two directories on the persitent volume. 
 
-    DB/
     input/
     output/
 
-These directories are used by the deployment. The metering server creates its persistent
-H2 database in DB/, while the input/ and output/ directories are created
-for use by running event stream processing projects.
+These directories are used by the deployment. The input/ and output/ directories are created
+for use by running event stream processing projects that need to access files (csv, xml, etc.).
 
 ### Deploying in Kubernetes
 
@@ -172,15 +178,18 @@ namespace:
 
 
     [cli]$ kubectl -n cmdline get pods
-    NAME                                             READY   STATUS    RESTARTS   AGE
-    esp-operator-786f89958d-m2sbr                    1/1     Running   0          19h
-    espmeter-deployment-57cc56b5bc-nh8k2             1/1     Running   0          18h
+    NAME                                                              READY   STATUS    RESTARTS   AGE
+    espfb-deployment-5cc85c6bfd-9fj6n                                 1/1     Running   0          21h
+    postgres-deployment-56c9d65d6c-lk4jj                              1/1     Running   1          21h
+    sas-esp-operator-86f48f8899-q6bgv                                 1/1     Running   0          21h
+    sas-event-stream-processing-metering-app-69fbbffdc7-dnth6         1/1     Running   0          21h
 
-An Ingress for the ESP metering server should also appear in the namespace:
+An Ingress for the ESP metering server and file browser should also appear in the namespace:
 
     [cli]$ kubectl -n cmdline get ingress
-    NAME       HOSTS                      ADDRESS   PORTS   AGE
-    metering   espmeter.cmdline.sas.com             80      23h
+    NAME                                               HOSTS            ADDRESS   PORTS   AGE
+    espfb                                              sckolo.sas.com             80      21h
+    sas-event-stream-processing-metering-app           sckolo.sas.com             80      21h
 
 
 ### Using filebrowser
@@ -189,7 +198,10 @@ filebrowser is a middleware or standalone app that is available on GitHub.
 You can use the filebrowser available with these tools to
 access the persistent store used by the Kubernetes pods.  
 
-To download the app, go to [filebrowser home page](https://hub.docker.com/r/filebrowser/filebrowser).
+The filebrowser application is installed in your kubernetes cluster automaticall for convience. It may be accessed
+from a browser at:
+
+     http://`<namespace>.<ingress domain root>`/files
 
 With filebrowser, you can perform the following tasks:
 
@@ -197,23 +209,6 @@ With filebrowser, you can perform the following tasks:
 * View output files written to the persistent store by running projects
 * Copy large binary model files for analytics (ASTORE files) to the 
 persistent store
-* Back up the H2 database file to which the ESP metering server writes.
-
-Sample manifests to deploy filebrowser are located in the deploy
-directory:
-
-     deploy/fileb.yaml        -- deploy the filebrowser pod
-     deploy/ingres-fileb.yaml -- create an ingress for the filebrowser
-
-The Ingress created for the filebrowser is: `espfb.<namespace>.sas.com`. The file browser
-is fixed with the root of its filesystem to `<namespace>/` so that the
-deployed filebrowser cannot access and data on the persistent store that
-might belong to a similar deployment in another namespace. 
-
-When asked for a username/password to access the filebrowser, use `admin/admin`.
-
-For more information, see [filebroswer.xyz](https://filebrowser.xyz/).
-
 
 ### Examples
 
@@ -225,7 +220,7 @@ You need the following files to run this example:
 * deploy/examples/example-1.xml
 
 First, uncompress the input file, deploy/examples/input/array_input01.csv.gz.
-Then copy the expanded file (array_input01.csv) to the directory `<namespace>/input` on your persistent volume. You can do this with
+Then copy the expanded file (array_input01.csv) to the directory `input/` on your persistent volume. You can do this with
 the filebrowser described in the previous section, or with any standard Unix or Kubernetes tools.
 
 Next, use the bin/mkproject script to convert the
@@ -240,8 +235,8 @@ The syntax is as follows
 
 * The -x argument specifes the ESP XML project files
 * The -o argument specifies the file to which to write the custom resource
-* The -s `<service name>` argument specifies the service name portion of ingress 
-  `<service name>.<namespace>.<domain root>` created by the ESP operator.
+* The -s `<service name>` argument specifies the service name for the project. 
+  the endpoint `<namespace>.<domain root>/SASEventStreamProcessingServer/<service name> is created by the ESP operator.
 ```
 
 Now apply the custom resource to your Kubernetes cluster:
@@ -252,13 +247,14 @@ Verify that the pod is running with the following command:
 
        [~]$ kubectl -n <namespace> get pods
 
-       NAME                                   READY   STATUS    RESTARTS   AGE
-       array-68748c7796-fxpvx                 1/1     Running   0          19m
-       esp-operator-588d7fdfd8-hwpm8          1/1     Running   0          19m
-       espfb-deployment-7484d75c58-tx8ch      1/1     Running   0          29m
-       espmeter-deployment-58bc86b8ff-jtpnm   1/1     Running   0          29m
+       NAME                                                              READY   STATUS    RESTARTS   AGE
+       array-6c57d8699b-l52x6                                            1/1     Running   0          18h
+       espfb-deployment-5cc85c6bfd-9fj6n                                 1/1     Running   0          22h
+       postgres-deployment-56c9d65d6c-lk4jj                              1/1     Running   1          22h
+       sas-esp-operator-86f48f8899-q6bgv                                 1/1     Running   0          22h
+       sas-event-stream-processing-metering-app-69fbbffdc7-dnth6         1/1     Running   0          22h
 
-Use the filebrowser to inspect the directory `<namespace>/output`. You should see
+Use the filebrowser to inspect the directory `output/`. You should see
 the output csv file (array_output01.csv) that the project has created.
 
 #### Using a Multi-Partitioned Kafka Topic for Autoscaling
