@@ -44,7 +44,6 @@ The options for this script are as follows:
           -d <ingress domain root>    -- project domain root,
                                           proj.ns.<domain root>
           -l <esp license file>       -- SAS ESP license
-          -c <SAS certificate file>   -- SAS_CA_Certificate.pem
 
      options for operator deployment
 
@@ -70,7 +69,6 @@ Here is a sample invocation of bin/mkdeploy:
 	    -a repulpmaster.unx.sas.com/lookaside/18b072c9-60bc-45ca-a854-43c3ae8c13b7:latest
             -d sas.com
 	    -l ./license/SASViyaV0300_09PTGX_70180938_Linux_x86-64.jwt
-	    -c ./license/SAS_CA_Certificate.pem	    
 ```
 
 This invocation performs parameter substitutions and produces a set of

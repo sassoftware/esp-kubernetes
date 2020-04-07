@@ -36,7 +36,6 @@ The options for this script are:
           -d <ingress domain root>    -- project domain root,
                                           proj.ns.<domain root>
           -l <esp license file>       -- SAS ESP license
-          -c <SAS certificate file>   -- SAS_CA_Certificate.pem
 
      options for operator deployment
 
@@ -64,7 +63,6 @@ Here is a sample invocation of the ..bin/mkdeploy script from the single_user_cl
         -v docker.sas.com/pdt/sas-espstreamviewer:6.2.0-20191024.1571907074722
         -d sas.com
         -l ~/license/SASViyaV0300_09PSJN_Linux_x86-64.txt
-        -c ./license/SAS_CA_Certificate.pem
         
 This invocation performs parameter substitutions and produces a set of deployable manifests in the single_user_clients/deploy/ directory.
 

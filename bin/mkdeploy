@@ -26,7 +26,7 @@ show_usage() {
     echo "          -d <ingress domain root>    -- project domain root,"
     echo "                                          proj.ns.<domain root>"
     echo "          -l <esp license file>       -- SAS ESP license"
-    echo "          -c <SAS certificate file>   -- SAS_CA_Certificate.pem"
+#    echo "          -c <SAS certificate file>   -- SAS_CA_Certificate.pem"
     echo ""
     echo "     options for operator deployment"
     echo ""    
@@ -83,8 +83,8 @@ while getopts "?c:l:n:o:s:d:m:e:t:v:ry" opt; do
             ;;
 	l)  ESP_LF=$OPTARG
             ;;
-	c)  ESP_CERT=$OPTARG
-            ;;
+#	c)  ESP_CERT=$OPTARG
+#            ;;
         *)
             show_usage
     esac
@@ -114,8 +114,8 @@ fi
 LICB64GZ=`cat $ESP_LF | gzip - | base64 -w 0`
 LICB64=`cat $ESP_LF | base64 -w 0`
 
-[ ! -f "$ESP_CERT" ] && echo "Certificate file <$ESP_CERT> was not found, aborting." && exit 1
-CERTB64=`cat $ESP_CERT | base64 -w 0`
+#[ ! -f "$ESP_CERT" ] && echo "Certificate file <$ESP_CERT> was not found, aborting." && exit 1
+#CERTB64=`cat $ESP_CERT | base64 -w 0`
 
 ROOT=`readlink -f $ROOT`
 ROOT=`dirname $ROOT`
@@ -139,7 +139,7 @@ if [[ "$ASKUSER" = "y" ]] ; then
     echo "TEMPLATE_ESP_NAMESPACE      <-- $ESP_NS"
     echo "TEMPLATE_ESP_DOMAIN         <-- $ESP_DM"
     echo "TEMPLATE_ESP_LICENSE        <-- $ESP_LF"
-    echo "TEMPLATE_ESP_CERT           <-- $ESP_CERT"
+#    echo "TEMPLATE_ESP_CERT           <-- $ESP_CERT"
     if [[ "operator" = "$BASE" ]] ; then 
 	echo "TEMPLATE_ESP_OPERATOR_IMAGE   <-- $ESP_OP"
 	echo "TEMPLATE_ESP_SERVER_IMAGE     <-- $ESP_SR"
@@ -175,9 +175,9 @@ for i in `find ${DEPLOYMENT} -name "*.y*ml"` ; do
 s|TEMPLATE_ESP_LICB64GZ|$LICB64GZ|g
 EOF
 
-    sed -i -f - $i << EOF
-s|TEMPLATE_ESP_CERTB64|$CERTB64|g
-EOF
+#    sed -i -f - $i << EOF
+#s|TEMPLATE_ESP_CERTB64|$CERTB64|g
+#EOF
 
     sed -i -f - $i << EOF
 s|TEMPLATE_ESP_LICB64|$LICB64|g
