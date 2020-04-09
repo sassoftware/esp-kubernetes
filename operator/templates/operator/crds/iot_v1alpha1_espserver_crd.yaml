@@ -83,7 +83,6 @@ spec:
                     type: object
                   type: array
                 replicas:
-                  nullable: true
                   description: Loadbalancer specification
                   format: int64
                   type: integer
@@ -141,10 +140,10 @@ spec:
                     required:
                     - queryName
                     - windowName
-                    - connectors
                     type: object
                   type: array
               required:
+              - replicas
               - targets
               type: object
             model:

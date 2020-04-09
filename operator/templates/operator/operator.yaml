@@ -39,9 +39,11 @@ spec:
               value: "31415"
             - name: ESPOP_SERVER__PUBSUB_PORT
               value: "31416"
-            - name: ESPOP_DOMAINNAME
-              value: "TEMPLATE_ESP_DOMAIN"
+              #- name: ESPOP_DOMAINNAME
+              #value: "TEMPLATE_ESP_DOMAIN"
             - name: ESPOP_PUBLICHOSTNAME
               value: "TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN"
+            - name: ESPOP_LB__IMAGE
+              value: "TEMPLATE_ESP_LB_IMAGE"
             # - name: ESPOP_OAUTH2PROXY
             # value: "oauth2" # oauth2 proxy's ingress path

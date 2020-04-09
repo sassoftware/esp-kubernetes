@@ -7,6 +7,8 @@
 ESP_OP=$IMAGE_OPERATOR
 ESP_SR=$IMAGE_ESPSRV
 ESP_MB=$IMAGE_METERBILL
+ESP_LB=$IMAGE_LOADBAL
+ESP_OP=$IMAGE_OAUTH2P
 
 ESP_STD=$IMAGE_ESPSTUDIO
 ESP_SVR=$IMAGE_ESPSTRMVWR
@@ -26,14 +28,13 @@ show_usage() {
     echo "          -d <ingress domain root>    -- project domain root,"
     echo "                                          proj.ns.<domain root>"
     echo "          -l <esp license file>       -- SAS ESP license"
-#    echo "          -c <SAS certificate file>   -- SAS_CA_Certificate.pem"
     echo ""
     echo "     options for operator deployment"
     echo ""    
     echo "          -o <esp operator image>     -- esp operator docker image"
     echo "          -s <esp server image>       -- esp server docker image"
     echo "          -m <esp meter image>        -- esp metering docker image"
-    echo "          -a <sas meter agent image>  -- esp meter agent docker image"
+    echo "          -b <sas esp load balancer>  -- esp load balancer docker image"
     echo ""
     echo "     options for single user client deployment"
     echo ""    
@@ -75,6 +76,8 @@ while getopts "?c:l:n:o:s:d:m:e:t:v:ry" opt; do
             ;;
         m)  ESP_MB=$OPTARG
             ;;
+        b)  ESP_LB=$OPTARG
+            ;;
         t)  ESP_STD=$OPTARG
             ;;
         v)  ESP_SVR=$OPTARG
@@ -100,6 +103,7 @@ if [[ "operator" = "$BASE" ]] ; then
     [ -z $ESP_OP ] && show_usage
     [ -z $ESP_SR ] && show_usage
     [ -z $ESP_MB ] && show_usage
+    [ -z $ESP_LB ] && show_usage
 fi
 
 # studio, streamviewer and esm docker images
@@ -144,6 +148,7 @@ if [[ "$ASKUSER" = "y" ]] ; then
 	echo "TEMPLATE_ESP_OPERATOR_IMAGE   <-- $ESP_OP"
 	echo "TEMPLATE_ESP_SERVER_IMAGE     <-- $ESP_SR"
 	echo "TEMPLATE_ESP_METER_IMAGE      <-- $ESP_MB"
+	echo "TEMPLATE_ESP_LB_IMAGE         <-- $ESP_LB"
     fi
     if [[ "single_user_clients" = "$BASE" ]] ; then 
 	echo "TEMPLATE_ESM_IMAGE          <-- $ESP_ESM"
@@ -190,6 +195,7 @@ EOF
 	sed -i 's|TEMPLATE_ESP_OPERATOR_IMAGE|'$ESP_OP'|g' $i
 	sed -i 's|TEMPLATE_ESP_SERVER_IMAGE|'$ESP_SR'|g' $i
 	sed -i 's|TEMPLATE_ESP_METER_IMAGE|'$ESP_MB'|g' $i
+	sed -i 's|TEMPLATE_ESP_LB_IMAGE|'$ESP_LB'|g' $i
     fi
 
     if [[ "single_user_clients" = "$BASE" ]] ; then 
