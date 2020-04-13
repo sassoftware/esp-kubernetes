@@ -9,7 +9,6 @@ show_usage() {
     echo "Usage: $0"
     echo "          -x <project XML>           -- xml version of project"
     echo "          -s <service name>          -- ingress servicce name"
-#    echo "          -l <license file>          -- SAS esp licence"
     echo "          -o <output file>           -- file to write project CR yaml to"
     exit 1
 }
@@ -19,7 +18,7 @@ ROOT=$0
 # make sure we are launched from .../operator or .../single_user_clients
 #
 BASE=`basename $PWD`
-[ $BASE != "operator" ] && [ $BASE != "single_user_clients" ] && echo "cd into  .../operator or .../single_user_clients to run this script" && exit 1
+[ $BASE != "esp-cloud" ] && echo "run this script from the esp-cloud directory" && exit 1
 
 while getopts "?x:s:o:" opt; do
     case "$opt" in
@@ -48,7 +47,7 @@ done
 ROOT=`readlink -f $ROOT`
 ROOT=`dirname $ROOT`
 ROOT=`readlink -f $ROOT/..`
-ROOT=${ROOT}/${BASE}
+#ROOT=${ROOT}/${BASE}
 
 #TEMPLATES=$ROOT/templates
 DEPLOYMENT=$ROOT/deploy

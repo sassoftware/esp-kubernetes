@@ -17,7 +17,6 @@ metadata:
   name: sas-event-stream-processing-metering-app
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
-    
 spec:
   rules:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN

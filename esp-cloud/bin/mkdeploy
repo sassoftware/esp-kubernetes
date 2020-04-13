@@ -8,7 +8,9 @@ ESP_OP=$IMAGE_OPERATOR
 ESP_SR=$IMAGE_ESPSRV
 ESP_MB=$IMAGE_METERBILL
 ESP_LB=$IMAGE_LOADBAL
-ESP_OP=$IMAGE_OAUTH2P
+
+ESP_O2P=$IMAGE_ESPOAUTH2P
+ESP_UAA=$IMAGE_UAA
 
 ESP_STD=$IMAGE_ESPSTUDIO
 ESP_SVR=$IMAGE_ESPSTRMVWR
@@ -26,8 +28,11 @@ show_usage() {
     echo "          -y                          -- no prompt, just execute"
     echo "          -n <namespace>              -- specify K8 namespace" 
     echo "          -d <ingress domain root>    -- project domain root,"
-    echo "                                          proj.ns.<domain root>"
+    echo "                                          ns.<domain root>/<path> is ingress"
     echo "          -l <esp license file>       -- SAS ESP license"
+    echo ""
+    echo "          -C                          -- deploy clients"
+    echo "          -M                          -- enable multiuser mode"
     echo ""
     echo "     options for operator deployment"
     echo ""    
@@ -58,10 +63,14 @@ RMDEPLOY="n"
 # make sure we are launched from .../operator or .../single_user_clients
 #
 BASE=`basename $PWD`
-[ $BASE != "operator" ] && [ $BASE != "single_user_clients" ] && echo "cd into  .../operator or .../single_user_clients to run this script" && exit 1
+echo "BASE = <$BASE>"
+[ $BASE != "esp-cloud" ] && echo "script must be run from the esp-cloud directory" && exit 1
 
+CLIENTS=no
+MULTI=no
 
-while getopts "?c:l:n:o:s:d:m:b:e:t:v:u:a:ry" opt; do
+SUBDIRS="operator"
+while getopts "?c:l:n:o:s:d:m:b:e:t:v:u:a:ryCM" opt; do
     case "$opt" in
         \?)
             show_usage
@@ -73,6 +82,12 @@ while getopts "?c:l:n:o:s:d:m:b:e:t:v:u:a:ry" opt; do
 	    ;;
         n)  ESP_NS=$OPTARG
             ;;
+	C)  CLIENTS=yes
+	    SUBDIRS="$SUBDIRS clients"
+	    ;;
+	M)  MULTI=yes
+	    SUBDIRS="$SUBDIRS oauth2"	    
+	    ;;
         o)  ESP_OP=$OPTARG
             ;;
         s)  ESP_SR=$OPTARG
@@ -108,41 +123,40 @@ done
 
 # operator, server and metering docker images
 #
-if [[ "operator" = "$BASE" ]] ; then 
-    [ -z $ESP_OP ] && show_usage
-    [ -z $ESP_SR ] && show_usage
-    [ -z $ESP_MB ] && show_usage
-    [ -z $ESP_LB ] && show_usage
-fi
+[ -z $ESP_OP ] && show_usage
+[ -z $ESP_SR ] && show_usage
+[ -z $ESP_MB ] && show_usage
+[ -z $ESP_LB ] && show_usage
 
 # studio, streamviewer and esm docker images
 #
-if [[ "single_user_clients" = "$BASE" ]] ; then 
+if [[ "yes" = "$CLIENTS" ]] ; then 
     [ -z $ESP_ESM ] && show_usage
     [ -z $ESP_STD ] && show_usage
     [ -z $ESP_SVR ] && show_usage
 fi
 
+# multiuser?
+#
+if [[ "yes" = "$MULTI" ]] ; then 
+    [ -z $ESP_UAA ] && show_usage
+    [ -z $ESP_O2P ] && show_usage
+fi
+
+
 [ ! -f $ESP_LF ] && echo "License file <$ESP_LF> was not found, aborting." && exit 1
 LICB64GZ=`cat $ESP_LF | gzip - | base64 -w 0`
 LICB64=`cat $ESP_LF | base64 -w 0`
 
-#[ ! -f "$ESP_CERT" ] && echo "Certificate file <$ESP_CERT> was not found, aborting." && exit 1
-#CERTB64=`cat $ESP_CERT | base64 -w 0`
 
 ROOT=`readlink -f $ROOT`
 ROOT=`dirname $ROOT`
 ROOT=`readlink -f $ROOT/..`
-ROOT=${ROOT}/${BASE}
+#ROOT=${ROOT}/${BASE}
 
-TEMPLATES=$ROOT/templates
 DEPLOYMENT=$ROOT/deploy
 
-if [[ ! -d "$TEMPLATES" ]]; then
-    echo "templates/ directory could not be found as: $TEMPLATES"
-    echo "script aborting."
-    exit 1
-fi
+echo "ROOT = <$ROOT>"
 
 if [[ "$ASKUSER" = "y" ]] ; then 
     echo
@@ -152,18 +166,23 @@ if [[ "$ASKUSER" = "y" ]] ; then
     echo "TEMPLATE_ESP_NAMESPACE      <-- $ESP_NS"
     echo "TEMPLATE_ESP_DOMAIN         <-- $ESP_DM"
     echo "TEMPLATE_ESP_LICENSE        <-- $ESP_LF"
-#    echo "TEMPLATE_ESP_CERT           <-- $ESP_CERT"
-    if [[ "operator" = "$BASE" ]] ; then 
-	echo "TEMPLATE_ESP_OPERATOR_IMAGE   <-- $ESP_OP"
-	echo "TEMPLATE_ESP_SERVER_IMAGE     <-- $ESP_SR"
-	echo "TEMPLATE_ESP_METER_IMAGE      <-- $ESP_MB"
-	echo "TEMPLATE_ESP_LB_IMAGE         <-- $ESP_LB"
-    fi
-    if [[ "single_user_clients" = "$BASE" ]] ; then 
+
+    echo "TEMPLATE_ESP_OPERATOR_IMAGE <-- $ESP_OP"
+    echo "TEMPLATE_ESP_SERVER_IMAGE   <-- $ESP_SR"
+    echo "TEMPLATE_ESP_METER_IMAGE    <-- $ESP_MB"
+    echo "TEMPLATE_ESP_LB_IMAGE       <-- $ESP_LB"
+    
+    if [[ "yes" = "$CLIENTS" ]] ; then 
 	echo "TEMPLATE_ESM_IMAGE          <-- $ESP_ESM"
 	echo "TEMPLATE_ESPSTUDIO_IMAGE    <-- $ESP_STD"
 	echo "TEMPLATE_STREAMVIEWER_IMAGE <-- $ESP_SVR"
     fi
+
+    if [[ "yes" = "$MULTI" ]] ; then 
+	echo "TEMPLATE_UAA_IMAGE          <-- $ESP_UAA"
+	echo "TEMPLATE_ESP_OAUTH2P_IMAGE  <-- $ESP_O2P"
+    fi
+    
     [ "y" = "$RMDEPLOY" ] && echo && echo "directory $DEPLOYMENT will be removed and recreated."
     echo ""
     read -p "would you like to proceed (y/n)? " ANS
@@ -176,8 +195,20 @@ fi
 [ "y" = "$RMDEPLOY" ] && rm -rf $DEPLOYMENT
 mkdir -p ${DEPLOYMENT}
 
-# copy files from TEMPLATES to DEPLOYMENT
-cp -a ${TEMPLATES}/* ${DEPLOYMENT}
+
+for i in ${SUBDIRS} ; do
+    
+    TEMPLATES=${i}/templates
+    if [[ ! -d "$TEMPLATES" ]]; then
+	echo "templates/ directory could not be found as: $TEMPLATES"
+	echo "script aborting."
+	exit 1
+    fi
+
+    # copy files from TEMPLATES to DEPLOYMENT
+    cp -a ${TEMPLATES}/* ${DEPLOYMENT}
+
+done
 
 for i in  `find ${DEPLOYMENT} -name "*.xml"` ; do 
     sed -i 's|TEMPLATE_ESP_NAMESPACE|'$ESP_NS'|g' $i
@@ -189,29 +220,21 @@ for i in `find ${DEPLOYMENT} -name "*.y*ml"` ; do
 s|TEMPLATE_ESP_LICB64GZ|$LICB64GZ|g
 EOF
 
-#    sed -i -f - $i << EOF
-#s|TEMPLATE_ESP_CERTB64|$CERTB64|g
-#EOF
-
     sed -i -f - $i << EOF
 s|TEMPLATE_ESP_LICB64|$LICB64|g
 EOF
     sed -i 's|TEMPLATE_ESP_NAMESPACE|'$ESP_NS'|g' $i
-
     sed -i 's|TEMPLATE_ESP_DOMAIN|'$ESP_DM'|g' $i
 
-    if [[ "operator" = "$BASE" ]] ; then 
-	sed -i 's|TEMPLATE_ESP_OPERATOR_IMAGE|'$ESP_OP'|g' $i
-	sed -i 's|TEMPLATE_ESP_SERVER_IMAGE|'$ESP_SR'|g' $i
-	sed -i 's|TEMPLATE_ESP_METER_IMAGE|'$ESP_MB'|g' $i
-	sed -i 's|TEMPLATE_ESP_LB_IMAGE|'$ESP_LB'|g' $i
-    fi
-
-    if [[ "single_user_clients" = "$BASE" ]] ; then 
-	sed -i 's|TEMPLATE_ESM_IMAGE|'$ESP_ESM'|g' $i
-	sed -i 's|TEMPLATE_ESPSTUDIO_IMAGE|'$ESP_STD'|g' $i
-	sed -i 's|TEMPLATE_STREAMVIEWER_IMAGE|'$ESP_SVR'|g' $i
-    fi
+    sed -i 's|TEMPLATE_ESP_OPERATOR_IMAGE|'$ESP_OP'|g' $i
+    sed -i 's|TEMPLATE_ESP_SERVER_IMAGE|'$ESP_SR'|g' $i
+    sed -i 's|TEMPLATE_ESP_METER_IMAGE|'$ESP_MB'|g' $i
+    sed -i 's|TEMPLATE_ESP_LB_IMAGE|'$ESP_LB'|g' $i
+    sed -i 's|TEMPLATE_ESM_IMAGE|'$ESP_ESM'|g' $i
+    sed -i 's|TEMPLATE_ESPSTUDIO_IMAGE|'$ESP_STD'|g' $i
+    sed -i 's|TEMPLATE_STREAMVIEWER_IMAGE|'$ESP_SVR'|g' $i
+    sed -i 's|TEMPLATE_UAA_IMAGE|'$ESP_UAA'|g' $i
+    sed -i 's|TEMPLATE_ESP_OAUTH2P_IMAGE|'$ESP_O2P'|g' $i
 done
 
 

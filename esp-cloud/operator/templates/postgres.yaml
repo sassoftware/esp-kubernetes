@@ -1,4 +1,14 @@
 apiVersion: v1
+kind: Secret
+metadata:
+  name: pg-secret
+type: Opaque
+data:
+  username: ZXNw
+  password: ZXNwX2luX2Nsb3Vk
+---
+
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-config

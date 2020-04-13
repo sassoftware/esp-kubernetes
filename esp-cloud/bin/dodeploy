@@ -16,7 +16,7 @@ ROOT=$0
 # make sure we are launched from .../operator or .../single_user_clients
 #
 BASE=`basename $PWD`
-[ $BASE != "operator" ] && [ $BASE != "single_user_clients" ] && echo "cd into  .../operator or .../single_user_clients to run this script" && exit 1
+[ $BASE != "esp-cloud" ] && echo "script must be run from the esp-cloud directory" && exit 1
 
 while getopts "?n:" opt; do
     case "$opt" in
@@ -36,8 +36,9 @@ done
 ROOT=`readlink -f $ROOT`
 ROOT=`dirname $ROOT`
 ROOT=`readlink -f $ROOT/..`
-ROOT=${ROOT}/${BASE}
+#ROOT=${ROOT}/${BASE}
 
+echo "ROOT = <$ROOT>"
 DEPLOYMENT=$ROOT/deploy
 
 if [[ ! -d "$DEPLOYMENT" ]]; then
@@ -122,7 +123,7 @@ if [ -f $DEPLOYMENT/postgres.yaml ] ; then
     done;
     echo ""    
     if [[ "n" = "$OK" ]] ; then
-	echo "  After 30 iteration, could not start the postgres DB"
+	echo "  After 40 iteration, could not start the postgres DB"
 	echo "     aborting deployment"
 	exit 1;
     fi
