@@ -68,6 +68,8 @@ echo "BASE = <$BASE>"
 
 CLIENTS=no
 MULTI=no
+ESP_MULTI_COMMENT="#"
+ESP_OPEN_COMMENT=""
 
 SUBDIRS="operator"
 while getopts "?c:l:n:o:s:d:m:b:e:t:v:u:a:ryCM" opt; do
@@ -87,6 +89,8 @@ while getopts "?c:l:n:o:s:d:m:b:e:t:v:u:a:ryCM" opt; do
 	    ;;
 	M)  MULTI=yes
 	    SUBDIRS="$SUBDIRS oauth2"	    
+	    ESP_MULTI_COMMENT=""
+	    ESP_OPEN_COMMENT="#"
 	    ;;
         o)  ESP_OP=$OPTARG
             ;;
@@ -235,6 +239,9 @@ EOF
     sed -i 's|TEMPLATE_STREAMVIEWER_IMAGE|'$ESP_SVR'|g' $i
     sed -i 's|TEMPLATE_UAA_IMAGE|'$ESP_UAA'|g' $i
     sed -i 's|TEMPLATE_ESP_OAUTH2P_IMAGE|'$ESP_O2P'|g' $i
+
+    sed -i 's|TEMPLATE_ESP_OPEN|'$ESP_OPEN_COMMENT'|g' $i    
+    sed -i 's|TEMPLATE_ESP_MULTI|'$ESP_MULTI_COMMENT'|g' $i    
 done
 
 

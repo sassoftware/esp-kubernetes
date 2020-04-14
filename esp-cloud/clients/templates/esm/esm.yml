@@ -18,6 +18,9 @@ metadata:
   name: sas-event-stream-manager-app
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: 500m
+    TEMPLATE_ESP_OPENnginx.ingress.kubernetes.io/rewrite-target: /$2
+    TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+    TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
 spec:
   rules:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
