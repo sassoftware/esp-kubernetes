@@ -28,6 +28,10 @@ spec:
           serviceName: sas-event-stream-processing-metering-app # the service to hit
           servicePort: 80                                       # externally exposed port 
         path: /SASEventStreamProcessingMetering(/|$)(.*)
+  TEMPLATE_ESP_MULTItls:
+  TEMPLATE_ESP_MULTI- hosts:
+  TEMPLATE_ESP_MULTI  - sckolo.sas.com
+  TEMPLATE_ESP_MULTI  secretName: foo
 ---
 apiVersion: apps/v1
 kind: Deployment

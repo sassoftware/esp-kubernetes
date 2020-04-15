@@ -193,8 +193,6 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: uaa
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
@@ -203,5 +201,9 @@ spec:
       -  backend:
           serviceName: uaa-service # the service to hit
           servicePort: 80            # externally exposed port
-         path: /uaa(/|$)(.*)
+         path: /uaa
+  tls:
+  - hosts:
+    - sckolo.sas.com
+    secretName: foo
 

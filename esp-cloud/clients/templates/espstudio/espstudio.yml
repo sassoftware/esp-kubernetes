@@ -30,6 +30,10 @@ spec:
           serviceName: sas-event-stream-processing-studio-app # the service to hit
           servicePort: 80            # externally exposed port
         path: /SASEventStreamProcessingStudio
+  TEMPLATE_ESP_MULTItls:
+  TEMPLATE_ESP_MULTI- hosts:
+  TEMPLATE_ESP_MULTI  - sckolo.sas.com
+  TEMPLATE_ESP_MULTI  secretName: foo
 ---
 apiVersion: apps/v1beta1
 kind: Deployment

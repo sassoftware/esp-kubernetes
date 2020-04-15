@@ -108,10 +108,10 @@ if [ -f $DEPLOYMENT/postgres.yaml ] ; then
     i=0;
     OK="n"
     echo ""
-    while [[ i -le 40 ]] ;
+    while [[ i -le 100 ]] ;
     do
         echo -n "."
-        sleep 2;
+        sleep 3;
 	kubectl -n ${ESP_NS} get pods | fgrep -i postgres | fgrep -i running &>/dev/null
         if [ $? -eq 0 ]; then
 	    OK="y"
@@ -123,7 +123,7 @@ if [ -f $DEPLOYMENT/postgres.yaml ] ; then
     done;
     echo ""    
     if [[ "n" = "$OK" ]] ; then
-	echo "  After 40 iteration, could not start the postgres DB"
+	echo "  After 100 iteration, could not start the postgres DB"
 	echo "     aborting deployment"
 	exit 1;
     fi
