@@ -17,3 +17,5 @@ path based ingress:
   ESM          --   <namespace>.sas.com/SASEventStreamManager
   FileBrowser  --   <namespace>.sas.com/files
 ```
+
+* Multi user mode implemented with a external UAA server. The multiuser deployment comes with TLS enabled by default.
