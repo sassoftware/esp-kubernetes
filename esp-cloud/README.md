@@ -1,4 +1,4 @@
-* [Operator](/operator) - Contains scripts, YAML template files, and projects to deploy the SAS Event Stream Processing metering server 
+* [Operator](/esp-cloud/operator) - Contains scripts, YAML template files, and projects to deploy the SAS Event Stream Processing metering server 
 and the ESP operator. Follow the README in this location to deploy a command line version of the SAS Event Stream Processing environment.
 
 The following Docker images are deployed from this location:
