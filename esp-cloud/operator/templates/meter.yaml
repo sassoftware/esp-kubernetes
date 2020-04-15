@@ -16,7 +16,7 @@ kind: Ingress
 metadata:
   name: sas-event-stream-processing-metering-app
   annotations:
-    TEMPLATE_ESP_OPENnginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
     TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
     TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
 spec:
