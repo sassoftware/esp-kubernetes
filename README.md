@@ -19,20 +19,6 @@ The deployment scripts supplied require you to do either of the following:
 * Specify the location of the images on the command line
 * Set several environmment variables that indicate the location of the images
 
-For example, setting the following environment variables enable the deployment scripts to pick up the appropriate Docker images:
-
-```shell
-export IMAGE_ESPESM="repulpmaster.unx.sas.com/cdp-snapshot-x64_redhat_linux_7-docker-latest/sas-event-stream-manager-app:7.1.66-20200410.1586533739963"
-export IMAGE_ESPOAUTH2P="docker.sas.com/pdt/sas-esp-oauth2-proxy:7.1.0-20200413.1586803648526"
-export IMAGE_ESPSRV="docker.sas.com/pdt/sas-event-stream-processing-server-app:7.1.0-20200413.1586777715995"
-export IMAGE_ESPSTRMVWR="repulpmaster.unx.sas.com/cdp-snapshot-x64_redhat_linux_7-docker-latest/sas-event-stream-processing-streamviewer-app:7.1.72-20200410.1586533435124"
-export IMAGE_ESPSTUDIO="repulpmaster.unx.sas.com/cdp-snapshot-x64_redhat_linux_7-docker-latest/sas-event-stream-processing-studio-app:7.1.68-20200410.1586533864537"
-export IMAGE_LOADBAL="docker.sas.com/pdt/sas-esp-load-balancer:7.1.0-20200413.1586802832583"
-export IMAGE_METERBILL="docker.sas.com/pdt/sas-event-stream-processing-metering-app:7.1.0-20200413.1586773455537"
-export IMAGE_OPERATOR="docker.sas.com/pdt/sas-esp-operator:7.1.0-20200413.1586806582045"
-export IMAGE_UAA="docker.sas.com/sckolo/esp-test-images/uaa:4.30.0-12"
-```
-
 ## Prerequsities
 To deploy the images, you must have a running Kubernetes cluster and a have persistent volume available for use.  Work with your Kubernetes administrator to obtain access to a cluster with a persistent volume.
 
