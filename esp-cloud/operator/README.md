@@ -2,7 +2,7 @@
 
 ### Introduction
 
-This directory contains tools that enable you to develop, deploy, and test an open ESP server in a Kubernetes cluster. The tools consist of YAML template files, and sample projects (XML files) that you can run in the ESP server.
+This directory contains tools that enable you to develop, deploy, and test an  ESP server in a Kubernetes cluster. The tools consist of YAML template files, and sample projects (XML files) that you can run in the ESP server.
 
 The ESP operator watches for custom resources that the ESP server can run. When the ESP operator detects a new custom resource, it reads the resource and spins up a single Kubernetes pod running an ESP Server.  The ESP server runs the project that is 
 embedded in the custom resource. Further, the ESP operator configures the Ingress endpoint that exposes the REST service for the ESP server.  The ESP server running in the Kubernetes pod uses this endpoint
@@ -15,8 +15,8 @@ to communicate with the outside world.
 
 You need the following files to run this example: 
 
-* deploy/examples/input/array_input01.csv.gz
-* deploy/examples/example-1.xml
+* esp-cloud/deploy/examples/input/array_input01.csv.gz
+* esp-cloud/deploy/examples/example-1.xml
 
 First, uncompress the input file, deploy/examples/input/array_input01.csv.gz.
 Then copy the expanded file (array_input01.csv) to the directory `input/` on your persistent volume. You can do this with
