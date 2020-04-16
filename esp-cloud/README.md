@@ -83,3 +83,148 @@ For example, a full ESP cloud deployment of operator and clients, with mutliuser
 ```shell
 [esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt -n sckolo -d sas.com -C -M
 ```
+
+**Note:** The *-d* (Ingress domain root) parameter is used to create Ingress routes for the deployed pods.
+All Event stream processing components within the kubernetes cluster are now accessed via specific context roots and a single ingress host. The ingress host is of the form `<namespace>.<ingress domain root>`. The following url and context roots are valid:
+
+```
+Project X    --   <namespace>.sas.com/SASEventStreamProcessingServer/project/X 
+Metering     --   <namespace>.sas.com/SASEventStreamProcessingMetering/SASESP/meterData
+Studio       --   <namespace>.sas.com/SASEventStreamProcessingStudio
+Streamviewer --   <namespace>.sas.com/SASEventStreamProcessingStreamviewer
+ESM          --   <namespace>.sas.com/SASEventStreamManager
+FileBrowser  --   <namespace>.sas.com/files
+```
+
+For example, if the ingress domain root is `sas.com`, and the namespace is `esp`, then a simple query of metering data would be:
+```
+     curl http://esp.sas.com:80/SASEventStreamProcessingMetering/eventStreamProcessing/SASESP/meterData
+```
+for an open deployment, or if protected by a UAA server (multu user deployment)
+```
+     curl http://esp.sas.com:80/SASEventStreamProcessingMetering/eventStreamProcessing/SASESP/meterData \
+     -H 'Authorization: Bearer <put a valid access token here>'
+```
+
+### Persistent Volume prerequisite
+
+To deploy the ESP cloud ecosystem, you must have a running Kubernetes cluster and a persistent volume. The persistent volume is used to store the following:
+
+1. the Postgres database
+2. Any files (csv/xml/json) referenced by the model running on the ESP server
+ 
+After you run ./bin/mkdeploy script and usable deployment manifests are
+generated, examine the YAML template file named deploy/pvc.yaml.
+
+```yaml
+  #
+  # This is the esp-pv claim that esp component pods use.
+  #
+  apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+     name: esp-pv
+     namespace: esp
+  spec:
+     accessModes:
+       - ReadWriteMany # esp, studio and streamviewer can all write to this space
+     resources:
+       requests:
+         storage: 5Gi  # volume size requested
+```
+
+This file specifies the *PersistentVolumeClaim* that the Postgres database, the open source filebrowser app,  and the ESP
+server pods make in Kubernetes. 
+
+**Important**: The system administrator must have already set up a persistent volume that can bind to this claim.
+
+In general, the processes associated with the ESP server run user:**sas**, group:**sas**. Commonly, 
+this is associated with uid:**1001**, gid:**1001**. An example of this is in the deployment of the open source filebrowser
+application.
+
+In the YAML template file deploy/file.yaml. the relevant section is as follows:
+
+```yaml
+         initContainers:
+         - name: config-data
+           image: busybox
+           #
+           # Our nfs PV is owned by sas:sas which is 1001:1001, so
+           #    use those credentials to make <namespace>/{DB.input,output}
+           #    directories.
+           #
+           securityContext:
+             runAsUser:  1001
+             runAsGroup: 1001
+           command: ['sh', '-c', 'mkdir -p /mnt/data/cmdline/input ; mkdir -p /mnt/data/cmdline/output ; touch /db/filebrowser.db']
+           volumeMounts:
+           - mountPath: /mnt/data
+             name: data
+```
+
+This specifies an initialization container that runs prior to starting the
+filebrowser application. It creates two directories on the persitent volume. 
+
+    input/
+    output/
+
+These directories are used by the deployment. The input/ and output/ directories are created
+for use by running event stream processing projects that need to access files (csv, xml, etc.).
+
+### Deploying in Kubernetes
+
+After you have revised the manifest files that reside in deploy/, deploy them on the Kubernetes
+cluster with the script bin/dodeploy.
+
+```shell
+        Usage: ./bin/dodeploy
+            -n <namespace>             -- specify K8 namespace
+```
+
+Here is a sample invocation of the script bin/dodeploy:
+
+```shell
+   ./bin/dodeploy -n cmdline
+```
+
+This invocation checks that the given namespace exists before it executes the
+deployment. If the namespace does not exist, the script asks whether the namespace should
+be created.
+
+After the deployment is completed you should see two active pods in your
+namespace:
+
+
+    [cli]$ kubectl -n cmdline get pods
+    NAME                                                              READY   STATUS    RESTARTS   AGE
+    espfb-deployment-5cc85c6bfd-9fj6n                                 1/1     Running   0          21h
+    postgres-deployment-56c9d65d6c-lk4jj                              1/1     Running   1          21h
+    sas-esp-operator-86f48f8899-q6bgv                                 1/1     Running   0          21h
+    sas-event-stream-processing-metering-app-69fbbffdc7-dnth6         1/1     Running   0          21h
+
+An Ingress for the ESP metering server and file browser should also appear in the namespace:
+
+    [cli]$ kubectl -n cmdline get ingress
+    NAME                                               HOSTS            ADDRESS   PORTS   AGE
+    espfb                                              sckolo.sas.com             80      21h
+    sas-event-stream-processing-metering-app           sckolo.sas.com             80      21h
+
+
+### Using filebrowser
+
+filebrowser is a middleware or standalone app that is available on GitHub.
+You can use the filebrowser available with these tools to
+access the persistent store used by the Kubernetes pods.  
+
+The filebrowser application is installed in your kubernetes cluster automaticall for convience. It may be accessed
+from a browser at:
+
+     http://`<namespace>.<ingress domain root>`/files
+
+With filebrowser, you can perform the following tasks:
+
+* Copy input files (csv, json, xml) into the persistent store
+* View output files written to the persistent store by running projects
+* Copy large binary model files for analytics (ASTORE files) to the 
+persistent store
+
