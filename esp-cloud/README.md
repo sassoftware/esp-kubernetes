@@ -26,7 +26,7 @@ The following Docker images are deployed from this location:
 
 Each of these subdirectories contain README files with more specific, detailed instructions.
 
-### Deployment
+### Generating a Deployment
 
    ./bin/mkdeploy
    Usage: ./bin/mkdeploy
@@ -106,7 +106,7 @@ for an open deployment, or if protected by a UAA server (multu user deployment)
      -H 'Authorization: Bearer <put a valid access token here>'
 ```
 
-### Persistent Volume prerequisite
+### Prerequisite for Deployment, the Persistent Volume 
 
 To deploy the ESP cloud ecosystem, you must have a running Kubernetes cluster and a persistent volume. The persistent volume is used to store the following:
 
