@@ -7,3 +7,8 @@ spec:
   espProperties:
     "server.license": "b64TEMPLATE_ESP_LICB64GZ"
     #"server.tls.issuer": "letsencrypt-staging"
+  containerEnv: # operator will pass the env variables specified below to project containers
+    #- name: MAS_M2PATH
+    #value: /opt/sas/viya/home/SASFoundation/misc/embscoreeng/mas2py.py
+    #- name: MAS_PYPATH
+    #value: /mnt/data/qa/tools/anaconda3/bin/python
