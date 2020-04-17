@@ -1,4 +1,4 @@
-## Single-User Clients
+## Graphical Clients
 
 ### Introduction
 
