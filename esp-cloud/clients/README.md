@@ -2,145 +2,25 @@
 
 ### Introduction
 
-This directory contains tools that enable you to develop, deploy, and test client tools that run alongside an open ESP server in a Kubernetes cluster.
-The resources consist of a set of scripts, YAML template files, and sample projects (XML files) that you can run on the ESP server.
+This directory contains the deployment YAML template files, used to deploy the graphical clients of SAS Event Stream Processing:
 
-With these tools, you can deploy the following clients:
 * SAS Event Stream Processing Studio
 * SAS Event Stream Processing Streamviewer
 * SAS Event Stream Manager
 
-The deployment is an open deployment (it does not include authentication) and is meant to be used by a single user or a small cooperative team. 
-
-### Prerequisites
-
-Before running the script to deploy the clients, you must have already deployed the ESP operator. For more information, see [Operator](/operator).
-
-### Create a Deployment
-
-The YAML file templates that are located in the single_user_clients/templates/ directory cannot be deployed immediately. They contain placeholder values that must 
-be replaced with values associated with a specific Kubernetes cluster. The bin/mkdeploy script enables you to substitute real values for placeholder values.
-
-**Note:** Before running the bin/mkdeploy script, you must change directory to single_user_clients.
-
-The options for this script are:
-
-    [operator]$ ./bin/mkdeploy
-    Usage: ./bin/mkdeploy
-     GENERAL options
-
-          -r                          -- remove existing deploy/
-                                          before creating
-          -y                          -- no prompt, just execute
-          -n <namespace>              -- specify K8 namespace
-          -d <ingress domain root>    -- project domain root,
-                                          proj.ns.<domain root>
-          -l <esp license file>       -- SAS ESP license
-
-     options for operator deployment
-
-          -o <esp operator image>     -- esp operator docker image
-          -s <esp server image>       -- esp server docker image
-          -m <esp meter image>        -- esp metering docker image
-          -a <sas meter agent image>  -- esp meter agent docker image
-
-     options for single user client deployment
-
-          -e <esm image>              -- esp esm docker image
-          -t <esp studio image>       -- esp studio docker image
-          -v <esp streamviewer image> -- esp streamviewer docker image
-
-The usage information above shows two optional sections, one for `operator deployment` and the other for `single user client deployment`. The options for 
-`single user client deployment` are relevant for deploying the clients.
-
-**Note:** The *-l* option requires a TXT license file, not a JWT file.
-
-Here is a sample invocation of the ..bin/mkdeploy script from the single_user_clients directory:
-
-    [single_user_clients]$ ../bin/mkdeploy -r -n cmdline 
-        -e docker.sas.com/pdt/sas-esmapplication:6.2.0-20191024.1571905032728 
-        -t docker.sas.com/pdt/sas-espstudio:6.2.0-20-191024.1571906412613  
-        -v docker.sas.com/pdt/sas-espstreamviewer:6.2.0-20191024.1571907074722
-        -d sas.com
-        -l ~/license/SASViyaV0300_09PSJN_Linux_x86-64.txt
-        
-This invocation performs parameter substitutions and produces a set of deployable manifests in the single_user_clients/deploy/ directory.
-
-The license file is required by SAS Event Stream Manager. 
-
-**Note:** The *-d* (Ingress domain root) parameter and the *-n* (namespace) is used to create Ingress routes for all three client 
-applications:
-- `espstudio.<namespace>.<domain>`
-- `esm.<namespace>.<domain>`
-- `streamviewer.<namespace>.<domain>`
-
-The full URI to the application includes the application context. For example: `SASEventStreamProcessingStudio`. Examples are included later in this README file. 
-
-### Persistent Volume
-
-**Note:** The following instructions assume that you are already familiar with the [Persistent Volume](/operator#persistent-volume) section in the ESP operator README.
-
-A persistent volume is required to store H2 database files, and input and output files used to test ESP projects.
-
-As described in [Persistent Volume](/operator#persistent-volume), three directories are created and are accessible from all three clients. The paths to these directories include the variable `<namespace>`. The paths are:
-
-- `/mnt/data/<namespace>/DB`
-- `/mnt/data/<namespace>/input`
-- `/mnt/data/<namespace>/output`
-
-**Note:** When testing SAS Event Stream Processing projects that require persistent storage for input and ouptut data, the correct file paths must be used in the XML code. 
-The example project described later in this README is already configured with the correct paths.
-
-### Deploy in Kubernetes
-
-After you have revised the manifest files that reside in the single_user_clients/deploy/ directory, deploy them on the Kubernetes
-cluster with the script bin/dodeploy.
-
-**Note:** Before running the bin/mkdeploy script, you must change directory to single_user_clients.
-
-    Usage: ../bin/dodeploy
-         -n <namespace>             -- specify K8 namespace
-
-**Note:** The namespace already exists because you deployed the ESP operator earlier. For more information, see [Operator](/operator). If you
-have not deployed the ESP operator yet, you must deploy it now. 
-
-After the deployment is completed you see three new active pods in your namespace. For example:
-
-    [single_user_clients]$ kubectl -n esp get pods
-    NAME                                       READY   STATUS    RESTARTS   AGE
-    esm-deployment-6f876cc6fc-gvv4w            1/1     Running   0          1m
-    espstudio-deployment-5f77cdb484-m9bd9      1/1     Running   0          1m
-    streamviewer-deployment-5d88c657d4-sct96   1/1     Running   0          1m
-
-    [single_user_clients]$ kubectl -n esp get ingress
-    NAME           HOSTS                                          ADDRESS   PORTS   AGE
-    esm            esm.examplenamespace.exampledomain                       80      1m
-    espstudio      espstudio.examplenamespace.exampledomain                 80      1m
-    streamviewer   streamviewer.examplenamespace.exampledomain              80      1m
-    
-The clients take approximately two minutes to start. To check for progress, you can tail the logs of the pods. For example:
-
-    [single_user_clients]$ kubectl -n mynamespace logs -f esm-deployment-6f876cc6fc-gvv4w 
-    
-When the clients have started, you can access each client with a URL that consists of the host name (as defined in the Ingress) and the application context name. For example, using the namespace `examplenamespace` and domain `exampledomain`, the URLs are:
-
-- `http://espstudio.examplenamespace.exampledomain/SASEventStreamProcessingStudio`
-- `http://esm.examplenamespace.exampledomain/SASEventStreamManager`
-- `http://streamviewer.examplenamespace.exampledomain/SASEventStreamProcessingStreamviewer`
-
 ### Example
 
-**Note:** This example is based on the ESP operator example in the  [Read and write to the persistent volume](/operator#read-and-write-to-the-persistent-volume) section of the ESP operator README. As a result, some of the steps might have been completed already.
+**Note:** This example is based on the ESP operator example in the  [Read and write to the persistent volume](esp-cloud/operator#read-and-write-to-the-persistent-volume) section of the ESP operator README. As a result, some of the steps might have been completed already.
 
 You need the following files to run this example: 
 
-* operator/deploy/examples/input/array_input01.csv.gz
-* operator/deploy/examples/example-1.xml. 
+* esp-cloud/deploy/examples/input/array_input01.csv.gz
+* esp-cloud/deploy/examples/example-1.xml. 
 
 To run the example:
 1. Uncompress the input file deploy/examples/input/array_input01.csv.gz. 
-1. Copy the expanded file (array_input01.csv) to the directory <namespace>/input on your persistent volume. You can do this with the filebrowser described in the ESP operator README (for more information, see [filebrowser](/sckolo/esp-kubernetes/tree/master/operator#filebrowser)) or with any standard Unix or Kubernetes tools.
-1. Upload the operator/deploy/examples/example-1.xml file to SAS Event Stream Processing Studio or SAS Event Stream Manager.
+1. Copy the expanded file (array_input01.csv) to the directory input/ on your persistent volume. You can do this with the filebrowser described in the ESP operator README (for more information, see [filebrowser](/sckolo/esp-kubernetes/tree/master/esp-cloud#filebrowser)) or with any standard Unix or Kubernetes tools.
+1. Upload the esp-cloud/deploy/examples/example-1.xml file to SAS Event Stream Processing Studio or SAS Event Stream Manager.
 1. Test the project using the test mode in SAS Event Stream Processing Studio, or deploy the project using SAS Event Stream Processing Studio or SAS Event Stream Manager.
 1. When the project has been loaded, use SAS Event Stream Processing Streamviewer to subscribe to the windows for the running project.
 
