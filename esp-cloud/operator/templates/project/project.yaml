@@ -31,8 +31,7 @@ spec:
       meta.meteringhost: "sas-event-stream-processing-metering-app.TEMPLATE_ESP_NAMESPACE"
       meta.meteringport: "80"
     env:
-        # using ESPENV you may override any ESP config property, here we pass in our 
-        #    license (base64 encoded).
+        # Add any environment variable you would like in the esp server pod
     volumeMounts:
         - mountPath: /mnt/data  # path persistent volume gets mounted to
           name: data            # the volume specified below
