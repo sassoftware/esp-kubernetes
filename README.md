@@ -23,8 +23,8 @@ The deployment scripts supplied require you to do either of the following:
 To deploy the images, you must have a running Kubernetes cluster and a have persistent volume available for use.  Work with your Kubernetes administrator to obtain access to a cluster with a persistent volume.
 
 For a multi user deployment, there are a few more prerequsites:
-    * Access to a Pivitol UAA server in a containor
-    * Access to the "uaac" Pivitol UAA command line tool to configure the UAA server.
+* Access to a Pivitol UAA server in a containor
+* Access to the "uaac" Pivitol UAA command line tool to configure the UAA server.
 
 It is easy to create your own UAA Docker container. Download a recent UAA war (such as: cloudfoundry-identity-uaa-4.30.0.war) file from any Maven repository and use the following Dockerfile:
 
