@@ -112,6 +112,12 @@ To deploy the ESP cloud ecosystem, you must have a running Kubernetes cluster an
 
 1. the Postgres database
 2. Any files (csv/xml/json) referenced by the model running on the ESP server
+
+The Postgres database needs write access to the persistent volume. If one plans on putting other files on the persistent volume, such as CSV input files, or one plans on ESP projects writing files to the persitent volume (output files), the persistent volume must have access mode **ReadWriteMany**. 
+
+If Postgres is the only element of the deployment writing to the persistent volume, it may have access mode **ReadWriteOnce**. 
+
+A typical deployment, with no projects or metadata stored uses about `68MB` of storage. For a typical small deployment, *20GB* of storage for the persistant volume should be adaquate. 
  
 After you run ./bin/mkdeploy script and usable deployment manifests are
 generated, examine the YAML template file named deploy/pvc.yaml.
