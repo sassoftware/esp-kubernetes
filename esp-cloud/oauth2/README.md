@@ -9,7 +9,7 @@ A multiuser deployment will have deployed the following pods:
 * The SAS oauth2-proxy
 
 
-### Prerequisites
+### Service and User accounts
 
 In order to configure a multiuser ESP deployment, access to the Cloud Foundry uaac command line tool is required.
 The following configuration examples assumes you can run the `uacc` command line tool from a docker container:
@@ -18,22 +18,17 @@ $ docker run -ti docker.sas.com/sckolo/esp-test-images/uaac-01:latest /bin/sh
 ```
 
 The following instructions create the connection to the uaa server, create a application service, and create a user.
-```
-#
-# set up connection to uaa server.
-#
-uaac target https://sckolo.sas.com/uaa --skip-ssl-validation
+
+Set up the connection to the UAA server:
+```uaac target https://sckolo.sas.com/uaa --skip-ssl-validation
 uaac token client get admin -s adminsecret
+```
 
-#
-# create the service account
-#
-uaac client add sv_client --authorities "uaa.resource"  --scope "openid email"  --autoapprove "openid" --authorized_grant_types "authorization_code refresh_token password client_credentials"  --redirect_uri https://sckolo.sas.com/oauth2 -s secret
-
-
-#
-# add users to UAA server
-#
+Create a service account:
+```uaac client add sv_client --authorities "uaa.resource"  --scope "openid email"  --autoapprove "openid" --authorized_grant_types "authorization_code refresh_token password client_credentials"  --redirect_uri https://sckolo.sas.com/oauth2 -s secret
+```
+Create one or more user accounts:
+```
 uaac user add esp  --emails scott.kolodzieski@sas.com -p esppw
 ```
 
