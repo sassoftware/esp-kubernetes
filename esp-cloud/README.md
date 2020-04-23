@@ -22,7 +22,7 @@ The following Docker images are deployed from this location:
 
 The following Docker images are deployed from this location: 
   * SAS Oauth2_proxy
-  * Pivitol UAA server (this is configered to store user credential in postgres, but could easily be configured to read client credentials fron other IM systems)
+  * Pivitol UAA server (this is configered to store user credential in postgres, but could easily be configured to read user credentials from other IM systems)
 
 Each of these subdirectories contain README files with more specific, detailed instructions.
 
