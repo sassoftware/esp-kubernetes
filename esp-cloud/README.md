@@ -126,36 +126,35 @@ deployment. If the namespace does not exist, the script asks whether the namespa
 be created.
 
 After the deployment is completed you should see several active pods in your
-namespace:
+namespace. The pods(ingress) below marked with a **M** only appear in a Multi-usre deployment. The pods(ingress) marked with a **C** only appear if Graphical Clients are included in the deployment. 
 
 ```
-[esp-cloud]$ kubectl -n mudeploy get pods
-NAME                                                              READY   STATUS    RESTARTS   AGE
-array-685d87f87-mssxr                                             1/1     Running   0          25h
-espfb-deployment-5cc85c6bfd-4fb92                                 1/1     Running   0          25h
-oauth2-proxy-7d94759449-2thmd                                     1/1     Running   0          25h
-postgres-deployment-56c9d65d6c-9k9kb                              1/1     Running   1          25h
-sas-esp-operator-5b596f8b6f-wmggk                                 1/1     Running   0          25h
-sas-event-stream-manager-app-5b5946b544-9bkxs                     1/1     Running   0          25h
-sas-event-stream-processing-client-config-server-75b656f6b7xhpj   1/1     Running   0          25h
-sas-event-stream-processing-metering-app-86c5b7c6-c7qv4           1/1     Running   0          24h
-sas-event-stream-processing-streamviewer-app-55d79d6996-24vq5     1/1     Running   0          25h
-sas-event-stream-processing-studio-app-bf4f675f4-sfpjk            1/1     Running   0          25h
-uaa-deployment-85d9fbf6bd-s8fwl                                   1/1     Running   0          25h
+   [esp-cloud]$ kubectl -n mudeploy get pods
+   NAME                                                              READY   STATUS    RESTARTS   AGE
+   espfb-deployment-5cc85c6bfd-4fb92                                 1/1     Running   0          25h
+M  oauth2-proxy-7d94759449-2thmd                                     1/1     Running   0          25h
+   postgres-deployment-56c9d65d6c-9k9kb                              1/1     Running   1          25h
+   sas-esp-operator-5b596f8b6f-wmggk                                 1/1     Running   0          25h
+C  sas-event-stream-manager-app-5b5946b544-9bkxs                     1/1     Running   0          25h
+C  sas-event-stream-processing-client-config-server-75b656f6b7xhpj   1/1     Running   0          25h
+C  sas-event-stream-processing-metering-app-86c5b7c6-c7qv4           1/1     Running   0          24h
+C  sas-event-stream-processing-streamviewer-app-55d79d6996-24vq5     1/1     Running   0          25h
+C  sas-event-stream-processing-studio-app-bf4f675f4-sfpjk            1/1     Running   0          25h
+M  uaa-deployment-85d9fbf6bd-s8fwl                                   1/1     Running   0          25h
 ```
 An Ingress for the each compenent should also appear in the namespace:
 
 ```
-[esp-cloud]$ kubectl -n mudeploy get ingress
-NAME                                               HOSTS            ADDRESS   PORTS     AGE
-espfb                                              sckolo.sas.com             80, 443   25h
-oauth2-proxy                                       sckolo.sas.com             80, 443   25h
-sas-event-stream-manager-app                       sckolo.sas.com             80, 443   25h
-sas-event-stream-processing-client-config-server   sckolo.sas.com             80        25h
-sas-event-stream-processing-metering-app           sckolo.sas.com             80, 443   24h
-sas-event-stream-processing-streamviewer-app       sckolo.sas.com             80, 443   25h
-sas-event-stream-processing-studio-app             sckolo.sas.com             80, 443   25h
-uaa                                                sckolo.sas.com             80, 443   25h
+   [esp-cloud]$ kubectl -n mudeploy get ingress
+   NAME                                               HOSTS            ADDRESS   PORTS     AGE
+   espfb                                              sckolo.sas.com             80, 443   25h
+M  oauth2-proxy                                       sckolo.sas.com             80, 443   25h
+   sas-event-stream-manager-app                       sckolo.sas.com             80, 443   25h
+C  sas-event-stream-processing-client-config-server   sckolo.sas.com             80        25h
+C  sas-event-stream-processing-metering-app           sckolo.sas.com             80, 443   24h
+C  sas-event-stream-processing-streamviewer-app       sckolo.sas.com             80, 443   25h
+C  sas-event-stream-processing-studio-app             sckolo.sas.com             80, 443   25h
+M  uaa                                                sckolo.sas.com             80, 443   25h
 ```
 
 ### Using filebrowser
