@@ -48,3 +48,6 @@ For access to the metering server, or a running ESP server, via curl, an access 
 ```
 
 **Note:** serveral bits of information are returned. The **acess token** is what is required for culr access to the metering server of ESP projects.
+
+### UAA configuration
+The UAA server has it's configuration embedded in the `deploy/oath2/uaa.yaml` file. By replacing that configuration, the **UAA** can be configured to read user credentials from other IM systems. Please see the UAA documentation for alternate configurations.
