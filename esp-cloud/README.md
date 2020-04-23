@@ -82,28 +82,6 @@ The options `-C` and `-M` are optional, which allows for four types of deploymen
 [esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt -n sckolo -d sas.com -C -M
 ```
 
-**Note:** The *-d* (Ingress domain root) parameter is used to create Ingress routes for the deployed pods.
-All Event stream processing components within the kubernetes cluster are now accessed via specific context roots and a single ingress host. The ingress host is of the form `<namespace>.<ingress domain root>`. The following url and context roots are valid:
-
-```
-Project X    --   <namespace>.sas.com/SASEventStreamProcessingServer/project/X 
-Metering     --   <namespace>.sas.com/SASEventStreamProcessingMetering/SASESP/meterData
-Studio       --   <namespace>.sas.com/SASEventStreamProcessingStudio
-Streamviewer --   <namespace>.sas.com/SASEventStreamProcessingStreamviewer
-ESM          --   <namespace>.sas.com/SASEventStreamManager
-FileBrowser  --   <namespace>.sas.com/files
-```
-
-For example, if the ingress domain root is `sas.com`, and the namespace is `esp`, then a simple query of metering data would be:
-```
-     curl http://esp.sas.com:80/SASEventStreamProcessingMetering/eventStreamProcessing/SASESP/meterData
-```
-for an open deployment, or if protected by a UAA server (multu user deployment)
-```
-     curl http://esp.sas.com:80/SASEventStreamProcessingMetering/eventStreamProcessing/SASESP/meterData \
-     -H 'Authorization: Bearer <put a valid access token here>'
-```
-
 
 ### Deploying in Kubernetes
 
@@ -155,6 +133,60 @@ C  sas-event-stream-processing-metering-app           sckolo.sas.com            
 C  sas-event-stream-processing-streamviewer-app       sckolo.sas.com             80, 443   25h
 C  sas-event-stream-processing-studio-app             sckolo.sas.com             80, 443   25h
 M  uaa                                                sckolo.sas.com             80, 443   25h
+```
+
+### Project and Server access
+
+**Note:** The *-d* (Ingress domain root) parameter specified in the mkdeploy command is used to create Ingress routes for the deployed pods. All Event stream processing components within the kubernetes cluster are now accessed via specific context roots and a single ingress host. The ingress host is of the form `<namespace>.<ingress domain root>`. The following url and context roots are valid:
+
+```
+Project X    --   <namespace>.sas.com/SASEventStreamProcessingServer/project/X 
+Metering     --   <namespace>.sas.com/SASEventStreamProcessingMetering/SASESP/meterData
+Studio       --   <namespace>.sas.com/SASEventStreamProcessingStudio
+Streamviewer --   <namespace>.sas.com/SASEventStreamProcessingStreamviewer
+ESM          --   <namespace>.sas.com/SASEventStreamManager
+FileBrowser  --   <namespace>.sas.com/files
+```
+
+
+#### Metering server
+Suppose the ingress domain root is `sas.com`, and the namespace is `esp`. 
+
+A simple query of the metering server deployed in an **open** environment would be:
+```
+     curl http://esp.sas.com:80/SASEventStreamProcessingMetering/eventStreamProcessing/SASESP/meterData
+```
+A simple query of the metering server deployed in a **multi-user** environment would be:
+```
+     curl http://esp.sas.com:80/SASEventStreamProcessingMetering/eventStreamProcessing/SASESP/meterData \
+     -H 'Authorization: Bearer <put a valid access token here>'
+```
+
+#### ESP Project
+Suppose the ingress domain root is `sas.com`, and the namespace is `esp` and the projects service name is **array**.  
+
+A simple query of the project deployed in an **open** environment would be:
+```
+     curl http://esp.sas.com:80/SASEventStreamProcessingServer/project/array/SASESP
+```
+A simple query of the project deployed in a **multi-user** environment would be:
+```
+     curl http://esp.sas.com:80/SASEventStreamProcessingServer/project/arraySASESP \
+     -H 'Authorization: Bearer <put a valid access token here>'
+```
+
+#### Graphical Clients
+The Graphical clients in an **open** deployment can be accessed via these URL's
+```
+Event Stream Processing Studio          -- http://esp.sas.com/SASEventStreamProcessingStudio
+Event Stream Processing Streamviewer    -- http://esp.sas.com/SASEventStreamProcessingStreamviewer
+Event STream Processing Manager         -- http://esp.sas.com/SASEventStreamManager
+```
+The Graphical clients in an **multi-user** deployment can be accessed via these URL's
+```
+Event Stream Processing Studio          -- https://esp.sas.com/SASEventStreamProcessingStudio
+Event Stream Processing Streamviewer    -- https://esp.sas.com/SASEventStreamProcessingStreamviewer
+Event STream Processing Manager         -- https://esp.sas.com/SASEventStreamManager
 ```
 
 ### Using filebrowser
