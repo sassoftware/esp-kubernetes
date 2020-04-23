@@ -65,19 +65,19 @@ The mkdeploy script is used to create a set of deployment yaml files. It uses th
     
 The options `-C` and `-M` are optional, which allows for four types of deployments:
 
-1. Open deployment (no authentication or TLS) with no Graphical Clients. 
+1. **Open deployment (no authentication or TLS)** with no Graphical Clients. 
 ```shell
 [esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt -n sckolo -d sas.com
 ```
-2. Open deployment (no authentication or TLS) with all Graphical Clients. 
+2. **Open deployment (no authentication or TLS)** with all Graphical Clients. 
 ```shell
 [esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt -n sckolo -d sas.com -C
 ```
-3. Multi-user deployment (UAA authentication and TLS) with no Graphical Clients.
+3. **Multi-user deployment (UAA authentication and TLS)** with no Graphical Clients.
 ```shell
 [esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt -n sckolo -d sas.com -M
 ```
-4. Multi-user deployment (UAA authentication and TLS) with all Graphical Clients.
+4. **Multi-user deployment (UAA authentication and TLS)** with all Graphical Clients.
 ```shell
 [esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt -n sckolo -d sas.com -C -M
 ```
