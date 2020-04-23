@@ -20,13 +20,16 @@ $ docker run -ti docker.sas.com/sckolo/esp-test-images/uaac-01:latest /bin/sh
 The following instructions create the connection to the uaa server, create a application service, and create a user.
 
 Set up the connection to the UAA server:
-```uaac target https://sckolo.sas.com/uaa --skip-ssl-validation
+```
+uaac target https://sckolo.sas.com/uaa --skip-ssl-validation
 uaac token client get admin -s adminsecret
 ```
 
 Create a service account:
-```uaac client add sv_client --authorities "uaa.resource"  --scope "openid email"  --autoapprove "openid" --authorized_grant_types "authorization_code refresh_token password client_credentials"  --redirect_uri https://sckolo.sas.com/oauth2 -s secret
 ```
+uaac client add sv_client --authorities "uaa.resource"  --scope "openid email"  --autoapprove "openid" --authorized_grant_types "authorization_code refresh_token password client_credentials"  --redirect_uri https://sckolo.sas.com/oauth2 -s secret
+```
+
 Create one or more user accounts:
 ```
 uaac user add esp  --emails scott.kolodzieski@sas.com -p esppw
