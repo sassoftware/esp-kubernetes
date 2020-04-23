@@ -28,6 +28,24 @@ Each of these subdirectories contain README files with more specific, detailed i
 
 ### Generating a Deployment
 
+It is required to set a number of enviroment variables that point to the docker images that will be used in the deployment. 
+
+```shell
+IMAGE_ESPSRV      = "image for SAS Event Stream Processing Server"
+IMAGE_LOADBAL     = "image for SAS Event Stream Processing Load Balancer"
+IMAGE_METERBILL   = "image for SAS Event Stream Processing Metering Server"
+IMAGE_OPERATOR    = "image for SAS Event Stream Processing Operator"
+
+IMAGE_ESPESM      = "image for SAS Event Stream Manager"
+IMAGE_ESPSTRMVWR  = "image for SAS Event Stream Processing Streamviewer"
+IMAGE_ESPSTUDIO   = "image for SAS Event Stream Processing Studio"
+
+IMAGE_ESPOAUTH2P  = "image for SAS Oauth2 Proxy"
+IMAGE_UAA         = "image for Pivitol UAA Server"
+```
+
+The mkdeploy script is used to create a set of deployment yaml files. It uses the environment variables mentioned to locate the docker images, and a few passed parameters to specify namespace, ingress root, license, and type of deployment.
+
    ./bin/mkdeploy
    Usage: ./bin/mkdeploy
 
@@ -44,42 +62,22 @@ Each of these subdirectories contain README files with more specific, detailed i
           -C                          -- deploy clients
           -M                          -- enable multiuser mode
 
-     options for operator deployment
+    
+The options `-C` and `-M` are optional, which allows for four types of deployments:
 
-          -o <esp operator image>     -- esp operator docker image
-          -s <esp server image>       -- esp server docker image
-          -m <esp meter image>        -- esp metering docker image
-          -b <sas esp load balancer>  -- esp load balancer docker image
-
-     options for client deployment
-
-          -e <esm image>              -- esp esm docker image
-          -t <esp studio image>       -- esp studio docker image
-          -v <esp streamviewer image> -- esp streamviewer docker image
-
-     options for multi user user deployment
-
-          -u <uaa server image>       -- opensource UAA server image
-          -a <ESP oath2 proxy image>  -- esp authentication proxy image
-
-It is highly reccomended to use the environment variables to specify the docker images, and not pass the docker images on the command line. The enviroment variables one should user are:
-
+1. Open deployment (no authentication or TLS) with no Graphical Clients. 
 ```shell
-IMAGE_ESPSRV      = "image for SAS Event Stream Processing Server"
-IMAGE_LOADBAL     = "image for SAS Event Stream Processing Load Balancer"
-IMAGE_METERBILL   = "image for SAS Event Stream Processing Metering Server"
-IMAGE_OPERATOR    = "image for SAS Event Stream Processing Operator"
-
-IMAGE_ESPESM      = "image for SAS Event Stream Manager"
-IMAGE_ESPSTRMVWR  = "image for SAS Event Stream Processing Streamviewer"
-IMAGE_ESPSTUDIO   = "image for SAS Event Stream Processing Studio"
-
-IMAGE_ESPOAUTH2P  = "image for SAS Oauth2 Proxy"
-IMAGE_UAA         = "image for Pivitol UAA Server"
+[esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt -n sckolo -d sas.com
 ```
-
-For example, a full ESP cloud deployment of operator and clients, with mutliuser support would look like:
-
+2. Open deployment (no authentication or TLS) with all Graphical Clients. 
+```shell
+[esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt -n sckolo -d sas.com -C
+```
+3. Multi-user deployment (UAA authentication and TLS) with no Graphical Clients.
+```shell
+[esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt -n sckolo -d sas.com -M
+```
+4. Multi-user deployment (UAA authentication and TLS) with all Graphical Clients.
 ```shell
 [esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt -n sckolo -d sas.com -C -M
 ```
