@@ -2,7 +2,7 @@
 
 **Note:** These instructions are specific to SAS Event Stream Processing 7.1 or later.
 
-## changes
+## Changes
 For changes between releases please vist the [Changelog](CHANGELOG.md)
 
 **Note:** These changes have not been rolled into the documentation yet. all README.cm files on the develop branch still have ESP 6.2 content. 
@@ -20,8 +20,80 @@ The deployment scripts supplied require you to do either of the following:
 * Set several environmment variables that indicate the location of the images
 
 ## Prerequsities
+
+### Persistent Volume
 To deploy the images, you must have a running Kubernetes cluster and a have persistent volume available for use.  Work with your Kubernetes administrator to obtain access to a cluster with a persistent volume.
 
+To deploy the ESP cloud ecosystem, you must have a running Kubernetes cluster and a persistent volume. The persistent volume is used to store the following:
+
+1. the Postgres database
+2. Any files (csv/xml/json) referenced by the model running on the ESP server
+
+The Postgres database needs write access to the persistent volume. If one plans on putting other files on the persistent volume, such as CSV input files, or one plans on ESP projects writing files to the persitent volume (output files), the persistent volume must have access mode **ReadWriteMany**. 
+
+If Postgres is the only element of the deployment writing to the persistent volume, it may have access mode **ReadWriteOnce**. 
+
+A typical deployment, with no projects or metadata stored uses about `68MB` of storage. For a typical small deployment, *20GB* of storage for the persistant volume should be adaquate. 
+ 
+After you run ./bin/mkdeploy script and usable deployment manifests are
+generated, examine the YAML template file named deploy/pvc.yaml.
+
+```yaml
+  #
+  # This is the esp-pv claim that esp component pods use.
+  #
+  apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+     name: esp-pv
+     namespace: esp
+  spec:
+     accessModes:
+       - ReadWriteMany # esp, studio and streamviewer can all write to this space
+     resources:
+       requests:
+         storage: 20Gi  # volume size requested
+```
+
+This file specifies the *PersistentVolumeClaim* that the Postgres database, the open source filebrowser app,  and the ESP
+server pods make in Kubernetes. 
+
+**Important**: The system administrator must have already set up a persistent volume that can bind to this claim.
+
+In general, the processes associated with the ESP server run user:**sas**, group:**sas**. Commonly, 
+this is associated with uid:**1001**, gid:**1001**. An example of this is in the deployment of the open source filebrowser
+application.
+
+In the YAML template file deploy/file.yaml. the relevant section is as follows:
+
+```yaml
+         initContainers:
+         - name: config-data
+           image: busybox
+           #
+           # Our nfs PV is owned by sas:sas which is 1001:1001, so
+           #    use those credentials to make <namespace>/{DB.input,output}
+           #    directories.
+           #
+           securityContext:
+             runAsUser:  1001
+             runAsGroup: 1001
+           command: ['sh', '-c', 'mkdir -p /mnt/data/cmdline/input ; mkdir -p /mnt/data/cmdline/output ; touch /db/filebrowser.db']
+           volumeMounts:
+           - mountPath: /mnt/data
+             name: data
+```
+
+This specifies an initialization container that runs prior to starting the
+filebrowser application. It creates two directories on the persitent volume. 
+
+    input/
+    output/
+
+These directories are used by the deployment. The input/ and output/ directories are created
+for use by running event stream processing projects that need to access files (csv, xml, etc.).
+
+### Multi User
 For a multi user deployment, there are a few more prerequsites:
 * Access to a Pivitol UAA server in a containor
 * Access to the "uaac" Pivitol UAA command line tool to configure the UAA server.
