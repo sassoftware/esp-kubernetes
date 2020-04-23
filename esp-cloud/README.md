@@ -6,7 +6,7 @@
 The following Docker images are deployed from this location:
   * SAS Event Stream Processing metering server
   * ESP operator
-  * Open source postgres database
+  * Open source postgres database (this could be easily replaced by any Postgres database)
   * Open source filebrowser to manage the persistent volume
 
 
@@ -22,7 +22,7 @@ The following Docker images are deployed from this location:
 
 The following Docker images are deployed from this location: 
   * SAS Oauth2_proxy
-  * Pivitol UAA server
+  * Pivitol UAA server (this is configered to store user credential in postgres, but could easily be configured to read client credentials fron other IM systems)
 
 Each of these subdirectories contain README files with more specific, detailed instructions.
 
@@ -188,6 +188,10 @@ Event Stream Processing Studio          -- https://esp.sas.com/SASEventStreamPro
 Event Stream Processing Streamviewer    -- https://esp.sas.com/SASEventStreamProcessingStreamviewer
 Event STream Processing Manager         -- https://esp.sas.com/SASEventStreamManager
 ```
+
+### Multi-user configuration
+
+See the dicussion of adding servide / user accounts and credential here: [Oauth2](/esp-cloud/oauth2)
 
 ### Using filebrowser
 
