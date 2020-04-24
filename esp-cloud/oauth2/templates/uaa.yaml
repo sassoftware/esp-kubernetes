@@ -34,6 +34,16 @@ spec:
            env:
              - name: CLOUD_FOUNDRY_CONFIG_PATH
                value: "/uaa"
+             - name: POSTGRES_USER
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+                   key:  username
+             - name: POSTGRES_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+                   key:  password
            volumeMounts:
               - name: uaa-config      # the volume specified below
                 mountPath: /uaa       # path persistent volume gets mounted to
@@ -186,8 +196,8 @@ data:
         maxidle: 2
         minidle: 1
         url: jdbc:postgresql://postgres-service:80/esp
-        username: esp
-        password: esp_in_cloud 
+        username: ${POSTGRES_USER}
+        password: ${POSTGRES_PASSWORD}
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress

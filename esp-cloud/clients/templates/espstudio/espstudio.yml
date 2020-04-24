@@ -70,6 +70,16 @@ spec:
         - name: spring_datasource_url
           value: "jdbc:postgresql://postgres-service:80/esp"
         - name: spring_datasource_username
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key:  username
+        - name: spring_datasource_password
+          valueFrom:
+            secretKeyRef:
+               name: postgres-secret
+               key:  password
+        - name: spring_datasource_username
           value: "esp"
         - name: spring_datasource_password
           value: "esp_in_cloud"

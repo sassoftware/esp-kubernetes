@@ -1,13 +1,12 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: pg-secret
+  name: postgres-secret
 type: Opaque
 data:
   username: ZXNw
   password: ZXNwX2luX2Nsb3Vk
 ---
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -16,8 +15,6 @@ metadata:
     app: postgres
 data:
   PGDATA: /mnt/data/DB/postgres
-  POSTGRES_USER: esp   # also the dfeault POSTGRES_DB
-  POSTGRES_PASSWORD: esp_in_cloud
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -69,6 +66,17 @@ spec:
            ports:
              - containerPort: 5432  # servers REST port
                name: postgresdb
+           env:
+             - name: POSTGRES_USER
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+                   key:  username
+             - name: POSTGRES_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+                   key:  password
            envFrom:
              - configMapRef: 
                 name: postgres-config
