@@ -1,3 +1,12 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: uaa-secret
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: YWRtaW5zZWNyZXQ=
+---
 kind: Service
 apiVersion: v1 
 metadata:
@@ -43,6 +52,16 @@ spec:
                valueFrom:
                  secretKeyRef:
                    name: postgres-secret
+                   key:  password
+             - name: UAA_ADMIN_CLIENT_ID
+               valueFrom:
+                 secretKeyRef:
+                   name: uaa-secret
+                   key:  username
+             - name: UAA_ADMIN_CLIENT_SECRET
+               valueFrom:
+                 secretKeyRef:
+                   name: uaa-secret
                    key:  password
            volumeMounts:
               - name: uaa-config      # the volume specified below
@@ -104,8 +123,8 @@ data:
         # List of OAuth clients
         clients:
           admin:
-            id: admin
-            secret: adminsecret
+            #id: admin
+            #secret: adminsecret
             authorized-grant-types: client_credentials
             scope: none
             authorities: uaa.admin,clients.admin,clients.read,clients.write,clients.secret             
