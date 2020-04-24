@@ -4,7 +4,7 @@ metadata:
   name: espconfig
 spec:
   # Add fields here
- espProperties:   # this is used to configure anything in esp-properties.yml
+  espProperties:   # this is used to configure anything in esp-properties.yml
     "server.license": "b64TEMPLATE_ESP_LICB64GZ"
     #"env.security.server.server_cert": "SAS_CERTIFICATE"
     #"env.security.server.server_private_key": "SAS_CERTIFICATE_PRIVATE_KEY"
