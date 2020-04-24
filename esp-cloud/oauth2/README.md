@@ -1,5 +1,3 @@
-## Operator
-
 ### Introduction
 
 This directory contains tools that enable you to run ESP in a multiuser environment.
@@ -8,6 +6,49 @@ A multiuser deployment will have deployed the following pods:
 * A Pivitol UAA server
 * The SAS oauth2-proxy
 
+### Pivitol UAA Secrets and Management
+
+The **mkdeploy** script creates the file `esp-cloud/oauth2/uaa.yaml`. The first few lines define the username and 
+password for the client admin account in UAA. 
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: uaa-secret
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: YWRtaW5zZWNyZXQ=
+```
+These are base64 encoded strings. The defualt values are **admin** for the username and **adminsecret** for the password. Thay can be adjusted prior to deployment. 
+
+After the deployment is successful, and the uaa pod has started, the uaa instance can be adminitered using **uaac**, the UAA command line client.
+
+Further in the `esp-cloud/oauth2/uaa.yaml` is a configMap taht contains the entire configuration file for the UAA server. This can be customized before deployment. 
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: uaa-config
+data:
+    uaa.yml: |-
+      issuer:
+        uri: http://localhost:8080/uaa
+      encryption:
+        active_key_label: CHANGE-THIS-KEY
+        encryption_keys:
+        - label: CHANGE-THIS-KEY
+          passphrase: CHANGEME
+      uaa:
+        # The hostname of the UAA that this login server will connect to
+        url: http://localhost:8080/uaa
+        token:
+          url: http://localhost:8080/uaa/oauth/token
+ .
+ .
+ .
+```
 
 ### Service and User accounts
 
@@ -49,5 +90,3 @@ For access to the metering server, or a running ESP server, via curl, an access 
 
 **Note:** serveral bits of information are returned. The **acess token** is what is required for culr access to the metering server of ESP projects.
 
-### UAA configuration
-The UAA server has it's configuration embedded in the `deploy/oath2/uaa.yaml` file. By replacing that configuration, the **UAA** can be configured to read user credentials from other IM systems. Please see the UAA documentation for alternate configurations.
