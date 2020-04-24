@@ -86,6 +86,30 @@ The options `-C` and `-M` are optional, which allows for four types of deploymen
                             -n sckolo -d sas.com -C -M
 ```
 
+### Postgres Secrets and Management
+
+The **mkdeploy** script creates the file `esp-cloud/deploy/postgres.yaml`. The first few lines define the username and 
+password for the admin account in postgres. 
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+type: Opaque
+data:
+  username: ZXNw
+  password: ZXNwX2luX2Nsb3Vk
+```
+These are base64 encoded strings. The defualt values are **esp** for the username and **esp_in_cloud** for the password. Thay can be adjusted prior to deployment. 
+
+After the deployment is successful, and the postgres pod has started, the postgres instance can be adminitered using **psql** from the kubernetes cluster. Use the following command to connect to psql: 
+
+```shell
+kubectl -n sckolo exec -it postgres-deployment-6f9d6cc8cc-mhx79 -- psql -U esp
+```
+
+**Note:** the name of your postgres pod will differ from **postgres-deployment-6f9d6cc8cc-mhx79**. 
+
 
 ### Deploying in Kubernetes
 
