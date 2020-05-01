@@ -23,6 +23,7 @@ spec:
         - --redeem-url=http://uaa-service/uaa/oauth/token
         - --validate-url=http://uaa-service/uaa/userinfo
         - --token-introspect-url=http://uaa-service/uaa/introspect
+        - --whitelist-domain=TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
         - --passthrough-path=projects
         - --email-domain=*
         - --upstream=file:///dev/null
