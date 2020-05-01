@@ -304,24 +304,10 @@ ESM          --   <namespace>.sas.com/SASEventStreamManager
 FileBrowser  --   <namespace>.sas.com/files
 ```
 
-
-#### Querying the Metering Server
-Suppose that the ingress domain root is `sas.com`, and the namespace is `esp`. 
-
-You can perform a simple query of the metering server deployed in an **open** environment as follows:
-```
-     curl http://esp.sas.com:80/SASEventStreamProcessingMetering/eventStreamProcessing/SASESP/meterData
-```
-You can perform a simple query of the metering server deployed in a **multi-user** environment as follows:
-```
-     curl http://esp.sas.com:80/SASEventStreamProcessingMetering/eventStreamProcessing/SASESP/meterData \
-     -H 'Authorization: Bearer <put a valid access token here>'
-```
-
-### Querying a Project
+#### Querying a Project
 Suppose that the Ingress domain root is `sas.com`, and the namespace is `esp` and the projects service name is **array**.  
 
-You can query a project deployed in an **open** environment as follows:
+After deployment, you can query a project deployed in an **open** environment as follows:
 ```
      curl http://esp.sas.com:80/SASEventStreamProcessingServer/project/array/SASESP
 ```
@@ -331,8 +317,22 @@ You an query a project deployed in a **multi-user** environment as follows:
      -H 'Authorization: Bearer <put a valid access token here>'
 ```
 
-### Accessing Graphical Clients
-You can access graphical clients in an **open** deployment through the following URLs:
+#### Querying the Metering Server
+Suppose that the ingress domain root is `sas.com`, and the namespace is `esp`. 
+
+After deployment, you can perform a simple query of the metering server deployed in an **open** environment as follows:
+```
+     curl http://esp.sas.com:80/SASEventStreamProcessingMetering/eventStreamProcessing/SASESP/meterData
+```
+You can perform a simple query of the metering server deployed in a **multi-user** environment as follows:
+```
+     curl http://esp.sas.com:80/SASEventStreamProcessingMetering/eventStreamProcessing/SASESP/meterData \
+     -H 'Authorization: Bearer <put a valid access token here>'
+```
+
+
+#### Accessing Graphical Clients
+After deployment, you can access graphical clients in an **open** deployment through the following URLs:
 ```
 Event Stream Processing Studio          -- http://esp.sas.com/SASEventStreamProcessingStudio
 Event Stream Processing Streamviewer    -- http://esp.sas.com/SASEventStreamProcessingStreamviewer
