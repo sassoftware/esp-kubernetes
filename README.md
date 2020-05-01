@@ -239,7 +239,7 @@ kubectl -n sckolo exec -it postgres-deployment-6f9d6cc8cc-mhx79 -- psql -U esp
 **Note:** the name of your postgres pod will differ from **postgres-deployment-6f9d6cc8cc-mhx79**. 
 
 
-## Deploy Images in Kubernetes
+### Deploy Images in Kubernetes
 
 After you have revised the manifest files that reside in deploy/, deploy images on the Kubernetes
 cluster with the script bin/dodeploy.
@@ -305,7 +305,7 @@ FileBrowser  --   <namespace>.sas.com/files
 ```
 
 
-#### Query the Metering Server
+#### Querying the Metering Server
 Suppose that the ingress domain root is `sas.com`, and the namespace is `esp`. 
 
 You can perform a simple query of the metering server deployed in an **open** environment as follows:
