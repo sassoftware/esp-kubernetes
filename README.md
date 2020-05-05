@@ -6,15 +6,17 @@
 For changes between releases, please read the [changelog](CHANGELOG.md).
 
 ## Overview
-This project is a repository of tools that enable you to develop, deploy, and test an ESP server and SAS Event Stream Processing 
-clients in a Kubernetes cluster.  These tools are applicable to the following deployment types:
+This project is a repository of scripts, YAML template files, and sample projects (XML files) that enable you to develop, deploy, and test an ESP server and SAS Event Stream Processing clients in a Kubernetes cluster.  They apply to the following deployment approaches:
 * Lightweight open multi-user, multi-tenant deployment
 * Lightweight open, single-user deployment
 
-The tools consist of a set of deployment scripts, YAML template files, and sample projects (XML files) that you can run within the cluster. Before you use the tools available in this project, you must download the pre-built Docker images made available through your 
-SAS Event Stream Processing Software Order Email (SOE).  The SOE guides you to information about how to download the required Docker images and load them onto a local Docker repository.
+Before you proceed:
+* Decide which of these approaches you intend to take. Read the associated prerequisites before getting started.
+* Download the pre-built Docker images made available through your SAS Event Stream Processing Software Order Email (SOE).  The SOE guides you to information about how to download these images and load them onto a local Docker repository.
 
 ## Components of the SAS Event Stream Processing Cloud Ecosystem
+
+The Docker images provide the following components of the SAS Event Stream Processing Cloud Ecosystem:
 
 [Operator](/esp-cloud/operator) - contains YAML template files, and projects to deploy the SAS Event Stream Processing metering server and the ESP operator. 
 
@@ -37,28 +39,28 @@ The following Docker images are deployed from this location:
 
 The following Docker images are deployed from this location: 
   * SAS Oauth2_proxy
-  * Pivitol UAA server (this is configered to store user credential in postgres, but could easily be configured to read user credentials from other IM systems)
+  * Pivitol UAA server (configured to store user credentials in PostgreSQL, but could be reconfigured to read user credentials from alternative IM systems)
 
 Each of these subdirectories contain README files with more specific, detailed instructions.
 
 ## Prerequsities
 
 ### Persistent Volume
-To deploy the images, you must have a running Kubernetes cluster and a have persistent volume available for use.  Work with your Kubernetes administrator to obtain access to a cluster with a persistent volume.
 
-To deploy the SAS Event Stream Processing cloud ecosystem, you must have a running Kubernetes cluster and a persistent volume. The persistent volume is used to store the following:
+**Important**: To deploy the images, you must have a running Kubernetes cluster and a have persistent volume available for use.  Work with your Kubernetes administrator to obtain access to a cluster with a persistent volume.
 
-1. the Postgres database
-2. Any files (csv/xml/json) referenced by the model running on the ESP server
+The persistent volume is used to store the following:
 
-The Postgres database needs write access to the persistent volume. If one plans on putting other files on the persistent volume, such as CSV input files, or one plans on ESP projects writing files to the persitent volume (output files), the persistent volume must have access mode **ReadWriteMany**. 
+1. the PostgreSQL database
+2. Any files (CSV/XML/JSON) referenced by the model running on the ESP server
 
-If Postgres is the only element of the deployment writing to the persistent volume, it may have access mode **ReadWriteOnce**. 
+The PostgreSQL database requires write access to the persistent volume. If you plan to put other files on the persistent volume, such as CSV input files, or plan for ESP projects to write files to the persitent volume (output files), the persistent volume must have access mode **ReadWriteMany**.  
 
-A typical deployment, with no projects or metadata stored uses about `68MB` of storage. For a typical small deployment, *20GB* of storage for the persistant volume should be adaquate. 
+If PostgreSQL is the only element of the deployment that writes to the persistent volume, it can have access mode **ReadWriteOnce**. 
+
+A typical deployment, with no projects or metadata stored, uses about `68MB` of storage. For a typical small deployment, *20GB* of storage for the persistant volume should be adaquate. 
  
-After you run ./bin/mkdeploy script and usable deployment manifests are
-generated, examine the YAML template file named deploy/pvc.yaml.
+After you run the ./bin/mkdeploy script which generates usable deployment manifests, examine the YAML template file named deploy/pvc.yaml.
 
 ```yaml
   #
@@ -76,11 +78,12 @@ generated, examine the YAML template file named deploy/pvc.yaml.
        requests:
          storage: 20Gi  # volume size requested
 ```
+**Note to Scott** The content of the template for deploy/pvc.yaml does not match what is here. Does that matter? 
 
-This file specifies the *PersistentVolumeClaim* that the Postgres database, the open source filebrowser app,  and the ESP
-server pods make in Kubernetes. 
+This file specifies the *PersistentVolumeClaim* that the PostgreSQL database, the open source filebrowser application,  and the ESP
+server pods make in the Kubernetes environment. 
 
-**Important**: The system administrator must have already set up a persistent volume that can bind to this claim.
+**Note to Scott** This says that you run dodeploy to generate manifests and implies that you *then* modify pvc.yaml. Is that correct?
 
 In general, the processes associated with the ESP server run user:**sas**, group:**sas**. Commonly, 
 this is associated with uid:**1001**, gid:**1001**. An example of this is in the deployment of the open source filebrowser
@@ -105,9 +108,10 @@ In the YAML template file deploy/file.yaml. the relevant section is as follows:
            - mountPath: /mnt/data
              name: data
 ```
+**Note to Scott** Should this be fileb.yaml?
 
-This specifies an initialization container that runs prior to starting the
-filebrowser application. It creates two directories on the persitent volume. 
+This section specifies an initialization container that runs prior to starting the
+filebrowser application. It creates two directories on the persistent volume. 
 
     input/
     output/
@@ -184,12 +188,13 @@ Use the mkdeploy script to create a set of deployment YAML files. The script use
           -y                          -- no prompt, just execute
           -n <namespace>              -- specify K8 namespace
           -d <ingress domain root>    -- project domain root,
-                                          ns.<domain root>/<path> is ingress
+                                          ns.<domain root>/<path> is Ingress
           -l <esp license file>       -- SAS ESP license
 
           -C                          -- deploy clients
           -M                          -- enable multiuser mode
 
+**Note:** Use the *-d* (Ingress domain root) parameter specified in the mkdeploy command to create Ingress routes for the deployed pods. All SAS Event Stream Processing applications within the Kubernetes cluster are now accessed through specific context roots and a single Ingress host. The Ingress host is of the form `<namespace>.<ingress domain root>`. 
     
 The options `-C` and `-M` are optional, which generate the following deployments:
 
@@ -276,6 +281,7 @@ C  sas-event-stream-processing-streamviewer-app-55d79d6996-24vq5     1/1     Run
 C  sas-event-stream-processing-studio-app-bf4f675f4-sfpjk            1/1     Running   0          25h
 M  uaa-deployment-85d9fbf6bd-s8fwl                                   1/1     Running   0          25h
 ```
+
 An Ingress for the each compenent should also appear in the namespace:
 
 ```
@@ -285,15 +291,17 @@ An Ingress for the each compenent should also appear in the namespace:
 M  oauth2-proxy                                       sckolo.sas.com             80, 443   25h
    sas-event-stream-manager-app                       sckolo.sas.com             80, 443   25h
 C  sas-event-stream-processing-client-config-server   sckolo.sas.com             80        25h
-C  sas-event-stream-processing-metering-app           sckolo.sas.com             80, 443   24h
+C  sas-event-stream-processing--app           sckolo.sas.com             80, 443   24h
 C  sas-event-stream-processing-streamviewer-app       sckolo.sas.com             80, 443   25h
 C  sas-event-stream-processing-studio-app             sckolo.sas.com             80, 443   25h
 M  uaa                                                sckolo.sas.com             80, 443   25h
 ```
 
+**Note to Scott** Amanda reports that client-config-server will show up last. The rest of the pods show up as “running” almost instantaneously  
+
 ## Accessing Projects and Servers 
 
-**Note:** Use the *-d* (Ingress domain root) parameter specified in the mkdeploy command to create Ingress routes for the deployed pods. All SAS Event Stream Processing applications within the kubernetes cluster are now accessed through specific context roots and a single Ingress host. The Ingress host is of the form `<namespace>.<ingress domain root>`. The following URL and context roots are valid:
+The following URL and context roots are valid to access projects and servers:
 
 ```
 Project X    --   <namespace>.sas.com/SASEventStreamProcessingServer/project/X 
@@ -318,6 +326,8 @@ You an query a project deployed in a **multi-user** environment as follows:
 ```
 
 #### Querying the Metering Server
+**Note** You cannot access the metering server through a web browser.
+
 Suppose that the ingress domain root is `sas.com`, and the namespace is `esp`. 
 
 After deployment, you can perform a simple query of the metering server deployed in an **open** environment as follows:
