@@ -60,7 +60,7 @@ If PostgreSQL is the only element of the deployment that writes to the persisten
 
 A typical deployment, with no projects or metadata stored, uses about `68MB` of storage. For a typical small deployment, *20GB* of storage for the persistant volume should be adaquate. 
  
-After you run the ./bin/mkdeploy script which generates usable deployment manifests, examine the YAML template file named deploy/pvc.yaml.
+After you run the ./bin/mkdeploy script. which generates usable deployment manifests, the YAML template file named deploy/pvc.yaml specifies a *PersistentVolumeClaim*.
 
 ```yaml
   #
@@ -78,18 +78,15 @@ After you run the ./bin/mkdeploy script which generates usable deployment manife
        requests:
          storage: 20Gi  # volume size requested
 ```
-**Note to Scott** The content of the template for deploy/pvc.yaml does not match what is here. Does that matter? 
 
-This file specifies the *PersistentVolumeClaim* that the PostgreSQL database, the open source filebrowser application,  and the ESP
-server pods make in the Kubernetes environment. 
-
-**Note to Scott** This says that you run dodeploy to generate manifests and implies that you *then* modify pvc.yaml. Is that correct?
+This *PersistentVolumeClaim* is made by the PostgreSQL database, the open source filebrowser application, and the ESP
+server pods in the Kubernetes environment. 
 
 In general, the processes associated with the ESP server run user:**sas**, group:**sas**. Commonly, 
 this is associated with uid:**1001**, gid:**1001**. An example of this is in the deployment of the open source filebrowser
 application.
 
-In the YAML template file deploy/file.yaml. the relevant section is as follows:
+In the YAML template file deploy/fileb.yaml. the relevant section is as follows:
 
 ```yaml
          initContainers:
@@ -108,7 +105,6 @@ In the YAML template file deploy/file.yaml. the relevant section is as follows:
            - mountPath: /mnt/data
              name: data
 ```
-**Note to Scott** Should this be fileb.yaml?
 
 This section specifies an initialization container that runs prior to starting the
 filebrowser application. It creates two directories on the persistent volume. 
@@ -264,8 +260,8 @@ This invocation checks that the given namespace exists before it executes the
 deployment. If the namespace does not exist, the script asks whether the namespace should
 be created.
 
-After the deployment is completed you should see active pods in your
-namespace. The pods(ingress) below marked with a **M** only appear in a Multi-user deployment. The pods(ingress) marked with a **C** only appear when graphical clients are included in the deployment. 
+After the deployment is completed you should see active pods within your
+namespace. For example, consider the output below. The pods(ingress) marked with a **M** only appear in a Multi-user deployment. The pods(ingress) marked with a **C** only appear when graphical clients are included in the deployment. 
 
 ```
    [esp-cloud]$ kubectl -n mudeploy get pods
@@ -281,6 +277,8 @@ C  sas-event-stream-processing-streamviewer-app-55d79d6996-24vq5     1/1     Run
 C  sas-event-stream-processing-studio-app-bf4f675f4-sfpjk            1/1     Running   0          25h
 M  uaa-deployment-85d9fbf6bd-s8fwl                                   1/1     Running   0          25h
 ```
+
+The ESP operator, SAS Event Stream Processing Studio, SAS Event Stream Processing Streamviewer, PostgreSQL, oauth2_proxy, and Pivitol UAA are started by the YAML files supplies. After SAS Event Stream Processing Studio initializies, it creates a custom resource that causes the ESP operator to start a “client-config-server”, which is a small ESP server running a dummy project. SAS Event Stream Processing Studio uses that ESP server to obtain a list of available connectors, algorithms, and another metadata it requires. 
 
 An Ingress for the each compenent should also appear in the namespace:
 
