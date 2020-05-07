@@ -16,34 +16,34 @@ Before you proceed:
 
 ## Components of the SAS Event Stream Processing Cloud Ecosystem
 
-The Docker images provide the following components of the SAS Event Stream Processing Cloud Ecosystem:
+The Docker images provide the following components of the SAS Event Stream Processing Cloud Ecosystem.
 
 [Operator](/esp-cloud/operator) - contains YAML template files, and projects to deploy the SAS Event Stream Processing metering server and the ESP operator. 
 
 The following Docker images are deployed from this location:
   * SAS Event Stream Processing metering server
   * ESP operator
-  * Open source postgres database (this could be easily replaced by any Postgres database)
+  * Open source PostgreSQL database (this could be replaced by an alternative PostgreSQL database)
   * Open source filebrowser to manage the persistent volume
 
 
 [Clients](/esp-cloud/clients) - contains YAML template files, and projects to deploy SAS Event Stream Processing 
-graphics clients.  
+graphical clients.  
 
 The following Docker images are deployed from this location: 
   * SAS Event Stream Processing Studio
   * SAS Event Stream Processing Streamviewer
   * SAS Event Stream Manager
 
-[Oauth2](/esp-cloud/oauth2) - contains YAML template files for supporting multi-user installs.
+[OAuth2](/esp-cloud/oauth2) - contains YAML template files for supporting multi-user installations.
 
 The following Docker images are deployed from this location: 
   * SAS Oauth2_proxy
-  * Pivitol UAA server (configured to store user credentials in PostgreSQL, but could be reconfigured to read user credentials from alternative IM systems)
+  * Pivotal User Account and Authenication (UAA) server (configured to store user credentials in PostgreSQL, but could be reconfigured to read user credentials from alternative identity management (IM) systems)
 
 Each of these subdirectories contain README files with more specific, detailed instructions.
 
-## Prerequsities
+## Prerequisites
 
 ### Persistent Volume
 
@@ -51,14 +51,14 @@ Each of these subdirectories contain README files with more specific, detailed i
 
 The persistent volume is used to store the following:
 
-1. the PostgreSQL database
-2. Any files (CSV/XML/JSON) referenced by the model running on the ESP server
+1. The PostgreSQL database
+2. Any files (CSV/XML/JSON) referenced by the model that is running on the ESP server
 
-The PostgreSQL database requires write access to the persistent volume. If you plan to put other files on the persistent volume, such as CSV input files, or plan for ESP projects to write files to the persitent volume (output files), the persistent volume must have access mode **ReadWriteMany**.  
+The PostgreSQL database requires write access to the persistent volume. If you plan to put other files on the persistent volume, such as CSV input files, or plan for projects to write files to the persitent volume (output files), the persistent volume must have the access mode **ReadWriteMany**.  
 
-If PostgreSQL is the only element of the deployment that writes to the persistent volume, it can have access mode **ReadWriteOnce**. 
+If PostgreSQL is the only element of the deployment that writes to the persistent volume, it can have the access mode **ReadWriteOnce**. 
 
-A typical deployment, with no projects or metadata stored, uses about `68MB` of storage. For a typical small deployment, *20GB* of storage for the persistant volume should be adaquate. 
+A typical deployment, with no projects or metadata stored, uses about 68MB of storage. For a typical small deployment, 20GB of storage for the persistant volume should be adaquate. 
  
 After you run the ./bin/mkdeploy script. which generates usable deployment manifests, the YAML template file named deploy/pvc.yaml specifies a *PersistentVolumeClaim*.
 
@@ -86,7 +86,7 @@ In general, the processes associated with the ESP server run user:**sas**, group
 this is associated with uid:**1001**, gid:**1001**. An example of this is in the deployment of the open source filebrowser
 application.
 
-In the YAML template file deploy/fileb.yaml. the relevant section is as follows:
+In the YAML template file deploy/fileb.yaml, the relevant section is as follows:
 
 ```yaml
          initContainers:
@@ -107,20 +107,20 @@ In the YAML template file deploy/fileb.yaml. the relevant section is as follows:
 ```
 
 This section specifies an initialization container that runs prior to starting the
-filebrowser application. It creates two directories on the persistent volume. 
+filebrowser application. It creates two directories on the persistent volume: 
 
     input/
     output/
 
 These directories are used by the deployment. The input/ and output/ directories are created
-for use by running event stream processing projects that need to access files (csv, xml, etc.).
+for use by running event stream processing projects that need to access files (CSV, XML, and so on).
 
-### Additional Prerequisities for a Multi-user Deployment
+### Additional Prerequisites for a Multi-user Deployment
 For a multi-user deployment, there the following additional prerequsites:
-* Access to a Pivitol UAA server in a container
-* Access to the "uaac" Pivitol UAA command line tool to configure the UAA server.
+* Access to a Pivotal UAA server in a container
+* Access to the "uaac" Pivotal UAA command line tool to configure the UAA server.
 
-To create your own UAA Docker container, download a recent UAA war (such as: cloudfoundry-identity-uaa-4.30.0.war) file from any Maven repository and use the following Dockerfile:
+To create your own UAA Docker container, download a recent UAA war (such as cloudfoundry-identity-uaa-4.30.0.war) file from any Maven repository and use the following Dockerfile:
 
 ```
 FROM tomcat:8-jre8-alpine
@@ -160,19 +160,19 @@ IMAGE_ESPSTRMVWR  = "name of image for SAS Event Stream Processing Streamviewer"
 IMAGE_ESPSTUDIO   = "name of image for SAS Event Stream Processing Studio"
 
 IMAGE_ESPOAUTH2P  = "name of image for SAS Oauth2 Proxy"
-IMAGE_UAA         = "name of image for Pivitol UAA Server"
+IMAGE_UAA         = "name of image for Pivotal UAA Server"
 ```
-Alternatively, you can specify the specific location of the images on the command line.
+Alternatively, you can specify the location of the images on the command line.
 
-Perform the SAS Event Stream Processing cloud deployment from a single directory, esp-cloud. A single script enables the deployment of the basic ESP operator and the graphical clients. 
+Perform the SAS Event Stream Processing cloud deployment from a single directory, esp-cloud. A single script enables the deployment of the ESP operator and the graphical clients. 
 
-The deployment can be done in open mode (no TLS or user authentication), or multi-user mode, which provides full authentication through a UAA server. Multi-uesr mode has TLS enabled by default. 
+The deployment can be done in open mode (no TLS or user authentication), or multi-user mode, which provides full authentication through a UAA server. Multi-user mode has TLS enabled by default. 
 
-See: [ESP cloud](/esp-cloud) for further details. 
+For more information, see [ESP cloud](/esp-cloud). 
 
 ### Generate a Deployment
 
-Use the mkdeploy script to create a set of deployment YAML files. The script uses the environment variables you set to locate the Docker images and pass parameters to specify namespace, ingress root, license, and type of deployment.
+Use the mkdeploy script to create a set of deployment YAML files. The script uses the environment variables you set to locate the Docker images and pass parameters to specify a namespace, Ingress root, license, and type of deployment.
 
    ./bin/mkdeploy
    Usage: ./bin/mkdeploy
@@ -192,24 +192,24 @@ Use the mkdeploy script to create a set of deployment YAML files. The script use
 
 **Note:** Use the *-d* (Ingress domain root) parameter specified in the mkdeploy command to create Ingress routes for the deployed pods. All SAS Event Stream Processing applications within the Kubernetes cluster are now accessed through specific context roots and a single Ingress host. The Ingress host is of the form `<namespace>.<ingress domain root>`. 
     
-The options `-C` and `-M` are optional, which generate the following deployments:
+The options `-C` and `-M` are optional and generate the following deployments:
 
-1. **Open deployment (no authentication or TLS)** with no graphical clients. 
+* **Open deployment (no authentication or TLS)** with no graphical clients. 
 ```shell
 [esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt \
                             -n sckolo -d sas.com
 ```
-2. **Open deployment (no authentication or TLS)** with all graphical clients. 
+* **Open deployment (no authentication or TLS)** with all graphical clients. 
 ```shell
 [esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt \
                             -n sckolo -d sas.com -C
 ```
-3. **Multi-user deployment (UAA authentication and TLS)** with no Graphical Clients.
+* **Multi-user deployment (UAA authentication and TLS)** with no graphical clients.
 ```shell
 [esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt \
                             -n sckolo -d sas.com -M
 ```
-4. **Multi-user deployment (UAA authentication and TLS)** with all Graphical Clients.
+* **Multi-user deployment (UAA authentication and TLS)** with all graphical clients.
 ```shell
 [esp-cloud]$ ./bin/mkdeploy -r -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt \
                             -n sckolo -d sas.com -C -M
@@ -229,7 +229,7 @@ data:
   username: ZXNw
   password: ZXNwX2luX2Nsb3Vk
 ```
-These are base64 encoded strings. The defualt values are **esp** for the username and **esp_in_cloud** for the password. Thay can be adjusted prior to deployment. 
+These are base64 encoded strings. The default values are **esp** for the username and **esp_in_cloud** for the password. They can be adjusted prior to deployment. 
 
 After the deployment is successful and the Postgres pod has started, the Postgres instance can be administered with **psql** from the Kubernetes cluster. Use the following command to connect to psql: 
 
@@ -237,12 +237,12 @@ After the deployment is successful and the Postgres pod has started, the Postgre
 kubectl -n sckolo exec -it postgres-deployment-6f9d6cc8cc-mhx79 -- psql -U esp
 ```
 
-**Note:** the name of your postgres pod will differ from **postgres-deployment-6f9d6cc8cc-mhx79**. 
+**Note:** The name of your PostreSQL pod will differ from **postgres-deployment-6f9d6cc8cc-mhx79**. 
 
 
 ### Deploy Images in Kubernetes
 
-After you have revised the manifest files that reside in deploy/, deploy images on the Kubernetes
+After you have revised the manifest files that reside in the deploy/ directory, deploy images on the Kubernetes
 cluster with the script bin/dodeploy.
 
 ```shell
@@ -261,7 +261,7 @@ deployment. If the namespace does not exist, the script asks whether the namespa
 be created.
 
 After the deployment is completed you should see active pods within your
-namespace. For example, consider the output below. The pods(ingress) marked with a **M** only appear in a Multi-user deployment. The pods(ingress) marked with a **C** only appear when graphical clients are included in the deployment. 
+namespace. For example, consider the output below. The pods (Ingress) marked with a **M** only appear in a multi-user deployment. The pods (Ingress) marked with a **C** only appear when graphical clients are included in the deployment. 
 
 ```
    [esp-cloud]$ kubectl -n mudeploy get pods
@@ -278,9 +278,9 @@ C  sas-event-stream-processing-studio-app-bf4f675f4-sfpjk            1/1     Run
 M  uaa-deployment-85d9fbf6bd-s8fwl                                   1/1     Running   0          25h
 ```
 
-The ESP operator, SAS Event Stream Processing Studio, SAS Event Stream Processing Streamviewer, PostgreSQL, oauth2_proxy, and Pivitol UAA are started by the YAML files supplies. After SAS Event Stream Processing Studio initializies, it creates a custom resource that causes the ESP operator to start a “client-config-server”, which is a small ESP server running a dummy project. SAS Event Stream Processing Studio uses that ESP server to obtain a list of available connectors, algorithms, and another metadata it requires. 
+The ESP operator, SAS Event Stream Processing Studio, SAS Event Stream Processing Streamviewer, PostgreSQL, oauth2_proxy, and Pivotal UAA are started by the YAML files supplies. After SAS Event Stream Processing Studio initializies, it creates a custom resource that causes the ESP operator to start a “client-config-server”, which is a small ESP server running a dummy project. SAS Event Stream Processing Studio uses that ESP server to obtain a list of available connectors, algorithms, and another metadata it requires. 
 
-An Ingress for the each compenent should also appear in the namespace:
+An Ingress for each compenent should also appear in the namespace:
 
 ```
    [esp-cloud]$ kubectl -n mudeploy get ingress
@@ -311,7 +311,7 @@ FileBrowser  --   <namespace>.sas.com/files
 ```
 
 #### Querying a Project
-Suppose that the Ingress domain root is `sas.com`, and the namespace is `esp` and the projects service name is **array**.  
+Suppose that the Ingress domain root is `sas.com`, the namespace is `esp`, and the project's service name is **array**.  
 
 After deployment, you can query a project deployed in an **open** environment as follows:
 ```
@@ -326,7 +326,7 @@ You an query a project deployed in a **multi-user** environment as follows:
 #### Querying the Metering Server
 **Note** You cannot access the metering server through a web browser.
 
-Suppose that the ingress domain root is `sas.com`, and the namespace is `esp`. 
+Suppose that the Ingress domain root is `sas.com`, and the namespace is `esp`. 
 
 After deployment, you can perform a simple query of the metering server deployed in an **open** environment as follows:
 ```
@@ -355,22 +355,22 @@ Event STream Processing Manager         -- https://esp.sas.com/SASEventStreamMan
 
 ## Configuring for Multiple Users
 
-See the dicussion of adding service and/or user accounts and credentials here: [Oauth2](/esp-cloud/oauth2)
+Refer to the discussion about adding service and user accounts and credentials here: [Oauth2](/esp-cloud/oauth2)
 
 ## Using filebrowser
 
-filebrowser is a middleware or standalone app that is available on GitHub.
+filebrowser is an application that is available on GitHub.
 You can use the filebrowser available with these tools to
 access the persistent store used by the Kubernetes pods.  
 
-The filebrowser application is installed in your kubernetes cluster automaticall for convience. It may be accessed
-from a browser at:
+The filebrowser application is installed in your Kubernetes cluster automatically for convenience. It can be accessed
+through a browser at:
 
      http://<namespace>.<ingress domain root>/files
 
 With filebrowser, you can perform the following tasks:
 
-* Copy input files (csv, json, xml) into the persistent store
+* Copy input files (CSV, JSON, XML) into the persistent store
 * View output files written to the persistent store by running projects
 * Copy large binary model files for analytics (ASTORE files) to the 
 persistent store
