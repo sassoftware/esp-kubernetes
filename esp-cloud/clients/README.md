@@ -1,8 +1,8 @@
-## Graphical Clients
+## Web-based Clients
 
 ### Introduction
 
-This directory contains the deployment YAML template files, used to deploy the graphical clients of SAS Event Stream Processing:
+This directory contains the deployment YAML template files, used to deploy the SAS Event Stream Processing web-based clients:
 
 * SAS Event Stream Processing Studio
 * SAS Event Stream Processing Streamviewer
