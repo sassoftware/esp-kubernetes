@@ -19,7 +19,7 @@ You need the following files to run this example:
 
 To run the example:
 1. Uncompress the input file deploy/examples/input/array_input01.csv.gz. 
-1. Copy the expanded file (array_input01.csv) to the directory input/ on your persistent volume. You can do this with the filebrowser described in the ESP operator README (for more information, see [filebrowser](/../../#using-filebrowser)) or with any standard Unix or Kubernetes tools.
+1. Copy the expanded file (array_input01.csv) to the directory input/ on your persistent volume. You can do this with the filebrowser described in the main README (for more information, see [filebrowser](../../README.md#using-filebrowser)) or with any standard Unix or Kubernetes tools.
 1. Upload the esp-cloud/deploy/examples/example-1.xml file to SAS Event Stream Processing Studio or SAS Event Stream Manager.
 1. Test the project using the test mode in SAS Event Stream Processing Studio, or deploy the project using SAS Event Stream Processing Studio or SAS Event Stream Manager.
 1. When the project has been loaded, use SAS Event Stream Processing Streamviewer to subscribe to the windows for the running project.
