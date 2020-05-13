@@ -6,7 +6,7 @@
 For changes between releases, please read the [changelog](CHANGELOG.md).
 
 ## Overview
-This project is a repository of scripts, YAML template files, and sample projects (XML files) that enable you to develop, deploy, and test an ESP server and SAS Event Stream Processing clients in a Kubernetes cluster.  They apply to the following deployment approaches:
+This project is a repository of scripts, YAML template files, and sample projects (XML files) that enable you to develop, deploy, and test an ESP server and SAS Event Stream Processing web-based clients in a Kubernetes cluster.  They apply to the following deployment approaches:
 * Lightweight open multi-user, multi-tenant deployment
 * Lightweight open, single-user deployment
 
@@ -28,7 +28,7 @@ The following Docker images are deployed from this location:
 
 
 [Clients](/esp-cloud/clients) - contains YAML template files, and projects to deploy SAS Event Stream Processing 
-graphical clients.  
+web-based clients.  
 
 The following Docker images are deployed from this location: 
   * SAS Event Stream Processing Studio
