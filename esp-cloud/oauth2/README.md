@@ -1,10 +1,12 @@
+## OAuth2
+
 ### Introduction
 
 This directory contains tools that enable you to run SAS Event Stream Processing in a multi-user environment.
 
 A multi-user deployment deploys the following pods: 
 * A Pivitol UAA server
-* The SAS Oauth2-proxy
+* The SAS OAuth2-proxy
 
 ### Pivitol UAA Secrets and Management
 
