@@ -2,12 +2,9 @@
 
 ### Introduction
 
-This directory contains tools that enable you to develop, deploy, and test an  ESP server in a Kubernetes cluster. The tools consist of YAML template files, and sample projects (XML files) that you can run in the ESP server.
-
-The ESP operator watches for custom resources that the ESP server can run. When the ESP operator detects a new custom resource, it reads the resource and spins up a single Kubernetes pod running an ESP Server.  The ESP server runs the project that is 
-embedded in the custom resource. Further, the ESP operator configures the Ingress endpoint that exposes the REST service for the ESP server.  The ESP server running in the Kubernetes pod uses this endpoint
-to communicate with the outside world.
-
+The ESP operator watches for custom resources that the ESP server can run. When the ESP operator detects a new custom resource, it reads the resource and generates a single Kubernetes pod running an ESP Server.  The ESP server runs the project that is 
+embedded within the ESPServer custom resource. Further, the ESP operator configures the Ingress endpoint that exposes the REST service for the ESP server.  The ESP server running in the Kubernetes pod uses this endpoint
+to communicate externally.
 
 ### Examples
 
@@ -18,16 +15,17 @@ You need the following files to run this example:
 * esp-cloud/deploy/examples/input/array_input01.csv.gz
 * esp-cloud/deploy/examples/example-1.xml
 
-First, uncompress the input file, deploy/examples/input/array_input01.csv.gz.
-Then copy the expanded file (array_input01.csv) to the directory `input/` on your persistent volume. You can do this with
-the filebrowser described in the previous section, or with any standard Unix or Kubernetes tools.
+1. Uncompress the input file, deploy/examples/input/array_input01.csv.gz.
 
-Next, use the bin/mkproject script to convert the
+2. Copy the expanded file (array_input01.csv) to the directory `input/` on your persistent volume. You can do this with
+the filebrowser tool provided in this repository or with any standard Unix or Kubernetes tools.
+
+3. Use the bin/mkproject script to convert the
 standard ESP XML project (deploy/examples/example-1.xml) into a custom resource.  When this resource is
 applied in the Kubernetes cluster, it triggers the ESP operator to start an ESP
-server pod, running the specified project. 
+server pod that runs the specified project. 
 
-The syntax is as follows
+The syntax is as follows:
 
 ```shell
        [~]$ ./bin/mkproject  -x deploy/examples/example-1.xml -s array -o cr_array.yaml
@@ -38,11 +36,11 @@ The syntax is as follows
   the endpoint `<namespace>.<domain root>/SASEventStreamProcessingServer/<service name> is created by the ESP operator.
 ```
 
-Now apply the custom resource to your Kubernetes cluster:
+4. Apply the custom resource to your Kubernetes cluster:
 
        [~]$ kubectl -n <namespace> apply -f cr_array.yaml
 
-Verify that the pod is running with the following command:
+5. Verify that the pod is running with the following command:
 
        [~]$ kubectl -n <namespace> get pods
 
@@ -53,23 +51,29 @@ Verify that the pod is running with the following command:
        sas-esp-operator-86f48f8899-q6bgv                                 1/1     Running   0          22h
        sas-event-stream-processing-metering-app-69fbbffdc7-dnth6         1/1     Running   0          22h
 
-Use the filebrowser to inspect the directory `output/`. You should see
-the output csv file (array_output01.csv) that the project has created.
+6. Use the filebrowser to inspect the directory `output/`. You should see
+the output CSV file (array_output01.csv) that the project has created.
 
 #### Using a Multi-Partitioned Kafka Topic for Autoscaling
 
-This example shows how to use Kafka with a multi-partitioned topic.
-You feed a project data through Kafka.  Kubernetes and the ESP operator scale
+This example shows how to feed a project data through a multi-partitioned Kafka topic.
+Kubernetes and the ESP operator scale
 the number of project pods according to resource load.
 
-Specifically, you deploy a `strimzi kafka operator` to the cluster and create a three
-broker Kafka cluster with a single topic *sjkinput* spread over 10
+Specifically, you deploy a `strimzi kafka operator` to the cluster and create a three-broker
+Kafka cluster with a single topic named *sjkinput* spread over ten
 partitions. Detailed configuration instructions are beyond the scope of
-this document.  Use the following helpful hints:
+this document.  
 
-     1. Install the Kafka operator per instructions at [kafa operator](https://operatorhub.io/operator/strimzi-kafka-operator)
-     2. Apply the following two YAML files to your namespace to create the
-        kafka cluster, and then to instantiate the topic on the cluster.
+**Note to Scott**
+What is spread over 10 partitions? The cluster or the topic? If the cluster, the dependent clause needs to be moved.
+
+Use the following helpful hints:
+
+     1. Install the Kafka operator following the instructions at [kafa operator](https://operatorhub.io/operator/strimzi-kafka-operator)
+     2. Apply the following two YAML files to your namespace to do the following:
+        * Create the kafka cluster.
+        * Instantiate the topic on the cluster.
 
 [kafka]$ cat create-cluster.yaml
 ```yaml
@@ -116,28 +120,31 @@ spec:
     segment.bytes: 1073741824
 ```
 
-This example runs two ESP models.  
+This example runs two SAS Event Stream Processing models.  
 * The first model reads from Kafka and then
-computes some values.  The model scales up or down automatically.
-* The second model reads a CSV file, loops and loads significant amounts of
-data onto Kafka, which forces the first model to consume CPU, and then triggers the
+computes data values.  The model scales up or down automatically.
+* The second model reads a CSV file and then loops and loads significant amounts of
+data onto Kafka. This forces the first model to consume CPU and then triggers the
 autoscaling of the ESP project.
 
-First uncompress the input file, deploy/examples/input/kafka_input01.csv.gz.
-Then copy the
+1. Uncompress the input file deploy/examples/input/kafka_input01.csv.gz.
+
+2. Copy the
 expanded file (kafka_input01.csv) to the directory `<namespace>/input` on your
 persistent volume.
 
-Next you create deployable custom resources for the two models. First, create the model that reads from a Kafka topic and autoscales.
+3. Create deployable custom resources for the two models. 
+
+   a. Create the model that reads from a Kafka topic and autoscales.
 
        [cli]$ ./bin/mkproject  -x deploy/examples/example-2.xml -s source -o cr_source.yaml
 
-Then create the model that reads from a CSV file on the persistent volume and pushes messages to
+   b. Create the model that reads from a CSV file on the persistent volume and pushes messages to
 Kafka:
 
        [cli]$ ./bin/mkproject  -x deploy/examples/example-3.xml -s sink -o cr_sink.yaml
 
-Before deploying these models, you need to edit the autoscaling model.  This is specified in the YAML file named cr_source.yaml.
+4. Before you deploy these models, edit the autoscaling model.  This is specified in the YAML file named cr_source.yaml.
 Explicitly limit the CPU resources allocated to speed up the autoscaling. Set the maximum number of replicas to 10, which is the number of partitions that the Kafka topic was configured with.
 
 ```yaml
@@ -156,11 +163,13 @@ Explicitly limit the CPU resources allocated to speed up the autoscaling. Set th
 **Note**: Set the requests.cpu value to 1.  Set the limits.cpu value to 2.
 Set the autoscale.maxReplicas to 10.
 
-Now start the ESP projects. First, start the source project:
+5. Start the ESP projects.
+
+   a. Start the source project:
 
     kubectl apply -f cr_source.yaml
 
-Check the usage of the pods as follows:
+   Check the usage of the pods as follows:
 
     [cli]$ kubectl -n cmdline top pods
     NAME                                             CPU(cores)   MEMORY(bytes)
@@ -170,11 +179,11 @@ Check the usage of the pods as follows:
 Here, the source pod uses only 24 milli-cpus, because there is no data on Kafka
 to read and process.
 
-Now start the second project that floods the Kafka bus with messages.
+b. Start the second project that floods the Kafka bus with messages.
 
     kubectl apply -f cr_sink.yaml
 
-After you wait a short amount of time, check the pods again:
+6. Wait a short amount of time and then check the pods again:
 
     [cli]$ kubectl -n cmdline top pods
     NAME                                             CPU(cores)   MEMORY(bytes)
@@ -184,7 +193,7 @@ After you wait a short amount of time, check the pods again:
 
 You can see that the source is now using 1.5 cpus. 
 
-Wait a short time and check the pods again.
+7. Wait a short time and check the pods again.
 
     [cli]$ kubectl -n cmdline top pods
     NAME                                             CPU(cores)   MEMORY(bytes)
