@@ -70,8 +70,9 @@ What is spread over 10 partitions? The cluster or the topic? If the cluster, the
 
 Use the following helpful hints:
 
-     1. Install the Kafka operator following the instructions at [kafa operator](https://operatorhub.io/operator/strimzi-kafka-operator)
-     2. Apply the following two YAML files to your namespace to do the following:
+1. Install the Kafka operator following the instructions at the [kafka operator](https://operatorhub.io/operator/strimzi-kafka-operator) web site.
+
+2. Apply the following two YAML files to your namespace to do the following:
         * Create the kafka cluster.
         * Instantiate the topic on the cluster.
 
@@ -167,21 +168,20 @@ Set the autoscale.maxReplicas to 10.
 
    a. Start the source project:
 
-    kubectl apply -f cr_source.yaml
+      kubectl apply -f cr_source.yaml
 
-   Check the usage of the pods as follows:
+      Check the usage of the pods as follows:
 
-    [cli]$ kubectl -n cmdline top pods
-    NAME                                             CPU(cores)   MEMORY(bytes)
-    ...
-    source-5f464ddc46-mxnx2                          24m          34Mi
+      [cli]$ kubectl -n cmdline top pods
+      NAME                                             CPU(cores)   MEMORY(bytes)
+      ...
+      source-5f464ddc46-mxnx2                          24m          34Mi
 
-Here, the source pod uses only 24 milli-cpus, because there is no data on Kafka
-to read and process.
+      Here, the source pod uses only 24 milli-cpus, because there is no data on Kafka to read and process.
 
-b. Start the second project that floods the Kafka bus with messages.
+  b. Start the second project that floods the Kafka bus with messages.
 
-    kubectl apply -f cr_sink.yaml
+      kubectl apply -f cr_sink.yaml
 
 6. Wait a short amount of time and then check the pods again:
 
@@ -191,7 +191,7 @@ b. Start the second project that floods the Kafka bus with messages.
     sink-cd7d97d55-txjqs                             2030m        67Mi
     source-5f464ddc46-mxnx2                          1558m        79Mi
 
-You can see that the source is now using 1.5 cpus. 
+    You can see that the source is now using 1.5 cpus. 
 
 7. Wait a short time and check the pods again.
 
@@ -204,9 +204,7 @@ You can see that the source is now using 1.5 cpus.
     source-5f464ddc46-q5t4l                          1922m        93Mi
     source-5f464ddc46-ws4cp                          1010m        74Mi
 
-The project has scaled up to four copies. It will continue to scale up to the maximum
-specified (10). Stop the second project (that is writing data to Kafka)
-with the following command:
+    The project has scaled up to four copies. It will continue to scale up to the maximum specified (10). Stop the second project (that is writing data to Kafka) with the following command:
 
     kubectl delete -f cr_sink.yaml
 
