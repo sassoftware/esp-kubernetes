@@ -61,12 +61,9 @@ Kubernetes and the ESP operator scale
 the number of project pods according to resource load.
 
 Specifically, you deploy a `strimzi kafka operator` to the cluster and create a three-broker
-Kafka cluster with a single topic named *sjkinput* spread over ten
-partitions. Detailed configuration instructions are beyond the scope of
+Kafka cluster with a single topic named *sjkinput*. This topic is spread over ten
+Kafka partitions. Detailed configuration instructions are beyond the scope of
 this document.  
-
-**Note to Scott**
-What is spread over 10 partitions? The cluster or the topic? If the cluster, the dependent clause needs to be moved.
 
 Use the following helpful hints:
 
