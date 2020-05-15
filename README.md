@@ -5,7 +5,7 @@
 ## Changes
 For changes between releases, please read the [changelog](CHANGELOG.md).
 
-## Overview
+## Introduction
 This project is a repository of scripts, YAML template files, and sample projects (XML files) that enable you to develop, deploy, and test an ESP server and SAS Event Stream Processing web-based clients in a Kubernetes cluster.  They apply to the following deployment approaches:
 * Lightweight open multi-user, multi-tenant deployment
 * Lightweight open, single-user deployment
