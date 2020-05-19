@@ -80,7 +80,7 @@ After you run the ./bin/mkdeploy script. which generates usable deployment manif
 ```
 
 This *PersistentVolumeClaim* is made by the PostgreSQL database, the open source filebrowser application, and the ESP
-server pods in the Kubernetes environment. 
+server pods in the Kubernetes environment. Ensure that the persistent volume that you have set up can satisfy this claim. 
 
 In general, the processes associated with the ESP server run user:**sas**, group:**sas**. Commonly, 
 this is associated with uid:**1001**, gid:**1001**. An example of this is in the deployment of the open source filebrowser
