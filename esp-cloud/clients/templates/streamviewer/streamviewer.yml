@@ -34,7 +34,7 @@ spec:
   TEMPLATE_ESP_MULTI  - sckolo.sas.com
   TEMPLATE_ESP_MULTI  secretName: foo
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sas-event-stream-processing-streamviewer-app
