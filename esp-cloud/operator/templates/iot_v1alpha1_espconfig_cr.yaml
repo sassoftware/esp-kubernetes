@@ -7,7 +7,7 @@ spec:
   # Add fields here
   espProperties:
     "server.license": "b64TEMPLATE_ESP_LICB64GZ"
-    "env.server.license": "SAS_LICENSE"
+    #"env.server.license": "ESP_LICENSE"
     #"server.disableTrace": "false"
   operatorProperties: # the properties ESP operator use to configure projects
     #"server.tls.issuer": "letsencrypt-staging"
