@@ -2,46 +2,54 @@ apiVersion: iot.sas.com/v1alpha1
 kind: ESPServer
 metadata:
   name: TEMPLATE_ESP_SRVCNAME # give the service used to access the running project a name
-                              #    ingress is <name>.<namespace>.$ESP_DOMAIN  
+                              #     ingress is <name>.<namespace>.$ESP_DOMAIN
   namespace: TEMPLATE_ESP_NAMESPACE
 spec:
   # Add fields here
-    replicas: 1        # 1 by default, if larger than 1, requires load_balance_policy
-    #failover: true  # if true, use Kafka for HA?
     loadBalancePolicy: "default" # in the future, we could add cluster-manager hash/round-robin...
-    resources:
-      requests:
-        memory: "2Gi"
-        cpu: "2"
-      limits:
-        memory: "4Gi"
-        cpu: "4"
-    autoscale:
-      minReplicas: 1
-      maxReplicas: 1 
-      metrics:
-      - type: Resource
-        resource:
-          name: cpu
-          target:
-            type: Utilization
-            averageUtilization: 50
+    # if model has prefix "b64", treat it as based64 encoded 
     espProperties:
       server.xml: "b64TEMPLATE_ESP_MODELB64"
       meta.meteringhost: "sas-event-stream-processing-metering-app.TEMPLATE_ESP_NAMESPACE"
       meta.meteringport: "80"
-    env:
-        # Add any environment variable you would like in the esp server pod
-    volumeMounts:
-        - mountPath: /mnt/data  # path persistent volume gets mounted to
-          name: data            # the volume specified below
-          subPath: TEMPLATE_ESP_NAMESPACE
-    volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: esp-pv
+    projectTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
+      deployment:
+        spec:
+          selector:
+            matchLabels:
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "2"
+            limits:
+              memory: "4Gi"
+              cpu: "4"
+          autoscale:
+            minReplicas: 1
+            maxReplicas: 1 
+          template: # required
+            spec: # required
+               volumes:
+               - name: data
+                 persistentVolumeClaim:
+                   claimName: esp-pv
+               containers:
+               - name: ((PROJECT_SERVICE_NAME)) # DONT CHANGE THE NAME
+                 volumeMounts:
+                 - mountPath: /mnt/data  # path persistent volume gets mounted to
+                   name: data            # the volume specified below
+                   subPath: TEMPLATE_ESP_NAMESPACE
+    loadBalancerTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
+      deployment:
+        spec:  # required for deployment spec
+          template: # required
+            spec: # required
+              containers:
+              - name: ((PROJECT_SERVICE_NAME)) 
 access:
-  #operator will update these after the server is deployed
+  #
+  # operator will update these after the server is deployed
+  #
   state: "Pending" 
   internalHostName:  foo
   internalHttpPort:  0

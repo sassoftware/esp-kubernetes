@@ -30,17 +30,109 @@ spec:
         spec:
           properties:
             espProperties:
+              nullable: true
               additionalProperties:
                 type: string
-              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                Important: Run "operator-sdk generate k8s" to regenerate code after
-                modifying this file Add custom validation using kubebuilder tags:
-                https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
               type: object
+            failover:
+              type: boolean
+            loadBalancePolicy:
+              type: string
+            projectTemplate:
+              nullable: true
+              type: object
+              properties:
+                autoscale:
+                  properties:
+                    maxReplicas:
+                      format: int32
+                      type: integer
+                    metrics:
+                      items:
+                        type: object
+                      type: array
+                    minReplicas:
+                      format: int32
+                      type: integer
+                  required:
+                  - minReplicas
+                  - maxReplicas
+                  - metrics
+                  type: object
+                spec:
+                  nullable: true
+                  type: object
+                  properties:
+                    replicas:
+                      description: number of replicas
+                      format: int64
+                      type: integer
+                    template:
+                      type: object
+                      properties:
+                        spec:
+                          type: object
+                          properties:
+                            containers:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                  image:
+                                    type: string
+                                required:
+                                - name
+                                - image
+                          required:
+                          - containers
+                      required:
+                      - spec
+                  required:
+                  - replicas
+                  - template
+            loadBalancerTemplate:
+              nullable: true
+              type: object
+              properties:
+                spec:
+                  nullable: true
+                  type: object
+                  properties:
+                    replicas:
+                      description: number of replicas
+                      format: int64
+                      type: integer     
+                    template:
+                      type: object
+                      properties:
+                        spec:
+                          type: object
+                          properties:
+                            containers:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                  image:
+                                    type: string
+                                required:
+                                - name
+                                - image
+                          required:
+                          - containers
+                      required:
+                      - spec
+                  required:
+                  - replicas
+                  - template
           required:
           - espProperties
-          type: object
-        status:
+          - projectTemplate
+          - loadBalancerTemplate
           type: object
   version: v1alpha1
   versions:

@@ -6,11 +6,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      name: esp-operator
+      name: sas-esp-operator
   template:
     metadata:
       labels:
-        name: esp-operator
+        name: sas-esp-operator
     spec:
       serviceAccountName: esp-operator
       containers:
@@ -31,19 +31,17 @@ spec:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
               value: "sas-esp-operator"
-            #inside the controller, "ESPOP_" is the prefix that will be ignored, then "__" will be replaced by ".". i.e. ESPOP_SERVER_IMAGE is converted to
+            #inside the container, "ESPOP_" is the prefix that will be ignored, then "__" will be replaced by ".". i.e. ESPOP_SERVER_IMAGE is converted to
             #  server.image that will override the value set in config.yaml
-            - name: ESPOP_SERVER__IMAGE
-              value: "TEMPLATE_ESP_SERVER_IMAGE"
             - name: ESPOP_SERVER__HTTP_PORT
               value: "31415"
             - name: ESPOP_SERVER__PUBSUB_PORT
               value: "31416"
-              #- name: ESPOP_DOMAINNAME
-              #value: "TEMPLATE_ESP_DOMAIN"
             - name: ESPOP_PUBLICHOSTNAME
               value: "TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN"
             - name: ESPOP_LB__IMAGE
               value: "TEMPLATE_ESP_LB_IMAGE"
             TEMPLATE_ESP_MULTI- name: ESPOP_OAUTH2PROXY
             TEMPLATE_ESP_MULTI  value: "oauth2" # oauth2 proxy's ingress path
+            - name: ESPOP_ESPCONFIG # ESPConfig used to configure operator
+              value: "espconfig"

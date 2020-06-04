@@ -43,28 +43,6 @@ spec:
           type: object
         spec:
           properties:
-            autoscale:
-              properties:
-                maxReplicas:
-                  format: int32
-                  type: integer
-                metrics:
-                  items:
-                    type: object
-                  type: array
-                minReplicas:
-                  format: int32
-                  type: integer
-              required:
-              - minReplicas
-              - maxReplicas
-              - metrics
-              type: object
-            env:
-              nullable: true
-              items:
-                type: object
-              type: array
             espProperties:
               nullable: true
               additionalProperties:
@@ -74,102 +52,50 @@ spec:
               type: boolean
             loadBalancePolicy:
               type: string
-            loadBalancer:
+            projectTemplate:
               nullable: true
+              type: object
               properties:
-                env:
-                  nullable: true
-                  items:
-                    type: object
-                  type: array
-                replicas:
-                  description: Loadbalancer specification
-                  format: int64
-                  type: integer
-                resources:
+                autoscale:
+                  properties:
+                    maxReplicas:
+                      format: int32
+                      type: integer
+                    metrics:
+                      items:
+                        type: object
+                      type: array
+                    minReplicas:
+                      format: int32
+                      type: integer
+                  required:
+                  - minReplicas
+                  - maxReplicas
+                  - metrics
+                  type: object
+                spec:
                   nullable: true
                   type: object
-                targets:
+                  properties:
+                    replicas:
+                      description: number of replicas
+                      format: int64
+                      type: integer
+            loadBalancerTemplate:
+              nullable: true
+              type: object
+              properties:
+                spec:
                   nullable: true
-                  items:
-                    properties:
-                      connectors:
-                        nullable: true
-                        items:
-                          properties:
-                            class:
-                              type: string
-                            properties:
-                              additionalProperties:
-                                type: string
-                              type: object
-                            type:
-                              description: connectors optionally define how data come
-                                into the load balancer
-                              type: string
-                          required:
-                          - class
-                          - properties
-                          type: object
-                        type: array
-                      queryName:
-                        type: string
-                      schema:
-                        properties:
-                          fields:
-                            items:
-                              properties:
-                                key:
-                                  type: string
-                                name:
-                                  type: string
-                                type:
-                                  type: string
-                              required:
-                              - name
-                              - type
-                              type: object
-                            type: array
-                        type: object
-                      schemaString:
-                        type: string
-                      type:
-                        type: string
-                      windowName:
-                        type: string
-                    required:
-                    - queryName
-                    - windowName
-                    type: object
-                  type: array
-              required:
-              - replicas
-              - targets
-              type: object
-            model:
-              type: string
-            name:
-              type: string
-            replicas:
-              format: int64
-              type: integer
-            resources:
-              type: object
-            volumeMounts:
-              nullable: true
-              items:
-                type: object
-              type: array
-            volumes:
-              nullable: true
-              items:
-                type: object
-              type: array
+                  type: object
+                  properties:
+                    replicas:
+                      description: number of replicas
+                      format: int64
+                      type: integer     
           required:
-          - replicas
           - espProperties
-          - resources
-          - autoscale
+          - loadBalancePolicy
           type: object
   version: v1alpha1
   versions:
