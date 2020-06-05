@@ -6,8 +6,7 @@ metadata:
 spec:
   # Add fields here
   espProperties:
-    "server.license": "b64TEMPLATE_ESP_LICB64GZ"
-    #"env.server.license": "ESP_LICENSE"
+    "env.server.license": "ESP_LICENSE"
     #"server.disableTrace": "false"
   operatorProperties: # the properties ESP operator use to configure projects
     #"server.tls.issuer": "letsencrypt-staging"
@@ -103,7 +102,7 @@ spec:
               image: TEMPLATE_ESP_SERVER_IMAGE
               imagePullPolicy: IfNotPresent
               env:
-              - name: SAS_LICENSE
+              - name: ESP_LICENSE
                 value: "b64TEMPLATE_ESP_LICB64GZ"
               resources:
                 requests:
@@ -144,7 +143,7 @@ spec:
               image: repulpmaster.unx.sas.com/cdp-release-x64_oci_linux_2-docker-latest/sas-event-stream-processing-server-app:7.1.0-20200512.1589296745199
               imagePullPolicy: IfNotPresent
               env:
-              - name: SAS_LICENSE
+              - name: ESP_LICENSE
                 value: "b64TEMPLATE_ESP_LICB64GZ"
               resources:
                 requests:
