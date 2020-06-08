@@ -169,7 +169,7 @@ Set the autoscale.maxReplicas to 10.
 
       Check the usage of the pods as follows:
 
-      [cli]$ kubectl -n cmdline top pods
+      [cli]$ kubectl -n <namespace> top pods
       NAME                                             CPU(cores)   MEMORY(bytes)
       ...
       source-5f464ddc46-mxnx2                          24m          34Mi
@@ -182,7 +182,7 @@ Set the autoscale.maxReplicas to 10.
 
 6. Wait a short amount of time and then check the pods again:
 
-    [cli]$ kubectl -n cmdline top pods
+    [cli]$ kubectl -n <namespace> top pods
     NAME                                             CPU(cores)   MEMORY(bytes)
     ...
     sink-cd7d97d55-txjqs                             2030m        67Mi
@@ -192,7 +192,7 @@ Set the autoscale.maxReplicas to 10.
 
 7. Wait a short time and check the pods again.
 
-    [cli]$ kubectl -n cmdline top pods
+    [cli]$ kubectl -n <namespace> top pods
     NAME                                             CPU(cores)   MEMORY(bytes)
     ...
     sink-cd7d97d55-txjqs                             2703m        88Mi
