@@ -315,11 +315,11 @@ Suppose that the Ingress domain root is `sas.com`, the namespace is `esp`, and t
 
 After deployment, you can query a project deployed in an **open** environment as follows:
 ```
-     curl https://esp.sas.com:80/SASEventStreamProcessingServer/project/array/eventStreamProcessing/v1/
+     curl https://esp.sas.com/SASEventStreamProcessingServer/project/array/eventStreamProcessing/v1/
 ```
 You can query a project deployed in a **multi-user** environment as follows:
 ```
-     curl https://esp.sas.com:80/SASEventStreamProcessingServer/project/array/eventStreamProcessing/v1/ \
+     curl https://esp.sas.com/SASEventStreamProcessingServer/project/array/eventStreamProcessing/v1/ \
      -H 'Authorization: Bearer <put a valid access token here>'
 ```
 
