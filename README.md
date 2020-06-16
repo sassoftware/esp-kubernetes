@@ -302,12 +302,12 @@ M  uaa                                                sckolo.sas.com            
 The following URL and context roots are valid to access projects and servers:
 
 ```
-Project X    --   <namespace>.sas.com/SASEventStreamProcessingServer/project/X 
-Metering     --   <namespace>.sas.com/SASEventStreamProcessingMetering/SASESP/meterData
-Studio       --   <namespace>.sas.com/SASEventStreamProcessingStudio
-Streamviewer --   <namespace>.sas.com/SASEventStreamProcessingStreamviewer
-ESM          --   <namespace>.sas.com/SASEventStreamManager
-FileBrowser  --   <namespace>.sas.com/files
+Project X    --   https://<namespace>.sas.com/SASEventStreamProcessingServer/project/X/eventStreamProcessing/v1/
+Metering     --   https://<namespace>.sas.com/SASEventStreamProcessingMetering/eventStreamProcessing/v1/meterData
+Studio       --   https://<namespace>.sas.com/SASEventStreamProcessingStudio
+Streamviewer --   https://<namespace>.sas.com/SASEventStreamProcessingStreamviewer
+ESM          --   https://<namespace>.sas.com/SASEventStreamManager
+FileBrowser  --   https://<namespace>.sas.com/files
 ```
 
 #### Query a Project
@@ -315,11 +315,11 @@ Suppose that the Ingress domain root is `sas.com`, the namespace is `esp`, and t
 
 After deployment, you can query a project deployed in an **open** environment as follows:
 ```
-     curl http://esp.sas.com:80/SASEventStreamProcessingServer/project/array/SASESP
+     curl https://esp.sas.com:80/SASEventStreamProcessingServer/project/array/eventStreamProcessing/v1/
 ```
 You can query a project deployed in a **multi-user** environment as follows:
 ```
-     curl http://esp.sas.com:80/SASEventStreamProcessingServer/project/arraySASESP \
+     curl https://esp.sas.com:80/SASEventStreamProcessingServer/project/array/eventStreamProcessing/v1/ \
      -H 'Authorization: Bearer <put a valid access token here>'
 ```
 
@@ -330,27 +330,21 @@ Suppose that the Ingress domain root is `sas.com`, and the namespace is `esp`.
 
 After deployment, you can perform a simple query of the metering server deployed in an **open** environment as follows:
 ```
-     curl http://esp.sas.com:80/SASEventStreamProcessingMetering/eventStreamProcessing/SASESP/meterData
+     curl https://esp.sas.com/SASEventStreamProcessingMetering/eventStreamProcessing/v1/meterData
 ```
 You can perform a simple query of the metering server deployed in a **multi-user** environment as follows:
 ```
-     curl http://esp.sas.com:80/SASEventStreamProcessingMetering/eventStreamProcessing/SASESP/meterData \
+     curl https://esp.sas.com/SASEventStreamProcessingMetering/eventStreamProcessing/v1/meterData \
      -H 'Authorization: Bearer <put a valid access token here>'
 ```
 
 
 #### Access Graphical Clients
-After deployment, you can access graphical clients in an **open** deployment through the following URLs:
-```
-Event Stream Processing Studio          -- http://esp.sas.com/SASEventStreamProcessingStudio
-Event Stream Processing Streamviewer    -- http://esp.sas.com/SASEventStreamProcessingStreamviewer
-Event STream Processing Manager         -- http://esp.sas.com/SASEventStreamManager
-```
-You can access graphical clients in an **multi-user** deployment through the following URLs:
+After deployment, you can access graphical clients in an **open** or **multiuser** deployment through the following URLs:
 ```
 Event Stream Processing Studio          -- https://esp.sas.com/SASEventStreamProcessingStudio
 Event Stream Processing Streamviewer    -- https://esp.sas.com/SASEventStreamProcessingStreamviewer
-Event STream Processing Manager         -- https://esp.sas.com/SASEventStreamManager
+Event Stream Processing Manager         -- https://esp.sas.com/SASEventStreamManager
 ```
 
 ## Configuring for Multiple Users
@@ -364,7 +358,7 @@ The filebrowser application on GitHub enables you to access the persistent store
 The filebrowser application is installed in your Kubernetes cluster automatically for convenience. It can be accessed
 through a browser at:
 
-     http://<namespace>.<ingress domain root>/files
+     https://<namespace>.<ingress domain root>/files
 
 With filebrowser, you can perform the following tasks:
 
