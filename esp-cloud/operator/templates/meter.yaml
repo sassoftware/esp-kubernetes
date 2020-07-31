@@ -17,8 +17,6 @@ metadata:
   name: sas-event-stream-processing-metering-app
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
-    TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
-    TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
 spec:
   rules:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
@@ -28,10 +26,6 @@ spec:
           serviceName: sas-event-stream-processing-metering-app # the service to hit
           servicePort: 80                                       # externally exposed port 
         path: /SASEventStreamProcessingMetering(/|$)(.*)
-  TEMPLATE_ESP_MULTItls:
-  TEMPLATE_ESP_MULTI- hosts:
-  TEMPLATE_ESP_MULTI  - sckolo.sas.com
-  TEMPLATE_ESP_MULTI  secretName: foo
 ---
 apiVersion: apps/v1
 kind: Deployment

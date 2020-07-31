@@ -233,6 +233,6 @@ spec:
          path: /uaa
   tls:
   - hosts:
-    - sckolo.sas.com
+    - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     secretName: foo
 

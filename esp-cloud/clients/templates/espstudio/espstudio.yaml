@@ -31,7 +31,7 @@ spec:
         path: /SASEventStreamProcessingStudio
   TEMPLATE_ESP_MULTItls:
   TEMPLATE_ESP_MULTI- hosts:
-  TEMPLATE_ESP_MULTI  - sckolo.sas.com
+  TEMPLATE_ESP_MULTI  - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
   TEMPLATE_ESP_MULTI  secretName: foo
 ---
 apiVersion: apps/v1

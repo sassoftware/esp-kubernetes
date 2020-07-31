@@ -31,7 +31,7 @@ spec:
         path: /files(/|$)(.*)          
   TEMPLATE_ESP_MULTItls:
   TEMPLATE_ESP_MULTI- hosts:
-  TEMPLATE_ESP_MULTI  - sckolo.sas.com
+  TEMPLATE_ESP_MULTI  - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
   TEMPLATE_ESP_MULTI  secretName: foo
 ---
 apiVersion: apps/v1 
@@ -74,7 +74,7 @@ spec:
            volumeMounts:
               - name: data            # the volume specified below
                 mountPath: /mnt/data  # path persistent volume gets mounted to
-                subPath: TEMPLATE_ESP_NAMESPACE
+#                subPath: TEMPLATE_ESP_NAMESPACE
               - name: workdir
                 mountPath: /db
          initContainers:
@@ -88,7 +88,7 @@ spec:
            securityContext:
              runAsUser:  1001
              runAsGroup: 1001
-           command: ['sh', '-c', 'mkdir -p /mnt/data/TEMPLATE_ESP_NAMESPACE/input ; mkdir -p /mnt/data/TEMPLATE_ESP_NAMESPACE/output ; touch /db/filebrowser.db']
+           command: ['sh', '-c', 'mkdir -p /mnt/data/input ; mkdir -p /mnt/data/output ; touch /db/filebrowser.db']
            volumeMounts:
            - name: data
              mountPath: /mnt/data

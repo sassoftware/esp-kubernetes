@@ -14,7 +14,7 @@ metadata:
   labels:
     app: postgres
 data:
-  PGDATA: /mnt/data/DB/postgres
+  PGDATA: /mnt/data/postgres
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -83,7 +83,7 @@ spec:
            volumeMounts:
               - name: data            # the volume specified below
                 mountPath: /mnt/data  # path persistent volume gets mounted to
-                subPath: TEMPLATE_ESP_NAMESPACE
+#                subPath: TEMPLATE_ESP_NAMESPACE
               - name: postgres-init   # the volume specified belows
                 mountPath: /docker-entrypoint-initdb.d  # path persistent volume gets mounted to
                 readOnly: true
@@ -98,14 +98,14 @@ spec:
            securityContext:
              runAsUser:  1001
              runAsGroup: 1001
-           command: ['sh', '-c', 'mkdir -p /mnt/data/TEMPLATE_ESP_NAMESPACE/DB/postgres']
+           command: ['sh', '-c', 'mkdir -p /mnt/data/postgres']
            volumeMounts:
            - name: data
              mountPath: /mnt/data
          volumes:
            - name: data
              persistentVolumeClaim:
-               claimName: esp-pv
+               claimName: esp-pv-pg
            - name: postgres-init
              configMap:
                name: espdb-config
