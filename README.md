@@ -47,7 +47,7 @@ Each of these subdirectories contains README files with more specific, detailed 
 
 ### Persistent Volume
 
-**Important**: To deploy the images, you must have a running Kubernetes cluster and two persistent volume available for use.  Work with your Kubernetes administrator to obtain access to a cluster with the required persistent volumes. The default persistent volumes claims user the kubernetes storage class "nfs-client" and are dynamically provisioned. Change these as appropriate for a custom installation.
+**Important**: To deploy the images, you must have a running Kubernetes cluster and two persistent volumes available for use.  Work with your Kubernetes administrator to obtain access to a cluster with the required persistent volumes. The default persistent volumes claims use the kubernetes storage class "nfs-client" and are dynamically provisioned. Change these as appropriate for a custom installation.
 
 **The first persistent volume** is used as a backing store for the Posgres database. 
 
