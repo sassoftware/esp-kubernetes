@@ -47,18 +47,41 @@ Each of these subdirectories contains README files with more specific, detailed 
 
 ### Persistent Volume
 
-**Important**: To deploy the images, you must have a running Kubernetes cluster and a persistent volume available for use.  Work with your Kubernetes administrator to obtain access to a cluster with a persistent volume.
+**Important**: To deploy the images, you must have a running Kubernetes cluster and two persistent volume available for use.  Work with your Kubernetes administrator to obtain access to a cluster with the required persistent volumes. The default persistent volumes claims user the kubernetes storage class "nfs-client" and are dynamically provisioned. Change these as appropriate for a custom installation.
 
-The persistent volume is used to store the following:
+**The first persistent volume** is used as a backing store for the Posgres database. 
 
-1. The PostgreSQL database
-2. Any files (CSV/XML/JSON) referenced by the model that is running on the ESP server
-
-The PostgreSQL database requires Write access to the persistent volume. If you plan to put other files on the persistent volume, such as CSV input files, or plan for projects to write files to the persistent volume (output files), the persistent volume must have the access mode **ReadWriteMany**.  
-
-If PostgreSQL is the only element of the deployment that writes to the persistent volume, it can have the access mode **ReadWriteOnce**. 
+The PostgreSQL database requires Write access to the persistent volume. Since the postgres pod is the only pod writing to the persistent volume,  may have the access mode **ReadWriteOnce**.  
 
 A typical deployment, with no stored projects or metadata, uses about 68MB of storage. For a typical small deployment, 20GB of storage for the persistent volume should be adaquate. 
+ 
+After you run the ./bin/mkdeploy script, which generates usable deployment manifests, the YAML template file named deploy/pvc-pg.yaml specifies a *PersistentVolumeClaim*.
+
+```yaml
+  #
+  # This is the esp-pv claim that esp component pods use.
+  #
+  apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+     name: esp-pv-pg
+  annotations:
+     volume.beta.kubernetes.io/storage-class: "nfs-client"
+  spec:
+     accessModes:
+       - ReadWriteOnce # This volume is used for Postgres storage
+     resources:
+       requests:
+         storage: 20Gi  # volume size requested
+```
+
+This *PersistentVolumeClaim* is made by the PostgreSQL database. Ensure that the persistent volume that you have set up can satisfy this claim. 
+
+**The second persistent volume** is used as a location that running ESP projects can read from and write to.  
+
+Since Many ESP projects (running in pods) may read and write on the persistent volume simultaneously, it must have the access mode **ReadWriteMany**.  
+
+The size of this persitent volume is dictated by the amount of data that is stored on the volume for ESP to consume (input data) and the amount of processed data that ESP will write to the volume (output data).  
  
 After you run the ./bin/mkdeploy script, which generates usable deployment manifests, the YAML template file named deploy/pvc.yaml specifies a *PersistentVolumeClaim*.
 
@@ -70,21 +93,21 @@ After you run the ./bin/mkdeploy script, which generates usable deployment manif
   kind: PersistentVolumeClaim
   metadata:
      name: esp-pv
-     namespace: esp
+  annotations:
+     volume.beta.kubernetes.io/storage-class: "nfs-client"
   spec:
      accessModes:
-       - ReadWriteMany # esp, studio and streamviewer can all write to this space
+       - ReadWriteMany # This volume is used for ESP projects input/output files
      resources:
        requests:
          storage: 20Gi  # volume size requested
 ```
 
-This *PersistentVolumeClaim* is made by the PostgreSQL database, the open source filebrowser application, and the ESP
-server pods in the Kubernetes environment. Ensure that the persistent volume that you have set up can satisfy this claim. 
 
 In general, the processes associated with the ESP server run user:**sas**, group:**sas**. Commonly, 
 this is associated with uid:**1001**, gid:**1001**. An example of this is in the deployment of the open source filebrowser
 application.
+
 
 In the YAML template file deploy/fileb.yaml, the relevant section is as follows:
 
@@ -100,7 +123,7 @@ In the YAML template file deploy/fileb.yaml, the relevant section is as follows:
            securityContext:
              runAsUser:  1001
              runAsGroup: 1001
-           command: ['sh', '-c', 'mkdir -p /mnt/data/cmdline/input ; mkdir -p /mnt/data/cmdline/output ; touch /db/filebrowser.db']
+           command: ['sh', '-c', 'mkdir -p /mnt/data/input ; mkdir -p /mnt/data/output ; touch /db/filebrowser.db']
            volumeMounts:
            - mountPath: /mnt/data
              name: data
