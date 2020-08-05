@@ -47,13 +47,11 @@ Each of these subdirectories contains README files with more specific, detailed 
 
 ### Persistent Volume
 
-**Important**: To deploy the images, you must have a running Kubernetes cluster and two persistent volumes available for use.  Work with your Kubernetes administrator to obtain access to a cluster with the required persistent volumes. The default persistent volumes claims use the kubernetes storage class "nfs-client" and are dynamically provisioned. Change these as appropriate for a custom installation.
+**Important**: To deploy the images, you must have a running Kubernetes cluster and two persistent volumes available for use.  Work with your Kubernetes administrator to obtain access to a cluster with the required persistent volumes. The default persistent volume claims use the Kubernetes storage class "nfs-client" and are dynamically provisioned. You can change these settings appropriately for your specific installation.
 
-**The first persistent volume** is used as a backing store for the Posgres database. 
+**The first persistent volume** is a backing store for the PostgreSQL database, which requires Write access to the persistent volume. Because the PostgreSQL pod is the only pod that writes to this persistent volume, you can give it the access mode **ReadWriteOnce**.  
 
-The PostgreSQL database requires Write access to the persistent volume. Since the postgres pod is the only pod writing to the persistent volume,  may have the access mode **ReadWriteOnce**.  
-
-A typical deployment, with no stored projects or metadata, uses about 68MB of storage. For a typical small deployment, 20GB of storage for the persistent volume should be adaquate. 
+A typical deployment with no stored projects or metadata uses about 68MB of storage. For a smaller deployment, 20GB of storage for the persistent volume should be adaquate. 
  
 After you run the ./bin/mkdeploy script, which generates usable deployment manifests, the YAML template file named deploy/pvc-pg.yaml specifies a *PersistentVolumeClaim*.
 
@@ -77,11 +75,9 @@ After you run the ./bin/mkdeploy script, which generates usable deployment manif
 
 This *PersistentVolumeClaim* is made by the PostgreSQL database. Ensure that the persistent volume that you have set up can satisfy this claim. 
 
-**The second persistent volume** is used as a location that running ESP projects can read from and write to.  
+**The second persistent volume** is used as a read/write location for running ESP projects.  Because SAS Event Stream Processing projects read and write on the persistent volume simultaneously, you must give this persistent volume the access mode **ReadWriteMany**.  
 
-Since Many ESP projects (running in pods) may read and write on the persistent volume simultaneously, it must have the access mode **ReadWriteMany**.  
-
-The size of this persitent volume is dictated by the amount of data that is stored on the volume for ESP to consume (input data) and the amount of processed data that ESP will write to the volume (output data).  
+The size of this persistent volume depends on the amount of input and output data stored there. Determine the amount of data to be consumed (input data) and estimate the amount of processed data to be written (output data).  
  
 After you run the ./bin/mkdeploy script, which generates usable deployment manifests, the YAML template file named deploy/pvc.yaml specifies a *PersistentVolumeClaim*.
 
@@ -105,9 +101,8 @@ After you run the ./bin/mkdeploy script, which generates usable deployment manif
 
 
 In general, the processes associated with the ESP server run user:**sas**, group:**sas**. Commonly, 
-this is associated with uid:**1001**, gid:**1001**. An example of this is in the deployment of the open source filebrowser
-application.
-
+this choice of user and group means uid:**1001**, gid:**1001**. For example, when you deploy the open source filebrowser
+application, the associated processes have these assignments.
 
 In the YAML template file deploy/fileb.yaml, the relevant section is as follows:
 
