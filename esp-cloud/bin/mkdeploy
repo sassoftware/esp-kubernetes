@@ -33,6 +33,7 @@ show_usage() {
     echo ""
     echo "          -C                          -- deploy clients"
     echo "          -M                          -- enable multiuser mode"
+    echo "          -A                          -- decorate for AZURE"
     echo ""
 #    echo "     options for operator deployment"
 #    echo ""    
@@ -68,11 +69,13 @@ echo "BASE = <$BASE>"
 
 CLIENTS=no
 MULTI=no
+ESP_AZURE_COMMENT="#"
+ESP_NOAZURE_COMMENT=""
 ESP_MULTI_COMMENT="#"
 ESP_OPEN_COMMENT=""
 
 SUBDIRS="operator"
-while getopts "?c:l:n:o:s:d:m:b:e:t:v:u:a:ryCM" opt; do
+while getopts "?c:l:n:o:s:d:m:b:e:t:v:u:a:ryCMA" opt; do
     case "$opt" in
         \?)
             show_usage
@@ -91,6 +94,9 @@ while getopts "?c:l:n:o:s:d:m:b:e:t:v:u:a:ryCM" opt; do
 	    SUBDIRS="$SUBDIRS oauth2"	    
 	    ESP_MULTI_COMMENT=""
 	    ESP_OPEN_COMMENT="#"
+	    ;;
+	A)  ESP_AZURE_COMMENT=""
+	    ESP_NOAZURE_COMMENT="#"
 	    ;;
         o)  ESP_OP=$OPTARG
             ;;
@@ -241,7 +247,9 @@ EOF
     sed -i 's|TEMPLATE_ESP_OAUTH2P_IMAGE|'$ESP_O2P'|g' $i
 
     sed -i 's|TEMPLATE_ESP_OPEN|'$ESP_OPEN_COMMENT'|g' $i    
-    sed -i 's|TEMPLATE_ESP_MULTI|'$ESP_MULTI_COMMENT'|g' $i    
+    sed -i 's|TEMPLATE_ESP_MULTI|'$ESP_MULTI_COMMENT'|g' $i
+    sed -i 's|TEMPLATE_ESP_AZURE|'$ESP_AZURE_COMMENT'|g' $i    
+    sed -i 's|TEMPLATE_ESP_NOAZURE|'$ESP_NOAZURE_COMMENT'|g' $i    
 done
 
 

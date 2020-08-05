@@ -48,6 +48,8 @@ spec:
       labels:
         app: sas-event-stream-processing-streamviewer-app
     spec:
+      TEMPLATE_ESP_AZUREimagePullSecrets:
+      TEMPLATE_ESP_AZURE  - name: acr-secret         
       serviceAccountName: esp-operator
       containers:
       - name: streamviewer-container

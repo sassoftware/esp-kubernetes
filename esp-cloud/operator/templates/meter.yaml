@@ -41,6 +41,8 @@ spec:
          labels:
            app: espmeter
        spec:
+         TEMPLATE_ESP_AZUREimagePullSecrets:
+         TEMPLATE_ESP_AZURE  - name: acr-secret         
          containers:
          - name: espmetering-container
            image: TEMPLATE_ESP_METER_IMAGE

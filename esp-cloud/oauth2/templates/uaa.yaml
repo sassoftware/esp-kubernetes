@@ -34,6 +34,8 @@ spec:
          labels:
            app: uaa
        spec:
+         TEMPLATE_ESP_AZUREimagePullSecrets:
+         TEMPLATE_ESP_AZURE  - name: acr-secret         
          containers:
          - name: uaa-container
            image: TEMPLATE_UAA_IMAGE

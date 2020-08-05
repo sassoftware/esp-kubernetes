@@ -97,6 +97,8 @@ spec:
               app: ((PROJECT_SERVICE_NAME))
               type: esp
           spec: # required
+            TEMPLATE_ESP_AZUREimagePullSecrets:
+            TEMPLATE_ESP_AZURE  - name: acr-secret         
             containers:
             - name: ((PROJECT_SERVICE_NAME)) # DONT CHANGE THE NAME
               image: TEMPLATE_ESP_SERVER_IMAGE
@@ -137,6 +139,8 @@ spec:
             labels:
               app: ((PROJECT_LB_SERVICE_NAME))
           spec: # required
+            TEMPLATE_ESP_AZUREimagePullSecrets:
+            TEMPLATE_ESP_AZURE  - name: acr-secret         
             serviceAccountName: "esp-operator"
             containers:
             - name: ((PROJECT_SERVICE_NAME)) 

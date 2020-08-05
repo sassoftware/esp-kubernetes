@@ -12,6 +12,8 @@ spec:
       labels:
         name: sas-esp-operator
     spec:
+      TEMPLATE_ESP_AZUREimagePullSecrets:
+      TEMPLATE_ESP_AZURE  - name: acr-secret         
       serviceAccountName: esp-operator
       containers:
         - name: sas-esp-operator
