@@ -17,8 +17,8 @@ You need the following files to run this example:
 
 1. Uncompress the input file, deploy/examples/input/array_input01.csv.gz.
 
-2. Copy the expanded file (array_input01.csv) to the directory `input/` on your persistent volume. You can do this with
-the filebrowser tool provided in this repository or with any standard Unix or Kubernetes tools.
+2. Copy the expanded file (array_input01.csv) to the directory `input/` on your persistent volume. You can use
+the filebrowser tool provided in this repository or any standard Unix or Kubernetes tool to copy the file.
 
 3. Use the bin/mkproject script to convert the
 standard ESP XML project (deploy/examples/example-1.xml) into a custom resource.  When this resource is
