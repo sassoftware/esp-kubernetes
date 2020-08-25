@@ -47,12 +47,12 @@ spec:
          - name: espmetering-container
            image: TEMPLATE_ESP_METER_IMAGE
            env:
+             - name: application_schema
+               value: "metering"
+             - name: SPRING_DATASOURCE_URL
+               value: "jdbc:postgresql://postgres-service:80/esp?currentSchema=${application.schema}"
              - name: server_port
                value: "31415"
-             - name:  application_schema
-               value: metering
-             - name: spring_datasource_url
-               value: "jdbc:postgresql://postgres-service:80/esp?currentSchema=${application.schema}"
              - name: spring_datasource_username
                valueFrom:
                  secretKeyRef:
