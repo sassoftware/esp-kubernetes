@@ -323,7 +323,7 @@ M  uaa                                                sckolo.sas.com            
 The following URL and context roots are valid to access projects and servers:
 
 ```
-Project X    --   https://<namespace>.sas.com/SASEventStreamProcessingServer/project/X/eventStreamProcessing/v1/
+Project X    --   https://<namespace>.sas.com/SASEventStreamProcessingServer/X/eventStreamProcessing/v1/
 Metering     --   https://<namespace>.sas.com/SASEventStreamProcessingMetering/eventStreamProcessing/v1/meterData
 Studio       --   https://<namespace>.sas.com/SASEventStreamProcessingStudio
 Streamviewer --   https://<namespace>.sas.com/SASEventStreamProcessingStreamviewer
@@ -336,11 +336,11 @@ Suppose that the Ingress domain root is `sas.com`, the namespace is `esp`, and t
 
 After deployment, you can query a project deployed in an **open** environment as follows:
 ```
-     curl https://esp.sas.com/SASEventStreamProcessingServer/project/array/eventStreamProcessing/v1/
+     curl https://esp.sas.com/SASEventStreamProcessingServer/array/eventStreamProcessing/v1/
 ```
 You can query a project deployed in a **multi-user** environment as follows:
 ```
-     curl https://esp.sas.com/SASEventStreamProcessingServer/project/array/eventStreamProcessing/v1/ \
+     curl https://esp.sas.com/SASEventStreamProcessingServer/array/eventStreamProcessing/v1/ \
      -H 'Authorization: Bearer <put a valid access token here>'
 ```
 
