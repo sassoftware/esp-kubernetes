@@ -50,7 +50,7 @@ spec:
     spec:
       TEMPLATE_ESP_AZUREimagePullSecrets:
       TEMPLATE_ESP_AZURE  - name: acr-secret         
-      serviceAccountName: esp-operator
+      serviceAccountName: sas-esp-operator
       containers:
       - name: esm-container
         image: TEMPLATE_ESM_IMAGE

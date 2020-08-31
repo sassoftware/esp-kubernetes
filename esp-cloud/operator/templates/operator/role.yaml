@@ -2,7 +2,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   creationTimestamp: null
-  name: esp-operator
+  name: sas-esp-operator
 rules:
 - apiGroups:
   - ""
@@ -60,7 +60,7 @@ rules:
 - apiGroups:
   - apps
   resourceNames:
-  - esp-operator
+  - sas-esp-operator
   resources:
   - deployments/finalizers
   verbs:
