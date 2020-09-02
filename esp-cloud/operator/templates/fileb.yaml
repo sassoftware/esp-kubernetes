@@ -29,10 +29,10 @@ spec:
           serviceName: espfb-service # the service to hit
           servicePort: 80            # externally exposed port
         path: /files(/|$)(.*)          
-  TEMPLATE_ESP_MULTItls:
-  TEMPLATE_ESP_MULTI- hosts:
-  TEMPLATE_ESP_MULTI  - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
-  TEMPLATE_ESP_MULTI  secretName: foo
+  tls:
+  - hosts:
+    - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+    secretName: foo
 ---
 apiVersion: apps/v1 
 kind: Deployment
