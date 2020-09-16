@@ -69,7 +69,7 @@ spec:
         labels:
           app: ((PROJECT_SERVICE_NAME))
           project: ((PROJECT_HASHED_NAME))
-          type: http
+          type: pubsub
         name: ((PROJECT_PUBSUB_SERVICE_NAME))
         namespace: ((PROJECT_NAMESPACE))
       spec:
