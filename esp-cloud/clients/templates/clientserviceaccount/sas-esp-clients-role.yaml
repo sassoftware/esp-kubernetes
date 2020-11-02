@@ -20,6 +20,13 @@ rules:
   - get
 
 - apiGroups:
+  - ""
+  resources:
+  - pods/exec
+  verbs:
+  - get
+
+- apiGroups:
   - iot.sas.com
   resources:
   - espservers
