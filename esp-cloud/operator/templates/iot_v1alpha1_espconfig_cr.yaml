@@ -52,6 +52,7 @@ spec:
         labels:
           app: ((PROJECT_SERVICE_NAME))
           project: ((PROJECT_HASHED_NAME))
+          esp-component: project          
           type: http
         name: ((PROJECT_SERVICE_NAME))
         namespace: ((PROJECT_NAMESPACE))

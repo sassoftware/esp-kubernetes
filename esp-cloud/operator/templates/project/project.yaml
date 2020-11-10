@@ -10,7 +10,7 @@ spec:
     # if model has prefix "b64", treat it as based64 encoded 
     espProperties:
       server.xml: "b64TEMPLATE_ESP_MODELB64"
-      meta.meteringhost: "sas-event-stream-processing-metering-app.TEMPLATE_ESP_NAMESPACE"
+      meta.meteringhost: "http://sas-event-stream-processing-metering-app.TEMPLATE_ESP_NAMESPACE"
       meta.meteringport: "80"
     projectTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
       autoscale:

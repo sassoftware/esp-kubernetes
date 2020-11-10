@@ -11,24 +11,28 @@ rules:
   - pods/log
   - services
   - endpoints
+  - configmaps
   - persistentvolumeclaims
   - events
-  - configmaps
-  - secrets
-  verbs:
-  - '*'
-- apiGroups:
-  - ""
-  resources:
-  - namespaces
   verbs:
   - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
 - apiGroups:
   - extensions
   resources:
   - ingresses
   verbs:
-  - '*'
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - delete
 - apiGroups:
   - apiextensions.k8s.io
   resources:
@@ -40,16 +44,25 @@ rules:
   resources:
   - horizontalpodautoscalers
   verbs:
-  - '*'
+  - get
+  - watch
+  - list
+  - create
+  - update
+  - delete
 - apiGroups:
   - apps
   resources:
   - deployments
-  - daemonsets
   - replicasets
-  - statefulsets
   verbs:
-  - '*'
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
 - apiGroups:
   - monitoring.coreos.com
   resources:
@@ -69,9 +82,21 @@ rules:
   - iot.sas.com
   resources:
   - '*'
-  - espservers
-  - espproperties
-  - espconfigs
-  - esprouters
+  - espupdates
   verbs:
-  - '*'
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - delete
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificates
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
