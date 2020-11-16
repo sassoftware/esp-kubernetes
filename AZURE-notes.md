@@ -1,20 +1,18 @@
-## Installation notes for Azure AKS
+## Installation Notes for Azure AKS
 
-This document does not cover how to install Kubernetes in Azure.
-It is intended to describe the Azure environment in which SAS Event Stream Processing
-has been installed and tested.
+This document does explain how to install Kubernetes in Microsoft Azure.
+It is intended to describe the Microsoft Azure environment in which you have installed and tested SAS Event Stream Processing.
 
 ### Infrastucture
 * A kubernetes service (AKS)
-* An Azure Container Resource to store SAS Event Stream Processing containers
+* A Microsoft Azure Container Resource to store SAS Event Stream Processing containers
 * A private DNS for the AKS 
 
 ### Application specifics
-* Install the Nginex ingress controller in AKS
+* Install the Nginx ingress controller in AKS
 * For each namespace in which you plan to deploy SAS Event Stream Processing, create a DNS
-record of the name <namespace>.<dns root> with the public IP for the
-AKS cluster.
-* Look up the username and password for your ACR storage and create
+record of the name <namespace>.<dns root> with the public IP for the AKS cluster.
+* Look up the username and password for your ACR storage. Create
 the following secret in each namespace:
 ```shell
     [AZURE]$ kubectl create secret docker-registry acr-secret --namespace <namespace>
