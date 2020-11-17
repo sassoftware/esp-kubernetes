@@ -263,18 +263,18 @@ the output csv file (array_output01.csv) that the project has created.
 
 #### Using a Multi-Partitioned Kafka Topic for Autoscaling
 
-This example shows how to use Kafka with a multi-partitioned topic.
+The following example shows how to use Kafka with a multi-partitioned topic.
 You feed a project data through Kafka.  Kubernetes and the ESP operator scale
 the number of project pods according to resource load.
 
 Specifically, you deploy a `strimzi kafka operator` to the cluster and create a three
-broker Kafka cluster with a single topic *sjkinput* spread over 10
+broker Kafka cluster with a single topic named *sjkinput* spread over 10
 partitions. Detailed configuration instructions are beyond the scope of
 this document.  Use the following helpful hints:
-
-     1. Install the Kafka operator per instructions at [kafa operator](https://operatorhub.io/operator/strimzi-kafka-operator)
-     2. Apply the following two YAML files to your namespace to create the
-        kafka cluster, and then to instantiate the topic on the cluster.
+* Install the Kafka operator per instructions at [Kafka operator](https://operatorhub.io/operator/strimzi-kafka-operator)
+* Apply the following two YAML files to your namespace to create the kafka cluster, and then to instantiate the topic on the cluster.
+    
+     
 
 [kafka]$ cat create-cluster.yaml
 ```yaml
@@ -342,7 +342,7 @@ Kafka:
 
        [cli]$ ./bin/mkproject  -x deploy/examples/example-3.xml -s sink -o cr_sink.yaml
 
-Before deploying these models, you need to edit the autoscaling model.  This is specified in the YAML file named cr_source.yaml.
+Before you deploy these models, edit the autoscaling model, which is specified in the YAML file named cr_source.yaml.
 Explicitly limit the CPU resources allocated to speed up the autoscaling. Set the maximum number of replicas to 10, which is the number of partitions that the Kafka topic was configured with.
 
 ```yaml
@@ -359,9 +359,9 @@ Explicitly limit the CPU resources allocated to speed up the autoscaling. Set th
 ```
 
 **Note**: Set the requests.cpu value to 1.  Set the limits.cpu value to 2.
-Set the autoscale.maxReplicas to 10.
+Set the autoscale.maxReplicas value to 10.
 
-Now start the ESP projects. First, start the source project:
+Now start the projects. First, start the source project:
 
     kubectl apply -f cr_source.yaml
 
@@ -372,10 +372,10 @@ Check the usage of the pods as follows:
     ...
     source-5f464ddc46-mxnx2                          24m          34Mi
 
-Here, the source pod uses only 24 milli-cpus, because there is no data on Kafka
+Here, the source pod uses only 24 milli-cpus because there is no data on Kafka
 to read and process.
 
-Now start the second project that floods the Kafka bus with messages.
+Now start the second project, which floods the Kafka bus with messages.
 
     kubectl apply -f cr_sink.yaml
 
@@ -387,7 +387,7 @@ After you wait a short amount of time, check the pods again:
     sink-cd7d97d55-txjqs                             2030m        67Mi
     source-5f464ddc46-mxnx2                          1558m        79Mi
 
-You can see that the source is now using 1.5 cpus. 
+You can see that the source is now using 1.5 CPUs. 
 
 Wait a short time and check the pods again.
 
@@ -400,7 +400,7 @@ Wait a short time and check the pods again.
     source-5f464ddc46-q5t4l                          1922m        93Mi
     source-5f464ddc46-ws4cp                          1010m        74Mi
 
-The project has scaled up to four copies. It will continue to scale up to the maximum
+The project has scaled up to four copies. It should continue to scale up to the maximum
 specified (10). Stop the second project (that is writing data to Kafka)
 with the following command:
 
