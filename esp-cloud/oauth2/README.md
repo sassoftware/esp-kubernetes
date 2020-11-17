@@ -5,10 +5,10 @@
 This directory contains tools that enable you to run SAS Event Stream Processing in a multi-user environment.
 
 A multi-user deployment deploys the following pods: 
-* A Pivitol UAA server
+* A Pivotal UAA server
 * The SAS OAuth2-proxy
 
-### Pivitol UAA Secrets and Management
+### Pivotal UAA Secrets and Management
 
 The **mkdeploy** script creates the file `esp-cloud/oauth2/uaa.yaml`. The first few lines define the username and 
 password for the client admin account in UAA. 
@@ -22,7 +22,7 @@ data:
   username: YWRtaW4=
   password: YWRtaW5zZWNyZXQ=
 ```
-The passwords are base64 encoded strings. The defualt values are **admin** for the username and **adminsecret** for the password. You can change them before deployment. 
+The passwords are base64 encoded strings. The default values are **admin** for the username and **adminsecret** for the password. You can change them before deployment. 
 
 After the deployment is successful and the uaa pod has started, you can administer the uaa instance with **uaac**, the UAA command line client.
 
@@ -64,18 +64,18 @@ The following instructions create the connection to the uaa server, create a app
 
 Set up the connection to the UAA server:
 ```
-uaac target https://sckolo.sas.com/uaa --skip-ssl-validation
+uaac target https://<domain>.com/uaa --skip-ssl-validation
 uaac token client get admin -s adminsecret
 ```
 
 Create a service account:
 ```
-uaac client add sv_client --authorities "uaa.resource"  --scope "openid email"  --autoapprove "openid" --authorized_grant_types "authorization_code refresh_token password client_credentials"  --redirect_uri https://sckolo.sas.com/oauth2 -s secret
+uaac client add sv_client --authorities "uaa.resource"  --scope "openid email"  --autoapprove "openid" --authorized_grant_types "authorization_code refresh_token password client_credentials"  --redirect_uri https://<domain>.com/oauth2 -s secret
 ```
 
 Create one or more user accounts:
 ```
-uaac user add esp  --emails scott.kolodzieski@sas.com -p esppw
+uaac user add esp  --emails <name>@<domain>.com -p esppw
 ```
 
 The UAA server persists data to the running PostgreSQL database so that it is
