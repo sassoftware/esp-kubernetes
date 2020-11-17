@@ -2,8 +2,8 @@
 
 ### Introduction
 
-The ESP operator watches for custom resources that the ESP server can run. When the ESP operator detects a new custom resource, it reads the resource and generates a single Kubernetes pod running an ESP Server.  The ESP server runs the project that is 
-embedded within the ESPServer custom resource. Further, the ESP operator configures the Ingress endpoint that exposes the REST service for the ESP server.  The ESP server running in the Kubernetes pod uses this endpoint
+The ESP operator watches for custom resources that the ESP server can run. When the ESP operator detects a new custom resource, it reads the resource and generates a single Kubernetes pod running a single ESP Server.  The ESP server runs the project that is 
+embedded within the ESPServer custom resource. Furthermore, the ESP operator configures the Ingress endpoint that exposes the RESTful service for the ESP server.  The ESP server running within the Kubernetes pod uses this endpoint
 to communicate externally.
 
 ### Examples
@@ -40,7 +40,7 @@ The syntax is as follows:
 
        [~]$ kubectl -n <namespace> apply -f cr_array.yaml
 
-5. Verify that the pod is running with the following command:
+5. Use the following command to verify that the pod is running:
 
        [~]$ kubectl -n <namespace> get pods
 
@@ -67,11 +67,11 @@ this document.
 
 Use the following helpful hints:
 
-1. Install the Kafka operator following the instructions at the [kafka operator](https://operatorhub.io/operator/strimzi-kafka-operator) web site.
+* Install the Kafka operator following the instructions at the [kafka operator](https://operatorhub.io/operator/strimzi-kafka-operator) web site.
 
-2. Apply the following two YAML files to your namespace to do the following:
-        * Create the kafka cluster.
-        * Instantiate the topic on the cluster.
+* Apply the following two YAML files to your namespace to do the following:
+        * Create the Kafka cluster.
+        * Instantiate the topic on the Kafka cluster.
 
 [kafka]$ cat create-cluster.yaml
 ```yaml
@@ -123,7 +123,7 @@ This example runs two SAS Event Stream Processing models.
 computes data values.  The model scales up or down automatically.
 * The second model reads a CSV file and then loops and loads significant amounts of
 data onto Kafka. This forces the first model to consume CPU and then triggers the
-autoscaling of the ESP project.
+autoscaling of the project.
 
 1. Uncompress the input file deploy/examples/input/kafka_input01.csv.gz.
 
@@ -165,43 +165,46 @@ Set the autoscale.maxReplicas to 10.
 
    a. Start the source project:
 
-      kubectl apply -f cr_source.yaml
-
+      [cli]$kubectl apply -f cr_source.yaml
+      
       Check the usage of the pods as follows:
 
       [cli]$ kubectl -n <namespace> top pods
-      NAME                                             CPU(cores)   MEMORY(bytes)
+       
+      ```NAME                                             CPU(cores)   MEMORY(bytes)
       ...
-      source-5f464ddc46-mxnx2                          24m          34Mi
+      source-5f464ddc46-mxnx2                          24m          34M 
 
-      Here, the source pod uses only 24 milli-cpus, because there is no data on Kafka to read and process.
+  Here, the source pod uses only 24 milli-cpus, because there is no data on Kafka to read and process.
 
   b. Start the second project that floods the Kafka bus with messages.
 
       kubectl apply -f cr_sink.yaml
 
 6. Wait a short amount of time and then check the pods again:
-
-    [cli]$ kubectl -n <namespace> top pods
+[cli]$ kubectl -n <namespace> top pods
+    
     NAME                                             CPU(cores)   MEMORY(bytes)
     ...
     sink-cd7d97d55-txjqs                             2030m        67Mi
     source-5f464ddc46-mxnx2                          1558m        79Mi
 
-    You can see that the source is now using 1.5 cpus. 
-
-7. Wait a short time and check the pods again.
-
+   
+ You can see that the source is now using 1.5 CPUs.
+ 
+ 7. Wait a short time and check the pods again.
     [cli]$ kubectl -n <namespace> top pods
-    NAME                                             CPU(cores)   MEMORY(bytes)
+       
+    ```NAME                                             CPU(cores)   MEMORY(bytes)
     ...
     sink-cd7d97d55-txjqs                             2703m        88Mi
     source-5f464ddc46-jnkgl                          1273m        80Mi
     source-5f464ddc46-mxnx2                          1785m        132Mi
     source-5f464ddc46-q5t4l                          1922m        93Mi
     source-5f464ddc46-ws4cp                          1010m        74Mi
-
-    The project has scaled up to four copies. It will continue to scale up to the maximum specified (10). Stop the second project (that is writing data to Kafka) with the following command:
+    
+    
+   The project has scaled up to four copies. It should continue to scale up to the maximum specified (10). Stop the second project (that is writing data to Kafka) with the following command:
 
     kubectl delete -f cr_sink.yaml
 
