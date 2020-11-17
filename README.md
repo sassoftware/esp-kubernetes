@@ -64,7 +64,7 @@ For more information about using them, see "Getting Started."
 
 ### Persistent Volume
 
-**Important**: To deploy the Docker images that you have downloaded, you must have a running Kubernetes cluster and two persistent volumes available for use.  Work with your Kubernetes administrator to obtain access to a cluster with the required persistent volumes. Use the Kubernetes storage class "nfs-client" for these dynamically provisioned PVCs. You can change these settings appropriately for your specific installation.
+**Important**: To deploy the Docker images that you have downloaded, you must have a running Kubernetes cluster and two persistent volumes available for use.  Work with your Kubernetes administrator to obtain access to a cluster with the required PVs. By default, the persistent volume claims use the Kubernetes storage class "nfs-client" and are dynamically provisioned.  You can change these settings appropriately for your specific installation.
 
  * The first persistent volume is a backing store for the PostgreSQL database, which requires Write access to the persistent volume. Because the PostgreSQL pod is the only pod that writes to this persistent volume, give it the access mode **ReadWriteOnce**. A typical deployment with no stored projects or metadata uses about 68MB of storage. For a smaller deployment, 20GB of storage for the persistent volume should be adequate. 
  
