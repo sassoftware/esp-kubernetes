@@ -35,6 +35,11 @@ spec:
         - --email-domain=*
         - --upstream=file:///dev/null
         - --http-address=0.0.0.0:4180
+        - --cookie-name=esp_oauth2_proxy
+        - --cookie-expire=12h0m0s
+        - --cookie-secure=true
+        - --cookie-samesite=lax
+        - --cookie-domain=TEMPLATE_ESP_DOMAIN
         # Register a new application
         # https://github.com/settings/applications/new
         env:
