@@ -17,6 +17,8 @@ kind: Ingress
 metadata:
   name: sas-event-stream-processing-studio-app
   annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/ingress.allow-http: "false"
     nginx.ingress.kubernetes.io/proxy-body-size: 500m
     TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
     TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
@@ -45,11 +47,16 @@ spec:
       app: sas-event-stream-processing-studio-app
   template:
     metadata:
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: runtime/default
       labels:
         app: sas-event-stream-processing-studio-app
     spec:
       TEMPLATE_ESP_AZUREimagePullSecrets:
-      TEMPLATE_ESP_AZURE  - name: acr-secret         
+      TEMPLATE_ESP_AZURE  - name: acr-secret
+      securityContext:
+        runAsUser:  1001
+        runAsGroup: 1001
       serviceAccountName: sas-esp-clients
       containers:
       - name: espstudio-container
@@ -57,6 +64,9 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
+        securityContext:
+          allowPrivilegeEscalation: false
+          #readOnlyRootFilesystem: true
         env:
         - name: SAS_MULTI_TENANCY_ENABLED
           value: "true"

@@ -16,6 +16,8 @@ kind: Ingress
 metadata:
   name: sas-event-stream-processing-metering-app
   annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/ingress.allow-http: "false"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
@@ -42,11 +44,16 @@ spec:
        app: espmeter
   template:
        metadata:
+         annotations:
+           seccomp.security.alpha.kubernetes.io/pod: runtime/default
          labels:
            app: espmeter
        spec:
          TEMPLATE_ESP_AZUREimagePullSecrets:
-         TEMPLATE_ESP_AZURE  - name: acr-secret         
+         TEMPLATE_ESP_AZURE  - name: acr-secret
+         securityContext:
+           runAsUser:  1001
+           runAsGroup: 1001         
          containers:
          - name: espmetering-container
            image: TEMPLATE_ESP_METER_IMAGE
@@ -76,3 +83,6 @@ spec:
            ports:
              - containerPort: 31415   # servers REST port
                name: http
+           securityContext:
+             allowPrivilegeEscalation: false
+             #readOnlyRootFilesystem: true

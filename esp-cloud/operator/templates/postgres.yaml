@@ -16,20 +16,6 @@ metadata:
 data:
   PGDATA: /mnt/data/postgres
 ---
-#apiVersion: v1
-#kind: ConfigMap
-#metadata:
-#  name: espdb-config
-#data:
-#    init-esp.sh: |-
-#       #!/bin/bash
-#       set -e
-#       
-#       psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-#           -- CREATE SCHEMA streamviewer;
-#           -- CREATE SCHEMA studio;
-#       EOSQL      
-#---
 kind: Service
 apiVersion: v1 
 metadata:
@@ -54,17 +40,19 @@ spec:
        app: postgres
   template:
        metadata:
+         annotations:
+           seccomp.security.alpha.kubernetes.io/pod: runtime/default
          labels:
            app: postgres
        spec:
          TEMPLATE_ESP_AZUREimagePullSecrets:
          TEMPLATE_ESP_AZURE  - name: acr-secret         
+         TEMPLATE_ESP_NOAZUREsecurityContext:
+         TEMPLATE_ESP_NOAZURE  runAsUser:  1001
+         TEMPLATE_ESP_NOAZURE  runAsGroup: 1001
          containers:
          - name: postgres
            image: postgres:10.4
-           TEMPLATE_ESP_NOAZUREsecurityContext:
-           TEMPLATE_ESP_NOAZURE  runAsUser:  1001
-           TEMPLATE_ESP_NOAZURE  runAsGroup: 1001
            ports:
              - containerPort: 5432  # servers REST port
                name: postgresdb
@@ -85,10 +73,9 @@ spec:
            volumeMounts:
               - name: data            # the volume specified below
                 mountPath: /mnt/data  # path persistent volume gets mounted to
-#                subPath: TEMPLATE_ESP_NAMESPACE
-#              - name: postgres-init   # the volume specified belows
-#                mountPath: /docker-entrypoint-initdb.d  # path persistent volume gets mounted to
-#                readOnly: true
+           securityContext:
+             allowPrivilegeEscalation: false
+             #readOnlyRootFilesystem: true
          initContainers:
          - name: config-data
            image: busybox

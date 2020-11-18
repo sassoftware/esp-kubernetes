@@ -11,11 +11,16 @@ spec:
       k8s-app: oauth2-proxy
   template:
     metadata:
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: runtime/default
       labels:
         k8s-app: oauth2-proxy
     spec:
       TEMPLATE_ESP_AZUREimagePullSecrets:
-      TEMPLATE_ESP_AZURE  - name: acr-secret         
+      TEMPLATE_ESP_AZURE  - name: acr-secret
+      securityContext:
+        runAsUser:  1001
+        runAsGroup: 1001
       containers:
       - args:
         - --provider=uaa
@@ -47,7 +52,9 @@ spec:
         ports:
         - containerPort: 4180
           protocol: TCP
-
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
 ---
 apiVersion: v1
 kind: Service
@@ -68,6 +75,9 @@ spec:
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/ingress.allow-http: "false"
   name: oauth2-proxy
 spec:
   rules:

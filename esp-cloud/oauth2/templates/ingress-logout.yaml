@@ -3,7 +3,9 @@ kind: Ingress
 metadata:
   name: esp-clients-logout
   annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: "/oauth2/sign_out?rd=https%3A%2F%2F$host/uaa/logout.do?redirect=https%3A%2F%2F$host/uaa/login"
+    kubernetes.io/ingress.allow-http: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: "/oauth2/sign_out?rd=https%3A%2F%2F$host/uaa/logout.do?redirect=https%3A%2F%2F$host/uaa/login"
 spec:
   rules:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN

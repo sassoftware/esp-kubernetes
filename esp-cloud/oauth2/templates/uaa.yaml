@@ -31,11 +31,16 @@ spec:
        app: uaa
   template:
        metadata:
+         annotations:
+           seccomp.security.alpha.kubernetes.io/pod: runtime/default
          labels:
            app: uaa
        spec:
          TEMPLATE_ESP_AZUREimagePullSecrets:
          TEMPLATE_ESP_AZURE  - name: acr-secret         
+         #securityContext:
+         #  runAsUser:  1001
+         #  runAsGroup: 1001
          containers:
          - name: uaa-container
            image: TEMPLATE_UAA_IMAGE
@@ -68,7 +73,10 @@ spec:
            volumeMounts:
               - name: uaa-config      # the volume specified below
                 mountPath: /uaa       # path persistent volume gets mounted to
-                readOnly: true 
+                readOnly: true
+           securityContext:
+             allowPrivilegeEscalation: false
+             #readOnlyRootFilesystem: true
          volumes:
            - name: uaa-config
              configMap:
@@ -224,6 +232,9 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: uaa
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/ingress.allow-http: "false"
 spec:
   rules:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
