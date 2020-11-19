@@ -21,6 +21,7 @@ spec:
       securityContext:
         runAsUser:  1001
         runAsGroup: 1001
+        runAsNonRoot: true
       containers:
       - args:
         - --provider=uaa
@@ -38,7 +39,6 @@ spec:
         - --cookie-name=esp_oauth2_proxy
         - --cookie-expire=12h0m0s
         - --cookie-secure=true
-        - --cookie-samesite=lax
         - --cookie-domain=TEMPLATE_ESP_DOMAIN
         # Register a new application
         # https://github.com/settings/applications/new
@@ -59,7 +59,12 @@ spec:
           protocol: TCP
         securityContext:
           allowPrivilegeEscalation: false
+          privileged: false
           readOnlyRootFilesystem: true
+          capabilities:
+            add: []
+            drop:
+              - ALL
 ---
 apiVersion: v1
 kind: Service

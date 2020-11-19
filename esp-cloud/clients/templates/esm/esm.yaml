@@ -55,6 +55,7 @@ spec:
       securityContext:
         runAsUser:  1001
         runAsGroup: 1001      
+        runAsNonRoot: true
       serviceAccountName: sas-esp-clients
       containers:
       - name: esm-container
@@ -64,7 +65,12 @@ spec:
         - containerPort: 8080
         securityContext:
           allowPrivilegeEscalation: false
-          #readOnlyRootFilesystem: true          
+          privileged: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            add: []
+            drop:
+            - ALL
         env:
         - name: SAS_VIYA_ENABLED
           value: "false"
@@ -108,7 +114,12 @@ spec:
            - mountPath: "/opt/sas/viya/config/etc/sysconfig/sas-esm-service/default"
              name: esm-license
              readOnly: false
+        volumeMounts:
+          - name: tmpdir
+            mountPath: /tmp
       volumes:
+        - name: tmpdir
+          emptyDir: {}
         - name: esm-license
           secret:
             secretName: esm-license

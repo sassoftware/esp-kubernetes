@@ -53,7 +53,8 @@ spec:
          TEMPLATE_ESP_AZURE  - name: acr-secret
          securityContext:
            runAsUser:  1001
-           runAsGroup: 1001         
+           runAsGroup: 1001
+           runAsNonRoot: true
          containers:
          - name: espmetering-container
            image: TEMPLATE_ESP_METER_IMAGE
@@ -85,4 +86,15 @@ spec:
                name: http
            securityContext:
              allowPrivilegeEscalation: false
-             #readOnlyRootFilesystem: true
+             privileged: false
+             readOnlyRootFilesystem: true
+             capabilities:
+               add: []
+               drop:
+                 - ALL
+           volumeMounts:
+             - name: tmpdir
+               mountPath: /tmp
+         volumes:
+           - name: tmpdir
+             emptyDir: {}

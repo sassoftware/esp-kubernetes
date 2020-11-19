@@ -38,9 +38,10 @@ spec:
        spec:
          TEMPLATE_ESP_AZUREimagePullSecrets:
          TEMPLATE_ESP_AZURE  - name: acr-secret         
-         #securityContext:
-         #  runAsUser:  1001
-         #  runAsGroup: 1001
+         securityContext:
+           runAsNonRoot: true           
+           runAsUser:  1001
+           runAsGroup: 1001
          containers:
          - name: uaa-container
            image: TEMPLATE_UAA_IMAGE
@@ -71,12 +72,19 @@ spec:
                    name: uaa-secret
                    key:  password
            volumeMounts:
-              - name: uaa-config      # the volume specified below
-                mountPath: /uaa       # path persistent volume gets mounted to
-                readOnly: true
+             - name: uaa-config      # the volume specified below
+               mountPath: /uaa       # path persistent volume gets mounted to
+               readOnly: true
+             - name: tmpdir
+               mountPath: /tmp
            securityContext:
              allowPrivilegeEscalation: false
+             privileged: false
              #readOnlyRootFilesystem: true
+             capabilities:
+               add: []
+               drop:
+                 - ALL
          volumes:
            - name: uaa-config
              configMap:
@@ -84,6 +92,8 @@ spec:
                items:
                - key: uaa.yml
                  path: uaa.yml
+           - name: tmpdir
+             emptyDir: {}
 ---
 apiVersion: v1
 kind: ConfigMap

@@ -57,6 +57,7 @@ spec:
       securityContext:
         runAsUser:  1001
         runAsGroup: 1001      
+        runAsNonRoot: true
       serviceAccountName: sas-esp-clients
       containers:
       - name: streamviewer-container
@@ -66,7 +67,12 @@ spec:
         - containerPort: 8080
         securityContext:
           allowPrivilegeEscalation: false
-          #readOnlyRootFilesystem: true          
+          privileged: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            add: []
+            drop:
+            - ALL
         env:
         - name: SV_AUTH
           value: "false"
@@ -101,3 +107,9 @@ spec:
           value: "postgresql"
         - name: spring_datasource_driver_class_name
           value: "org.postgresql.Driver"
+        volumeMounts:
+          - name: tmpdir
+            mountPath: /tmp
+      volumes:
+        - name: tmpdir
+          emptyDir: {}
