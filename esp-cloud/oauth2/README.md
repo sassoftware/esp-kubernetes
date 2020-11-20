@@ -24,7 +24,7 @@ EXPOSE 8080
 ```
 Run the following command on that Dockerfile:
 ```
-docker build . -t docker.sas.com/sckolo/esp-test-images/uaa:4.30.0
+docker build . -t <docker_repository>/uaa:4.30.0
 ```
 Obtain the WAR file `cloudfoundry-identity-uaa-4.30.0.war` through a Maven repository of your choice. Put the Dockerfile containing the Pivotal UAA Docker image in the same directory as that WAR file.
 
