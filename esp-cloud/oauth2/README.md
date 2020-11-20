@@ -9,7 +9,7 @@ A multi-user deployment deploys the following pods:
 * The SAS OAuth2-proxy
 
 ### Building the Pivitol UAA docker image
-The following Dockerfile can be used to build the Pivital UAA docker image. 
+Use the following Dockerfile to build the Pivotal UAA Docker image. 
 ```
 FROM tomcat:8-jre8-alpine
 
@@ -22,11 +22,11 @@ USER 1001
 
 EXPOSE 8080
 ```
-
-Put the Dockerfile in the same directory as the `cloudfoundry-identity-uaa-4.30.0.war` file. This war file is readily available through many Maver repositories. Run the command:
+Run the following command on that Dockerfile:
 ```
 docker build . -t docker.sas.com/sckolo/esp-test-images/uaa:4.30.0
 ```
+Obtain the WAR file `cloudfoundry-identity-uaa-4.30.0.war` through a Maven repository of your choice. Put the Dockerfile containing the Pivotal UAA Docker image in the same directory as that WAR file.
 
 ### Pivotal UAA Secrets and Management
 
