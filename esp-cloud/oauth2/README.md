@@ -22,11 +22,11 @@ USER 1001
 
 EXPOSE 8080
 ```
-Run the following command on that Dockerfile:
+Obtain the WAR file `cloudfoundry-identity-uaa-4.30.0.war` through a Maven repository of your choice. Put the Dockerfile listed above in the same directory as that WAR file. Run the following command:
 ```
 docker build . -t <docker_repository>/uaa:4.30.0
 ```
-Obtain the WAR file `cloudfoundry-identity-uaa-4.30.0.war` through a Maven repository of your choice. Put the Dockerfile containing the Pivotal UAA Docker image in the same directory as that WAR file.
+
 
 ### Pivotal UAA Secrets and Management
 
