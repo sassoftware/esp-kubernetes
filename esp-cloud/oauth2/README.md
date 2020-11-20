@@ -8,7 +8,7 @@ A multi-user deployment deploys the following pods:
 * A Pivotal UAA server
 * The SAS OAuth2-proxy
 
-### Building the Pivitol UAA docker image
+### Building the Pivitol UAA Docker image
 Use the following Dockerfile to build the Pivotal UAA Docker image. 
 ```
 FROM tomcat:8-jre8-alpine
