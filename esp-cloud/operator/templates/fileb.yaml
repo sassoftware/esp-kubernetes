@@ -54,12 +54,15 @@ spec:
        spec:
          TEMPLATE_ESP_AZUREimagePullSecrets:
          TEMPLATE_ESP_AZURE  - name: acr-secret
-         securityContext:
-           runAsUser:  1001
-           runAsGroup: 1001
          containers:
          - name: espfb-container
-           image: filebrowser/filebrowser
+           image: registry.unx.sas.com/sckolo/esp/filebrowser:latest
+           securityContext:
+             allowPrivilegeEscalation: false
+             readOnlyRootFilesystem: true
+             runAsGroup: 1001
+             runAsUser: 1001
+             runAsNonRoot: true             
            env:
              # METER_PORT specifies REST endpoint for metering server.
              # METER_DB   specifies location of H2 database.
@@ -83,20 +86,19 @@ spec:
 #                subPath: TEMPLATE_ESP_NAMESPACE
               - name: workdir
                 mountPath: /db
-           securityContext:
-             allowPrivilegeEscalation: false
-             readOnlyRootFilesystem: true
          initContainers:
          - name: config-data
-           image: busybox
+           image: registry.unx.sas.com/sckolo/esp/busybox:latest
            #
            # Our nfs PV is owned by sas:sas which is 1001:1001, so
            #    use those credentials to make /mnt/data/{input,output}
            #    directories.
            #
            securityContext:
-             runAsUser:  1001
+             allowPrivilegeEscalation: false
+             readOnlyRootFilesystem: true
              runAsGroup: 1001
+             runAsUser: 1001
            command: ['sh', '-c', 'mkdir -p /mnt/data/input ; mkdir -p /mnt/data/output ; touch /db/filebrowser.db']
            volumeMounts:
            - name: data

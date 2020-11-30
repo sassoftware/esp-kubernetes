@@ -63,8 +63,14 @@ spec:
       - name: espstudio-container
         image: TEMPLATE_ESPSTUDIO_IMAGE
         imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsGroup: 1001
+          runAsUser: 1001
+          runAsNonRoot: true        
         ports:
-        - containerPort: 8080
+        - containerPort: 8080          
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false

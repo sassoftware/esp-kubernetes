@@ -18,10 +18,6 @@ spec:
     spec:
       TEMPLATE_ESP_AZUREimagePullSecrets:
       TEMPLATE_ESP_AZURE  - name: acr-secret
-      securityContext:
-        runAsUser:  1001
-        runAsGroup: 1001
-        runAsNonRoot: true
       containers:
       - args:
         - --provider=uaa
@@ -40,6 +36,7 @@ spec:
         - --cookie-expire=12h0m0s
         - --cookie-secure=true
         - --cookie-domain=TEMPLATE_ESP_DOMAIN
+        - --cookie-samesite=lax
         # Register a new application
         # https://github.com/settings/applications/new
         env:
@@ -53,18 +50,16 @@ spec:
         #image: quay.io/pusher/oauth2_proxy:latest
         image: TEMPLATE_ESP_OAUTH2P_IMAGE
         imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsGroup: 1001
+          runAsUser: 1001
+          runAsNonRoot: true        
         name: oauth2-proxy
         ports:
         - containerPort: 4180
           protocol: TCP
-        securityContext:
-          allowPrivilegeEscalation: false
-          privileged: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            add: []
-            drop:
-              - ALL
 ---
 apiVersion: v1
 kind: Service

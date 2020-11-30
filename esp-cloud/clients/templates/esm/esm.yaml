@@ -52,25 +52,19 @@ spec:
     spec:
       TEMPLATE_ESP_AZUREimagePullSecrets:
       TEMPLATE_ESP_AZURE  - name: acr-secret
-      securityContext:
-        runAsUser:  1001
-        runAsGroup: 1001      
-        runAsNonRoot: true
       serviceAccountName: sas-esp-clients
       containers:
       - name: esm-container
         image: TEMPLATE_ESM_IMAGE
         imagePullPolicy: Always
-        ports:
-        - containerPort: 8080
         securityContext:
           allowPrivilegeEscalation: false
-          privileged: false
           readOnlyRootFilesystem: true
-          capabilities:
-            add: []
-            drop:
-            - ALL
+          runAsGroup: 1001
+          runAsUser: 1001
+          runAsNonRoot: true        
+        ports:
+        - containerPort: 8080
         env:
         - name: SAS_VIYA_ENABLED
           value: "false"

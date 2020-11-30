@@ -51,13 +51,16 @@ spec:
        spec:
          TEMPLATE_ESP_AZUREimagePullSecrets:
          TEMPLATE_ESP_AZURE  - name: acr-secret
-         securityContext:
-           runAsUser:  1001
-           runAsGroup: 1001
-           runAsNonRoot: true
          containers:
          - name: espmetering-container
            image: TEMPLATE_ESP_METER_IMAGE
+           securityContext:
+             allowPrivilegeEscalation: false
+             privileged: false
+             readOnlyRootFilesystem: true
+             runAsUser:  1001
+             runAsGroup: 1001
+             runAsNonRoot: true
            env:
              - name: application_schema
                value: "metering"
@@ -84,14 +87,6 @@ spec:
            ports:
              - containerPort: 31415   # servers REST port
                name: http
-           securityContext:
-             allowPrivilegeEscalation: false
-             privileged: false
-             readOnlyRootFilesystem: true
-             capabilities:
-               add: []
-               drop:
-                 - ALL
            volumeMounts:
              - name: tmpdir
                mountPath: /tmp

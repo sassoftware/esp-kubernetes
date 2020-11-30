@@ -54,15 +54,17 @@ spec:
     spec:
       TEMPLATE_ESP_AZUREimagePullSecrets:
       TEMPLATE_ESP_AZURE  - name: acr-secret
-      securityContext:
-        runAsUser:  1001
-        runAsGroup: 1001      
-        runAsNonRoot: true
       serviceAccountName: sas-esp-clients
       containers:
       - name: streamviewer-container
         image: TEMPLATE_STREAMVIEWER_IMAGE
         imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsGroup: 1001
+          runAsUser: 1001
+          runAsNonRoot: true        
         ports:
         - containerPort: 8080
         securityContext:

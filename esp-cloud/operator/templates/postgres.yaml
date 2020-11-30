@@ -47,12 +47,14 @@ spec:
        spec:
          TEMPLATE_ESP_AZUREimagePullSecrets:
          TEMPLATE_ESP_AZURE  - name: acr-secret         
-         TEMPLATE_ESP_NOAZUREsecurityContext:
-         TEMPLATE_ESP_NOAZURE  runAsUser:  1001
-         TEMPLATE_ESP_NOAZURE  runAsGroup: 1001
          containers:
          - name: postgres
-           image: postgres:10.4
+           image: registry.unx.sas.com/sckolo/esp/postgres:10.4
+           securityContext:
+             allowPrivilegeEscalation: false
+             TEMPLATE_ESP_NOAZURErunAsUser:  1001
+             TEMPLATE_ESP_NOAZURErunAsGroup: 1001
+             runAsNonRoot: true             
            ports:
              - containerPort: 5432  # servers REST port
                name: postgresdb
@@ -73,20 +75,19 @@ spec:
            volumeMounts:
               - name: data            # the volume specified below
                 mountPath: /mnt/data  # path persistent volume gets mounted to
-           securityContext:
-             allowPrivilegeEscalation: false
-             #readOnlyRootFilesystem: true
          initContainers:
          - name: config-data
-           image: busybox
+           image: registry.unx.sas.com/sckolo/esp/busybox:latest
            #
            # Our nfs PV is owned by sas:sas which is 1001:1001, so
            #    use those credentials to make <namespace>/{DB,input,output}
            #    directories.
            #
-           TEMPLATE_ESP_NOAZUREsecurityContext:
-           TEMPLATE_ESP_NOAZURE  runAsUser:  1001
-           TEMPLATE_ESP_NOAZURE  runAsGroup: 1001
+           securityContext:
+             allowPrivilegeEscalation: false
+             TEMPLATE_ESP_NOAZURErunAsUser:  1001
+             TEMPLATE_ESP_NOAZURErunAsGroup: 1001
+             runAsNonRoot: true             
            command: ['sh', '-c', 'mkdir -p /mnt/data/postgres']
            volumeMounts:
            - name: data
