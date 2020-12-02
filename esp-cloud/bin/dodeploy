@@ -66,12 +66,12 @@ if [[ 0 -ne $? ]] ; then
     fi
 fi
 
-# Apply _crd.yaml files
+# Apply _crd.yaml files -- these are not namespace scoped. 
 #
 LIST=`find ${DEPLOYMENT} -type f \( -iname "*_crd.y*ml" ! -iwholename "*project/*" ! -iwholename "*examples/*" \)`
 for i in ${LIST} ; do
     echo "deploying: $i"
-    kubectl -n ${ESP_NS} apply -f $i
+    kubectl apply -f $i
 done
 
 # apply pcv.yaml
