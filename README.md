@@ -86,6 +86,11 @@ ENV CATALINA_OPTS="-Xmx800m"
 RUN rm $CATALINA_HOME/webapps/ROOT -r -f
 ADD cloudfoundry-identity-uaa-4.30.0.war $CATALINA_HOME/webapps/uaa.war
 
+
+RUN adduser --uid 1001 -D sas
+RUN chown -R sas:sas /usr/local/tomcat
+USER 1001
+
 EXPOSE 8080
 ```
 A convenient way to run the UAA command-line client is to build a Docker container with just cf-uaac.
@@ -124,6 +129,11 @@ Perform the SAS Event Stream Processing cloud deployment from a single directory
 The deployment can be performed in Open mode (no TLS or user authentication), or in multi-user mode, which provides full authentication through a UAA server. In multi-user mode, TLS is enabled by default. 
 
 For more information, see [ESP cloud](/esp-cloud). 
+
+### Modify location of Public Domain Images
+
+Recent restrictions on image pulls from ```hub.docker.com``` forced the inclision of three public domain docker images into a private repository. Please pull the images: ```filebrowser/filebrowser```, ```busybox``` and ```postgres:10.4```. Push them into your private reposity. Then you can edit the two files: ```esp-cloud/operator/templates/fileb.yaml```  and ```esp-cloud/operator/templates/postgres.yaml```. Replace the image specifications for the three public domain docker images with the ones that you pushed to your private docker repository.
+
 
 ### Generate a Deployment with mkdeploy
 
