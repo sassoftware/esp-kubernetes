@@ -1,0 +1,12 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: sas-esp-project
+  namespace: TEMPLATE_ESP_NAMESPACE
+subjects:
+- kind: ServiceAccount
+  name: sas-esp-project
+roleRef:
+  kind: Role
+  name: sas-esp-project
+  apiGroup: rbac.authorization.k8s.io
