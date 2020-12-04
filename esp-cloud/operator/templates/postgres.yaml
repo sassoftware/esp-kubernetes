@@ -69,6 +69,8 @@ spec:
                  secretKeyRef:
                    name: postgres-secret
                    key:  password
+             - name: POSTGRES_DB   # force default DB to esp 
+               value: esp
            envFrom:
              - configMapRef: 
                 name: postgres-config
