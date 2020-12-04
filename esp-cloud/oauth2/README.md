@@ -92,7 +92,7 @@ uaac token client get admin -s adminsecret
 
 Create a service account:
 ```
-uaac client add sv_client --authorities "uaa.resource"  --scope "openid email"  --autoapprove "openid" --authorized_grant_types "authorization_code refresh_token password client_credentials"  --redirect_uri https://<domain>.com/oauth2 -s secret
+uaac client add sv_client --authorities "uaa.resource"  --scope "openid email profile"  --autoapprove "openid" --authorized_grant_types "authorization_code refresh_token password client_credentials"  --redirect_uri https://<domain>.com/oauth2 -s secret
 ```
 
 Create one or more user accounts:
