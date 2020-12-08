@@ -1,0 +1,17 @@
+#
+# This is the esp-pv claim that esp component pods make use of.
+#
+apiVersion: v1
+kind: PersistentVolumeClaim 
+metadata:
+   name: esp-pv-pg
+#   annotations:
+#     volume.beta.kubernetes.io/storage-class: "nfs-client"   
+spec:
+   TEMPLATE_ESP_NOAZUREstorageClassName: nfs-client 
+   TEMPLATE_ESP_AZUREstorageClassName: default
+   accessModes:
+     - ReadWriteOnce # This volume is used for Postgres storage
+   resources:
+     requests:
+       storage: 10Gi  # volume size requested

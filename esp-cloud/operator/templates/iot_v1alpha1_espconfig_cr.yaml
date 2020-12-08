@@ -1,0 +1,212 @@
+apiVersion: iot.sas.com/v1alpha1
+kind: ESPConfig
+metadata:
+  name: espconfig # this is the name the operator will look for 
+  namespace: TEMPLATE_ESP_NAMESPACE
+spec:
+  # Add fields here
+  espProperties:
+    "env.server.license": "ESP_LICENSE"
+    #"server.disableTrace": "false"
+  operatorProperties: # the properties ESP operator use to configure projects
+    #"server.tls.issuer": "letsencrypt-staging"
+  limits:
+    maxReplicas: "5"
+    maxMemory: "4Gi"
+    maxCpu: "2"   
+    maxStorageEphemeral: 
+  projectTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
+    autoscale:
+      minReplicas: 1
+      maxReplicas: 10 
+      metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 50 
+    ingress:
+      metadata:
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          kubernetes.io/ingress.allow-http: "false"
+          nginx.ingress.kubernetes.io/rewrite-target: /$2
+          nginx.ingress.kubernetes.io/ssl-redirect: "true"
+        labels:
+          app: ((PROJECT_SERVICE_NAME))
+          type: esp
+        name: ((PROJECT_SERVICE_NAME))
+        namespace: ((PROJECT_NAMESPACE))
+      spec:
+        rules:
+        - host: ((PUBLIC_HOST_NAME))
+          http:
+            paths:
+            - backend:
+                serviceName: ((PROJECT_SERVICE_NAME))
+                servicePort: 80
+              path: /SASEventStreamProcessingServer/((PROJECT_SERVICE_NAME))(/|$)(.*)
+        tls:
+        - hosts:
+          - ((PUBLIC_HOST_NAME))
+          secretName: foo # 
+    httpService:
+      metadata:
+        annotations:
+          "prometheus.io/scrape": "true"
+          "prometheus.io/port": "80" # service http port 
+        labels:
+          app: ((PROJECT_SERVICE_NAME))
+          project: ((PROJECT_HASHED_NAME))
+          esp-component: project          
+          type: http
+        name: ((PROJECT_SERVICE_NAME))
+        namespace: ((PROJECT_NAMESPACE))
+      spec:
+        ports:
+        - name: http
+          port: 80 # 443 if https enabled
+          protocol: TCP
+          targetPort: http
+        selector:
+          app: ((PROJECT_SERVICE_NAME))
+    pubsubService:
+      metadata:
+        annotations:
+        labels:
+          app: ((PROJECT_SERVICE_NAME))
+          project: ((PROJECT_HASHED_NAME))
+          type: pubsub
+        name: ((PROJECT_PUBSUB_SERVICE_NAME))
+        namespace: ((PROJECT_NAMESPACE))
+      spec:
+        clusterIP: None
+        ports:
+        - name: pubsub
+          port: 31416
+          protocol: TCP
+          targetPort: pubsub
+        selector:
+          app: ((PROJECT_SERVICE_NAME))
+    deployment:
+      metadata:
+        name: ((PROJECT_SERVICE_NAME))
+        namespace: ((PROJECT_NAMESPACE))
+      spec:  # required for deployment spec
+        replicas: 1
+        selector:
+          matchLabels:
+            app: ((PROJECT_SERVICE_NAME))
+            type: esp
+        template: # required
+          metadata:
+            annotations:
+              seccomp.security.alpha.kubernetes.io/pod: runtime/default
+            labels:
+              app: ((PROJECT_SERVICE_NAME))
+              type: esp
+          spec: # required
+            TEMPLATE_ESP_AZUREimagePullSecrets:
+            TEMPLATE_ESP_AZURE  - name: acr-secret  
+            serviceAccountName: "sas-esp-project"
+            containers:
+            - name: ((PROJECT_SERVICE_NAME)) # DONT CHANGE THE NAME
+              image: TEMPLATE_ESP_SERVER_IMAGE
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 1001
+                runAsUser: 1001
+                runAsNonRoot: true                
+              env:
+              - name: ESP_LICENSE
+                value: "b64TEMPLATE_ESP_LICB64GZ"
+              resources:
+                requests:
+                  memory: "1Gi"
+                  cpu: "1"
+                limits:
+                  memory: "2Gi"
+                  cpu: "2"
+              ports:
+              - name: http
+                containerPort:  31415
+              - name: pubsub
+                containerPort:  31416
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /internal/ready
+                  port: 31415
+                  scheme: HTTP
+  loadBalancerTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
+    deployment:
+      metadata:
+        name: ((PROJECT_LB_SERVICE_NAME))
+        namespace: ((PROJECT_NAMESPACE))
+      spec:  # required for deployment spec
+        replicas: 1        
+        selector:
+          matchLabels:
+            app: ((PROJECT_LB_SERVICE_NAME))
+        template: # required
+          metadata:
+            annotations:
+              seccomp.security.alpha.kubernetes.io/pod: runtime/default
+            labels:
+              app: ((PROJECT_LB_SERVICE_NAME))
+          spec: # required
+            TEMPLATE_ESP_AZUREimagePullSecrets:
+            TEMPLATE_ESP_AZURE  - name: acr-secret         
+            serviceAccountName: "sas-esp-project"
+            containers:
+            - name: ((PROJECT_SERVICE_NAME)) 
+              image: repulpmaster.unx.sas.com/cdp-release-x64_oci_linux_2-docker-latest/sas-event-stream-processing-server-app:7.1.0-20200512.1589296745199
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 1001
+                runAsUser: 1001
+                runAsNonRoot: true                
+              env:
+              - name: ESP_LICENSE
+                value: "b64TEMPLATE_ESP_LICB64GZ"
+              resources:
+                requests:
+                  memory: "1Gi"
+                  cpu: "1"
+                limits:
+                  memory: "2Gi"
+                  cpu: "2"
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /internal/ready
+                  port: 31415
+                  scheme: HTTP
+            - name: ((PROJECT_LB_SERVICE_NAME)) 
+              image: TEMPLATE_ESP_LB_IMAGE
+              env:
+              - name: ESPLB_HTTP
+                value: "31415"
+              - name: ESPLB_PUBSUB
+                value: "31416"
+              - name: WATCH_NAMESPACE
+                value: "((PROJECT_NAMESPACE))"
+              - name: ESPLB_PROJECT
+                value: "((PROJECT_SERVICE_NAME))"
+              - name: POD_NAME
+                valueFrom: 
+                  fieldRef:
+                    fieldPath: "metadata.name"
+              resources:
+                requests:
+                  memory: "1Gi"
+                  cpu: "1"
+                limits:
+                  memory: "2Gi"
+                  cpu: "2"
+

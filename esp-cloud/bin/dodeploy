@@ -1,0 +1,166 @@
+#!/bin/bash
+
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+# usage -- all args are required.
+#
+show_usage() {
+    echo "Usage: $0"
+    echo "          -n <namespace>             -- specify K8 namespace" 
+    exit 1
+}
+
+ROOT=$0
+
+# make sure we are launched from .../operator or .../single_user_clients
+#
+BASE=`basename $PWD`
+[ $BASE != "esp-cloud" ] && echo "script must be run from the esp-cloud directory" && exit 1
+
+while getopts "?n:" opt; do
+    case "$opt" in
+        \?)
+            show_usage
+            return 1
+            ;;
+        n)  ESP_NS=$OPTARG
+            ;;
+        *)
+            show_usage
+    esac
+done
+
+[ -z $ESP_NS ] && show_usage
+
+ROOT=`readlink -f $ROOT`
+ROOT=`dirname $ROOT`
+ROOT=`readlink -f $ROOT/..`
+#ROOT=${ROOT}/${BASE}
+
+echo "ROOT = <$ROOT>"
+DEPLOYMENT=$ROOT/deploy
+
+if [[ ! -d "$DEPLOYMENT" ]]; then
+    echo "deploy/ directory could not be found as: $DEPLOYMENT"
+    echo "script aborting."
+    exit 1
+fi
+
+FOO=`kubectl get ns $ESP_NS`
+if [[ 0 -ne $? ]] ; then
+    echo "namespace $ESP_NS does not exists on this cluster"
+    echo ""
+    read -p "would you like us to create it (y/n)?" ANS
+    if [[ "Z$ANS" == "Zy" ]] ; then
+	echo "issuing command: kubectl create ns $ESP_NS"
+	kubectl create ns $ESP_NS
+	echo "return: $?"
+	if [[ 0 -ne $? ]] ; then
+	    echo "Create kubernetes namespace failed. Please investigate, exiting."
+	    exit 1
+	fi
+    else 
+	echo "Create the namspace yourself, then re-run script"
+	exit 1
+    fi
+fi
+
+# Apply _crd.yaml files -- these are not namespace scoped. 
+#
+LIST=`find ${DEPLOYMENT} -type f \( -iname "*_crd.y*ml" ! -iwholename "*project/*" ! -iwholename "*examples/*" \)`
+for i in ${LIST} ; do
+    echo "deploying: $i"
+    kubectl apply -f $i
+done
+
+# apply pcv.yaml
+if [ -f $DEPLOYMENT/pvc.yaml ] ; then
+    kubectl -n ${ESP_NS} apply -f $DEPLOYMENT/pvc.yaml
+    i=0;
+    OK="n"
+    echo ""
+    while [[ i -le 10 ]] ;
+    do
+        echo -n "."
+        sleep 2;
+	kubectl -n ${ESP_NS} get pvc/esp-pv | fgrep -i bound &>/dev/null	
+        if [ $? -eq 0 ]; then
+	    OK="y"
+            echo ""
+            echo "  The Persitent Volume has been sucessfully bound!"
+	    break;
+        fi
+        i=$((i+1));
+    done;
+    echo ""
+    if [[ "n" = "$OK" ]] ; then
+	echo "  After 10 iteration, Persitent Volume Claim remains unbound"
+	echo "     aborting deployment"
+	exit 1
+    fi
+fi
+
+# apply pcv-pg.yaml
+if [ -f $DEPLOYMENT/pvc-pg.yaml ] ; then
+    kubectl -n ${ESP_NS} apply -f $DEPLOYMENT/pvc-pg.yaml
+    i=0;
+    OK="n"
+    echo ""
+    while [[ i -le 10 ]] ;
+    do
+        echo -n "."
+        sleep 2;
+	kubectl -n ${ESP_NS} get pvc/esp-pv-pg | fgrep -i bound &>/dev/null	
+        if [ $? -eq 0 ]; then
+	    OK="y"
+            echo ""
+            echo "  The Persitent Volume has been sucessfully bound!"
+	    break;
+        fi
+        i=$((i+1));
+    done;
+    echo ""
+    if [[ "n" = "$OK" ]] ; then
+	echo "  After 10 iteration, Persitent Volume Claim remains unbound"
+	echo "     aborting deployment"
+	exit 1
+    fi
+fi
+
+
+# apply postgres.yaml
+#
+if [ -f $DEPLOYMENT/postgres.yaml ] ; then
+    kubectl -n ${ESP_NS} apply -f $DEPLOYMENT/postgres.yaml
+    i=0;
+    OK="n"
+    echo ""
+    while [[ i -le 100 ]] ;
+    do
+        echo -n "."
+        sleep 3;
+	kubectl -n ${ESP_NS} get pods | fgrep -i postgres | fgrep -i running &>/dev/null
+        if [ $? -eq 0 ]; then
+	    OK="y"
+            echo ""
+            echo "  The postgres started sucessfuly."
+	    break;
+        fi
+        i=$((i+1));
+    done;
+    echo ""    
+    if [[ "n" = "$OK" ]] ; then
+	echo "  After 100 iteration, could not start the postgres DB"
+	echo "     aborting deployment"
+	exit 1;
+    fi
+fi    
+
+# Apply non _crd.yaml files
+#
+LIST=`find ${DEPLOYMENT} -type f \( -iname "*.y*ml" ! -iwholename "*project/*" ! -iwholename "*examples/*" ! -iname "pvc.yaml" ! -iname "pvc-pg.yaml" ! -iname "postgres.yaml" ! -iname "*_crd.y*ml" \)`
+for i in ${LIST} ; do
+    echo "deploying: $i"
+    kubectl -n ${ESP_NS} apply -f $i
+done

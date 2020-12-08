@@ -1,9 +1,0 @@
-apiVersion: iot.sas.com/v1alpha1
-kind: ESPConfig
-metadata:
-  name: espconfig # this is the name the operator will look for, do NOT change
-  namespace: TEMPLATE_ESP_NAMESPACE
-spec:
-  # Add fields here
-  espProperties:
-    "server.license": "b64TEMPLATE_ESP_LICB64GZ"

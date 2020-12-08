@@ -1,0 +1,113 @@
+kind: Service
+apiVersion: v1 
+metadata:
+  name: espfb-service
+spec:
+  selector:
+    app: espfb  
+  ports:
+    - protocol: TCP             # TCP
+      targetPort: 18080         # the port esp exposes on the pod it runs in
+      port: 80                  # the port within the K8 cluster
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: espfb
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/ingress.allow-http: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: 500m
+    TEMPLATE_ESP_OPENnginx.ingress.kubernetes.io/rewrite-target: /$2
+    TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+    TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
+spec:
+  rules:
+  - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+    http:
+      paths:
+      - backend:
+          serviceName: espfb-service # the service to hit
+          servicePort: 80            # externally exposed port
+        path: /files(/|$)(.*)          
+  tls:
+  - hosts:
+    - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+    secretName: foo
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: espfb-deployment
+spec:
+  replicas: 1
+  selector:
+     matchLabels:
+       app: espfb
+  template:
+       metadata:
+         annotations:
+           seccomp.security.alpha.kubernetes.io/pod: runtime/default
+         labels:
+           app: espfb
+       spec:
+         TEMPLATE_ESP_AZUREimagePullSecrets:
+         TEMPLATE_ESP_AZURE  - name: acr-secret
+         containers:
+         - name: espfb-container
+           image: registry.unx.sas.com/sckolo/esp/filebrowser:latest
+           securityContext:
+             allowPrivilegeEscalation: false
+             readOnlyRootFilesystem: true
+             runAsGroup: 1001
+             runAsUser: 1001
+             runAsNonRoot: true             
+           env:
+             # METER_PORT specifies REST endpoint for metering server.
+             # METER_DB   specifies location of H2 database.
+             #
+             - name: FB_DATABASE
+               value: "/db/filebrowser.db"
+             - name: FB_PORT
+               value: "18080"
+             - name: FB_NOAUTH
+               value: "true"
+             - name: FB_ROOT
+               value: "/mnt/data"
+             - name: FB_BASEURL
+               value: "/files"               
+           ports:
+             - containerPort: 18080  # servers REST port
+               name: http
+           volumeMounts:
+              - name: data            # the volume specified below
+                mountPath: /mnt/data  # path persistent volume gets mounted to
+#                subPath: TEMPLATE_ESP_NAMESPACE
+              - name: workdir
+                mountPath: /db
+         initContainers:
+         - name: config-data
+           image: registry.unx.sas.com/sckolo/esp/busybox:latest
+           #
+           # Our nfs PV is owned by sas:sas which is 1001:1001, so
+           #    use those credentials to make /mnt/data/{input,output}
+           #    directories.
+           #
+           securityContext:
+             allowPrivilegeEscalation: false
+             readOnlyRootFilesystem: true
+             runAsGroup: 1001
+             runAsUser: 1001
+           command: ['sh', '-c', 'mkdir -p /mnt/data/input ; mkdir -p /mnt/data/output ; touch /db/filebrowser.db']
+           volumeMounts:
+           - name: data
+             mountPath: /mnt/data
+           - name: workdir            
+             mountPath: /db
+         volumes:
+           - name: data
+             persistentVolumeClaim:
+               claimName: esp-pv
+           - name: workdir
+             emptyDir: {}

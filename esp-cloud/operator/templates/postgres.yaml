@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+type: Opaque
+data:
+  username: ZXNw
+  password: ZXNwX2luX2Nsb3Vk
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  labels:
+    app: postgres
+data:
+  PGDATA: /mnt/data/postgres
+---
+kind: Service
+apiVersion: v1 
+metadata:
+  name: postgres-service
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP            # TCP
+      targetPort: 5432
+      port: 80              
+  type: ClusterIP
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+     matchLabels:
+       app: postgres
+  template:
+       metadata:
+         annotations:
+           seccomp.security.alpha.kubernetes.io/pod: runtime/default
+         labels:
+           app: postgres
+       spec:
+         TEMPLATE_ESP_AZUREimagePullSecrets:
+         TEMPLATE_ESP_AZURE  - name: acr-secret         
+         containers:
+         - name: postgres
+           image: registry.unx.sas.com/sckolo/esp/postgres:10.4
+           securityContext:
+             allowPrivilegeEscalation: false
+             TEMPLATE_ESP_NOAZURErunAsUser:  1001
+             TEMPLATE_ESP_NOAZURErunAsGroup: 1001
+             runAsNonRoot: true             
+           ports:
+             - containerPort: 5432  # servers REST port
+               name: postgresdb
+           env:
+             - name: POSTGRES_USER
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+                   key:  username
+             - name: POSTGRES_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+                   key:  password
+             - name: POSTGRES_DB   # force default DB to esp 
+               value: esp
+           envFrom:
+             - configMapRef: 
+                name: postgres-config
+           volumeMounts:
+              - name: data            # the volume specified below
+                mountPath: /mnt/data  # path persistent volume gets mounted to
+         initContainers:
+         - name: config-data
+           image: registry.unx.sas.com/sckolo/esp/busybox:latest
+           #
+           # Our nfs PV is owned by sas:sas which is 1001:1001, so
+           #    use those credentials to make <namespace>/{DB,input,output}
+           #    directories.
+           #
+           securityContext:
+             allowPrivilegeEscalation: false
+             TEMPLATE_ESP_NOAZURErunAsUser:  1001
+             TEMPLATE_ESP_NOAZURErunAsGroup: 1001
+             runAsNonRoot: true             
+           command: ['sh', '-c', 'mkdir -p /mnt/data/postgres']
+           volumeMounts:
+           - name: data
+             mountPath: /mnt/data
+         volumes:
+           - name: data
+             persistentVolumeClaim:
+               claimName: esp-pv-pg
+ #          - name: postgres-init
+ #            configMap:
+ #              name: espdb-config
+ #              items:
+ #              - key: init-esp.sh
+ #                path: init-esp.sh
+            

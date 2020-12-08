@@ -1,0 +1,95 @@
+kind: Service
+apiVersion: v1 
+metadata:
+  name: sas-event-stream-processing-metering-app
+spec:
+  selector:
+    app: espmeter               # target any pod with the app=espmeter label
+  ports:
+    - protocol: TCP             # TCP
+      targetPort: 31415         # the port esp exposes on the pod it runs in
+      port: 80                  # the port within the K8 cluster
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: sas-event-stream-processing-metering-app
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/ingress.allow-http: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+  - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+    http:
+      paths:
+      - backend:
+          serviceName: sas-event-stream-processing-metering-app # the service to hit
+          servicePort: 80                                       # externally exposed port 
+        path: /SASEventStreamProcessingMetering(/|$)(.*)
+  tls:
+  - hosts:
+    - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+    secretName: foo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sas-event-stream-processing-metering-app
+spec:
+  replicas: 1
+  selector:
+     matchLabels:
+       app: espmeter
+  template:
+       metadata:
+         annotations:
+           seccomp.security.alpha.kubernetes.io/pod: runtime/default
+         labels:
+           app: espmeter
+       spec:
+         TEMPLATE_ESP_AZUREimagePullSecrets:
+         TEMPLATE_ESP_AZURE  - name: acr-secret
+         containers:
+         - name: espmetering-container
+           image: TEMPLATE_ESP_METER_IMAGE
+           securityContext:
+             allowPrivilegeEscalation: false
+             privileged: false
+             readOnlyRootFilesystem: true
+             runAsUser:  1001
+             runAsGroup: 1001
+             runAsNonRoot: true
+           env:
+             - name: application_schema
+               value: "metering"
+             - name: SPRING_DATASOURCE_URL
+               value: "jdbc:postgresql://postgres-service:80/esp?currentSchema=${application.schema}"
+             - name: server_port
+               value: "31415"
+             - name: spring_datasource_username
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+                   key:  username
+             - name: spring_datasource_password
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+                   key:  password
+             - name: spring_datasource_platform
+               value: "postgresql"
+             - name: spring_datasource_driver_class_name
+               value: "org.postgresql.Driver"
+             - name: file_encoding
+               value: "UTF-8"
+           ports:
+             - containerPort: 31415   # servers REST port
+               name: http
+           volumeMounts:
+             - name: tmpdir
+               mountPath: /tmp
+         volumes:
+           - name: tmpdir
+             emptyDir: {}

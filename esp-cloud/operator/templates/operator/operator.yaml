@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sas-esp-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: sas-esp-operator
+  template:
+    metadata:
+      labels:
+        name: sas-esp-operator
+    spec:
+      TEMPLATE_ESP_AZUREimagePullSecrets:
+      TEMPLATE_ESP_AZURE  - name: acr-secret         
+      serviceAccountName: sas-esp-operator
+      containers:
+        - name: sas-esp-operator
+          # Replace this with the built image name
+          image: TEMPLATE_ESP_OPERATOR_IMAGE
+          command:
+              #- esp-operator
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "sas-esp-operator"
+            #inside the container, "ESPOP_" is the prefix that will be ignored, then "__" will be replaced by ".". i.e. ESPOP_SERVER_IMAGE is converted to
+            #  server.image that will override the value set in config.yaml
+            - name: ESPOP_SERVER__HTTP_PORT
+              value: "31415"
+            - name: ESPOP_SERVER__PUBSUB_PORT
+              value: "31416"
+            - name: ESPOP_PUBLICHOSTNAME
+              value: "TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN"
+            - name: ESPOP_LB__IMAGE
+              value: "TEMPLATE_ESP_LB_IMAGE"
+            TEMPLATE_ESP_MULTI- name: ESPOP_OAUTH2PROXY
+            TEMPLATE_ESP_MULTI  value: "oauth2" # oauth2 proxy's ingress path
+            - name: ESPOP_ESPCONFIG # ESPConfig used to configure operator
+              value: "espconfig"
