@@ -2,6 +2,8 @@
 	
 ** ESP 6.2 -- initial release **
 
+* the deployment files for version 6.2.x of ESP may be found under the v6.2.2 TAG.
+
 ** ESP 7.1 **	
 
 * an opensource postgres DB is used for client storage needs: Studio, Streamviewer, ESM and ESP Metering. A persitent volume is required for the storage needs of the postgres DB.
