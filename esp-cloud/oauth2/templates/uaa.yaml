@@ -40,7 +40,7 @@ spec:
          TEMPLATE_ESP_AZURE  - name: acr-secret         
          containers:
          - name: uaa-container
-           image: TEMPLATE_UAA_IMAGE
+           image: ghcr.io/skolodzieski/uaa:4.30.0
            securityContext:
              allowPrivilegeEscalation: false
              runAsGroup: 1001

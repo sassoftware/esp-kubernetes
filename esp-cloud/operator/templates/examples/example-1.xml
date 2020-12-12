@@ -1,73 +1,69 @@
-<engine>
-  <projects>
-    <project name='array' pubsub='auto' threads='2'>
-      <contqueries>
-        <contquery name='cq' trace='aw'>
-          <windows>
-            <window-source name='sw' pubsub='true' insert-only='true' index='pi_EMPTY'>
-              <schema>
-                <fields>
-                  <field name='id'  type='int32'        key='true'/>
-                  <field name='gb'  type='int32'        key='false'/>
-                  <field name='dbl' type='array(dbl)' key='false'/>
-                </fields>
-              </schema>
-              <connectors>
-                <connector name='array_in' class='fs'>
-                  <properties>
-                    <property name='type'>pub</property>
-                    <property name='fsname'>/mnt/data/input/array_input01.csv</property>
-                    <property name='fstype'>csv</property>
-                    <property name='repeatcount'>10000000</property>
-                    <property name='rate'>1000</property>
-                  </properties>
-                </connector>
-              </connectors>
-            </window-source>
+<project name='array' pubsub='auto' threads='2'>
+  <contqueries>
+    <contquery name='cq' trace='aw'>
+      <windows>
+        <window-source name='sw' pubsub='true' insert-only='true' index='pi_EMPTY'>
+          <schema>
+            <fields>
+              <field name='id'  type='int32'        key='true'/>
+              <field name='gb'  type='int32'        key='false'/>
+              <field name='dbl' type='array(dbl)' key='false'/>
+            </fields>
+          </schema>
+          <connectors>
+            <connector name='array_in' class='fs'>
+              <properties>
+                <property name='type'>pub</property>
+                <property name='fsname'>/mnt/data/input/array_input01.csv</property>
+                <property name='fstype'>csv</property>
+                <property name='repeatcount'>10000000</property>
+                <property name='rate'>1000</property>
+              </properties>
+            </connector>
+          </connectors>
+        </window-source>
 
-            <window-aggregate name='aw' index='pi_HASH' pubsub='true'>
-              <schema>
-                <fields>
-                  <field name='gb'  type='int32'        key='true'/>
-                  <field name='last' type='array(dbl)'  key='false'/>
-                  <field name='ave' type='array(dbl)'   key='false'/>
-                </fields>
-              </schema>
-              <output>
-                <field-expr>ESP_aLast(dbl)</field-expr>
-                <field-expr>ESP_aAve(dbl)</field-expr>
-              </output>
-              <connectors>
-                <connector name='array_out' class='fs'>
-                  <properties>
-                    <property name='type'>sub</property>
-                    <property name='snapshot'>false</property>
-                    <property name='fsname'>/mnt/data/output/array_output01.csv</property>
-                    <property name='fstype'>csv</property>
-                  </properties>
-                </connector>
-              </connectors>
-            </window-aggregate>
+        <window-aggregate name='aw' index='pi_HASH' pubsub='true'>
+          <schema>
+            <fields>
+              <field name='gb'  type='int32'        key='true'/>
+              <field name='last' type='array(dbl)'  key='false'/>
+              <field name='ave' type='array(dbl)'   key='false'/>
+            </fields>
+          </schema>
+          <output>
+            <field-expr>ESP_aLast(dbl)</field-expr>
+            <field-expr>ESP_aAve(dbl)</field-expr>
+          </output>
+          <connectors>
+            <connector name='array_out' class='fs'>
+              <properties>
+                <property name='type'>sub</property>
+                <property name='snapshot'>false</property>
+                <property name='fsname'>/mnt/data/output/array_output01.csv</property>
+                <property name='fstype'>csv</property>
+              </properties>
+            </connector>
+          </connectors>
+        </window-aggregate>
 
-          </windows>
-          <edges>
-            <edge source='sw' target='aw'/>
-          </edges>
-        </contquery>
-      </contqueries>
-      <project-connectors>
-        <connector-groups>
-          <connector-group name='G1'>
-            <connector-entry connector='cq/aw/array_out' state='running'/>
-          </connector-group>
-          <connector-group name='G2'>
-            <connector-entry connector='cq/sw/array_in' state='finished'/>
-          </connector-group>
-        </connector-groups>
-        <edges>
-          <edge source='G1' target='G2'/>
-        </edges>
-      </project-connectors>
-    </project>
-  </projects>
-</engine>
+      </windows>
+      <edges>
+        <edge source='sw' target='aw'/>
+      </edges>
+    </contquery>
+  </contqueries>
+  <project-connectors>
+    <connector-groups>
+      <connector-group name='G1'>
+        <connector-entry connector='cq/aw/array_out' state='running'/>
+      </connector-group>
+      <connector-group name='G2'>
+        <connector-entry connector='cq/sw/array_in' state='finished'/>
+      </connector-group>
+    </connector-groups>
+    <edges>
+      <edge source='G1' target='G2'/>
+    </edges>
+  </project-connectors>
+</project>
