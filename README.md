@@ -76,7 +76,12 @@ For a multi-user deployment, here are the additional prerequisites:
 * access to the **cf-uaac** Pivotal UAA command-line client to configure the UAA server
 
 #### Creating Your Own UAA Docker Container
-To create your own UAA Docker container, you can download a recent UAA WAR file (such as cloudfoundry-identity-uaa-4.30.0.war) from any Maven repository and use the following Docker file:
+The mutli-user deployment has been extensivly tested using the following sample docker images. 
+```
+ghcr.io/skolodzieski/uaa           4.30.0              87630a19b52e        2 weeks ago         243MB
+ghcr.io/skolodzieski/uaac-01       latest              5272345571c5        7 months ago        221MB
+```
+These images were created using the following Docker recipes.Download a recent UAA WAR file (such as cloudfoundry-identity-uaa-4.30.0.war) from any Maven repository and use the following Docker file:
 
 ```
 FROM tomcat:8-jre8-alpine
@@ -142,6 +147,12 @@ Then edit the two files: ```esp-cloud/operator/templates/fileb.yaml```  and ```e
 
 Replace the image specifications for the three public-domain Docker images with the ones that you pushed to your private Docker repository.
 
+The deployment has been extensively tested with the following sample docker images:
+```
+ghcr.io/skolodzieski/busybox       latest              219ee5171f80        5 days ago          1.23MB
+ghcr.io/skolodzieski/filebrowser   latest              8450c63ecd27        2 weeks ago         33.4MB
+ghcr.io/skolodzieski/postgres      10.4                978b82dc00dc        2 years ago         236MB
+```
 
 ### Generate a Deployment with mkdeploy
 
