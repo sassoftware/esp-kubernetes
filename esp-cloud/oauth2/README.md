@@ -79,7 +79,7 @@ data:
 In order to configure a multi-user deployment, you must have access to the Cloud Foundry `uaac` command line tool.
 The following configuration examples assume that you can run the `uaac` command line tool from a Docker container:
 ```shell
-$ docker run -ti docker.sas.com/sckolo/esp-test-images/uaac-01:latest /bin/sh
+$ docker run -ti ghcr.io/skolodzieski/uaac-01 /bin/sh
 ```
 
 The following instructions create the connection to the uaa server, create a application service, and create a user.
