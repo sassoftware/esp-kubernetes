@@ -81,7 +81,7 @@ The mutli-user deployment has been extensivly tested using the following sample 
 ghcr.io/skolodzieski/uaa           4.30.0              87630a19b52e        2 weeks ago         243MB
 ghcr.io/skolodzieski/uaac-01       latest              5272345571c5        7 months ago        221MB
 ```
-For compete transparancy the steps below outline exactly how these imges are created. Download a recent UAA WAR file (such as cloudfoundry-identity-uaa-4.30.0.war) from any Maven repository and use the following Dockerfile:
+For complete transparancy, the foloowing steps outline exactly how these imges are created. Download a recent UAA WAR file (such as cloudfoundry-identity-uaa-4.30.0.war) from any Maven repository and use the following Dockerfile:
 
 ```
 FROM tomcat:8-jre8-alpine
@@ -98,7 +98,7 @@ USER 1001
 
 EXPOSE 8080
 ```
-A convenient way to run the UAA command-line client is to use a Docker container with only **cf-uaac** comand line client. Like the UAA container, a version is available in the ``ghcr.io/skolodziesi`` github repository. However building it is simply a metter of using the following Dockerfile:
+A convenient way to run the UAA command-line client is to use a Docker container with only **cf-uaac** comand line client. Like the UAA container, a version is available in the ``ghcr.io/skolodzieski`` github repository. However, building it is simply a matter of using the following Dockerfile:
 
 ```
 FROM ruby:2.6-alpine3.9
