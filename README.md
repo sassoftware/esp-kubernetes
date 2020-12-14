@@ -1,6 +1,6 @@
 ## esp-kubernetes
 
-**Note:** The following instructions are specific to SAS Event Stream Processing 2020.1 or later.
+**Note:** The following instructions are specific to SAS Event Stream Processing 2020.1 or later. Older versions of the repository are tagged.
 
 ## Changes
 For changes between releases, peruse the [changelog](CHANGELOG.md).
