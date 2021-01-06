@@ -21,3 +21,13 @@ path based ingress:
 ```
 
 * Multi user mode implemented with a external UAA server. The multiuser deployment comes with TLS enabled by default.
+
+* Testing has been done with the following thord party components:
+
+```
+ghcr.io/skolodzieski/postgres             12.5
+ghcr.io/skolodzieski/uaa                  74.29.0
+ghcr.io/skolodzieski/uaac                 3.2.0
+ghcr.io/skolodzieski/busybox              latest
+ghcr.io/skolodzieski/filebrowser          latest
+```
