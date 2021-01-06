@@ -66,6 +66,18 @@ if [[ 0 -ne $? ]] ; then
     fi
 fi
 
+# create secrets
+#
+# We use the following env vars to create the postgres/uaa secrets
+#    for the deployment.
+#
+[ -z $postgresSQLUsername ]     && echo "postgresSQLUsername not set defaulting to pgUSER" && postgresSQLUsername=pgUSER
+[ -z $postgresSQLCredentials ]  && echo "postgresSQLCredentials not set defaulting to pgPASS" && postgresSQLCredentials=pgPASS
+[ -z $uaaUsername]              && echo "uaaUsername not set defaulting to uaaUSER" && uaaUsername=uaaUSER
+[ -z $uaaCredentials]           && echo "uaaCredentials not set defaulting to uaaPASS" && uaaCredentials=uaaPASS
+
+. $ROOT/bin/mksecrets
+
 # Apply _crd.yaml files -- these are not namespace scoped. 
 #
 LIST=`find ${DEPLOYMENT} -type f \( -iname "*_crd.y*ml" ! -iwholename "*project/*" ! -iwholename "*examples/*" \)`

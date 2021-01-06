@@ -1,12 +1,3 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: uaa-secret
-type: Opaque
-data:
-  username: YWRtaW4=
-  password: YWRtaW5zZWNyZXQ=
----
 kind: Service
 apiVersion: v1 
 metadata:
@@ -40,7 +31,8 @@ spec:
          TEMPLATE_ESP_AZURE  - name: acr-secret         
          containers:
          - name: uaa-container
-           image: ghcr.io/skolodzieski/uaa:4.30.0
+           image: TEMPLATE_UAA_IMAGE
+           imagePullPolicy: Always
            securityContext:
              allowPrivilegeEscalation: false
              runAsGroup: 1001
@@ -50,7 +42,7 @@ spec:
              - containerPort: 8080  # servers REST port
                name: http
            env:
-             - name: CLOUD_FOUNDRY_CONFIG_PATH
+             - name: CLOUDFOUNDRY_CONFIG_PATH
                value: "/uaa"
              - name: POSTGRES_USER
                valueFrom:
@@ -76,8 +68,6 @@ spec:
              - name: uaa-config      # the volume specified below
                mountPath: /uaa       # path persistent volume gets mounted to
                readOnly: true
-             - name: tmpdir
-               mountPath: /tmp
          volumes:
            - name: uaa-config
              configMap:
@@ -85,8 +75,8 @@ spec:
                items:
                - key: uaa.yml
                  path: uaa.yml
-           - name: tmpdir
-             emptyDir: {}
+               - key: log4j2.properties
+                 path: log4j2.properties
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -94,6 +84,8 @@ metadata:
   name: uaa-config
 data:
     uaa.yml: |-
+      logging:
+        config: "/uaa/log4j2.properties"
       issuer:
         uri: http://localhost:8080/uaa
       encryption:
@@ -135,9 +127,9 @@ data:
           override: true
         # List of OAuth clients
         clients:
-          admin:
-            #id: admin
-            #secret: adminsecret
+          TEMPLATE_UAA_ADMIN:
+            id: TEMPLATE_UAA_ADMIN
+            secret: TEMPLATE_UAA_CREDENTIALS
             authorized-grant-types: client_credentials
             scope: none
             authorities: uaa.admin,clients.admin,clients.read,clients.write,clients.secret             
@@ -145,7 +137,7 @@ data:
         url: http://localhost:8080/uaa
         authorize:
           url: http://localhost:8080/uaa/oauth/authorize
-  
+        homeRedirect: https://TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
         serviceProviderKey: |
           -----BEGIN RSA PRIVATE KEY-----
           MIICXQIBAAKBgQDHtC5gUXxBKpEqZTLkNvFwNGnNIkggNOwOQVNbpO0WVHIivig5
@@ -222,7 +214,7 @@ data:
                   QH+xY/4h8tgL+eASz5QWhj8DItm8wYGI5lKJr8f36jk0JLPUXODyDAeN6ekXY9LI
                   fudkijw0dnh28LJqbkFF5wLNtATzyCfzjp+czrPMn9uqLNKt/iVD
                   -----END RSA PRIVATE KEY-----
-      spring_profiles: default,postgresql
+      spring_profiles: postgresql
       database:
         maxactive: 4
         maxidle: 2
@@ -230,6 +222,13 @@ data:
         url: jdbc:postgresql://postgres-service:80/esp
         username: ${POSTGRES_USER}
         password: ${POSTGRES_PASSWORD}
+    log4j2.properties: |-
+      status = warn
+      appender.console.type = Console
+      appender.console.name = LogToConsole
+      appender.console.layout.type = PatternLayout
+      appender.console.layout.pattern = [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
+      #appender.file.type = File
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress

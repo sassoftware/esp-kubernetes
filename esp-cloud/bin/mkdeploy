@@ -3,14 +3,13 @@
 #  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
 #  SPDX-License-Identifier: Apache-2.0
 
-
 ESP_OP=$IMAGE_OPERATOR
 ESP_SR=$IMAGE_ESPSRV
 ESP_MB=$IMAGE_METERBILL
 ESP_LB=$IMAGE_LOADBAL
 
 ESP_O2P=$IMAGE_ESPOAUTH2P
-
+ESP_UAA=$IMAGE_UAA
 ESP_STD=$IMAGE_ESPSTUDIO
 ESP_SVR=$IMAGE_ESPSTRMVWR
 ESP_ESM=$IMAGE_ESPESM
@@ -34,22 +33,6 @@ show_usage() {
     echo "          -M                          -- enable multiuser mode"
     echo "          -A                          -- decorate for AZURE"
     echo ""
-#    echo "     options for operator deployment"
-#    echo ""    
-#    echo "          -o <esp operator image>     -- esp operator docker image"
-#    echo "          -s <esp server image>       -- esp server docker image"
-#    echo "          -m <esp meter image>        -- esp metering docker image"
-#    echo "          -b <sas esp load balancer>  -- esp load balancer docker image"
-#    echo ""
-#    echo "     options for client deployment"
-#    echo ""    
-#    echo "          -e <esm image>              -- esp esm docker image"
-#    echo "          -t <esp studio image>       -- esp studio docker image"
-#    echo "          -v <esp streamviewer image> -- esp streamviewer docker image"
-#    echo ""
-#    echo "     options for multi user user deployment"
-#    echo ""    
-#    echo "          -a <ESP oath2 proxy image>  -- esp authentication proxy image"
 
     exit 1
 }
@@ -116,36 +99,48 @@ while getopts "?c:l:n:o:s:d:m:b:e:t:v:a:ryCMA" opt; do
             ;;
 	l)  ESP_LF=$OPTARG
             ;;
-#	c)  ESP_CERT=$OPTARG
-#            ;;
         *)
-            show_usage
+            echo "bad option <$opt>" && show_usage
     esac
 done
 
-[ -z $ESP_NS ] && show_usage
-[ -z $ESP_DM ] && show_usage
-[ -z $ESP_LF ] && show_usage
+[ -z $ESP_NS ] && echo "namespace not specified" && show_usage
+[ -z $ESP_DM ] && echo "root domain not specified" && show_usage
+[ -z $ESP_LF ] && echo "license file not specified" && show_usage
 
 # operator, server and metering docker images
 #
-[ -z $ESP_OP ] && show_usage
-[ -z $ESP_SR ] && show_usage
-[ -z $ESP_MB ] && show_usage
-[ -z $ESP_LB ] && show_usage
+[ -z $ESP_OP ] && echo "ESP operator image not specified" && show_usage
+[ -z $ESP_SR ] && echo "ESP server image not specified" && show_usage
+[ -z $ESP_MB ] && echo "ESP metering server image not specified" && show_usage
+[ -z $ESP_LB ] && echo "ESP load balancer image not specified" && show_usage
 
 # studio, streamviewer and esm docker images
 #
 if [[ "yes" = "$CLIENTS" ]] ; then 
-    [ -z $ESP_ESM ] && show_usage
-    [ -z $ESP_STD ] && show_usage
-    [ -z $ESP_SVR ] && show_usage
+    [ -z $ESP_ESM ] && echo "Event Stream Manager image not specified" && show_usage
+    [ -z $ESP_STD ] && echo "Event Stream Processing Studio image not specified" && show_usage
+    [ -z $ESP_SVR ] && echo "Event Stream Processing Streamviewer image not specified" && show_usage
 fi
 
 # multiuser?
 #
 if [[ "yes" = "$MULTI" ]] ; then 
-    [ -z $ESP_O2P ] && show_usage
+    [ -z $ESP_O2P ] && echo "oauth2 proxy image not specified" && show_usage
+    [ -z $ESP_UAA ] && echo "UAA image not specified" && show_usage    
+
+    # We use the following env vars to create the postgres/uaa secrets
+    #    for the deployment.
+    #
+    [ -z $postgresSQLUsername ]     && echo "postgresSQLUsername not set defaulting to pgUSER" && export postgresSQLUsername=pgUSER
+    [ -z $postgresSQLCredentials ]  && echo "postgresSQLCredentials not set defaulting to pgPASS" && export postgresSQLCredentials=pgPASS
+    [ -z $uaaUsername]              && echo "uaaUsername not set defaulting to uaaUSER" && export uaaUsername=uaaUSER
+    [ -z $uaaCredentials]           && echo "uaaCredentials not set defaulting to uaaPASS" && export uaaCredentials=uaaPASS
+
+    TEMPLATE_UAA_ADMIN=$uaaUsername
+    TEMPLATE_UAA_CREDENTIALS=$uaaCredentials
+
+    
 fi
 
 
@@ -242,7 +237,10 @@ EOF
     sed -i 's|TEMPLATE_ESP_OPEN|'$ESP_OPEN_COMMENT'|g' $i    
     sed -i 's|TEMPLATE_ESP_MULTI|'$ESP_MULTI_COMMENT'|g' $i
     sed -i 's|TEMPLATE_ESP_AZURE|'$ESP_AZURE_COMMENT'|g' $i    
-    sed -i 's|TEMPLATE_ESP_NOAZURE|'$ESP_NOAZURE_COMMENT'|g' $i    
+    sed -i 's|TEMPLATE_ESP_NOAZURE|'$ESP_NOAZURE_COMMENT'|g' $i
+    sed -i 's|TEMPLATE_UAA_IMAGE|'$ESP_UAA'|g' $i
+    sed -i 's|TEMPLATE_UAA_ADMIN|'$uaaUsername'|g' $i
+    sed -i 's|TEMPLATE_UAA_CREDENTIALS|'$uaaCredentials'|g' $i    
 done
 
 

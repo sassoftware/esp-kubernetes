@@ -1,13 +1,4 @@
 apiVersion: v1
-kind: Secret
-metadata:
-  name: postgres-secret
-type: Opaque
-data:
-  username: ZXNw
-  password: ZXNwX2luX2Nsb3Vk
----
-apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-config
@@ -49,7 +40,7 @@ spec:
          TEMPLATE_ESP_AZURE  - name: acr-secret         
          containers:
          - name: postgres
-           image: ghcr.io/skolodzieski/postgres:10.4
+           image: ghcr.io/skolodzieski/postgres:12.5
            securityContext:
              allowPrivilegeEscalation: false
              TEMPLATE_ESP_NOAZURErunAsUser:  1001
