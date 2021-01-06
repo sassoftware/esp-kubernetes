@@ -78,37 +78,85 @@ For a multi-user deployment, here are the additional prerequisites:
 #### Creating Your Own UAA and UAAC Docker Containers
 The mutli-user deployment has been extensivly tested using the following sample docker images. These may be used for an initial deployment and testing.
 ```
-ghcr.io/skolodzieski/uaa           4.30.0              87630a19b52e        2 weeks ago         243MB
-ghcr.io/skolodzieski/uaac-01       latest              5272345571c5        7 months ago        221MB
+ghcr.io/skolodzieski/uaa           74.29.0
+ghcr.io/skolodzieski/uaac          3.2.0
 ```
-For complete transparancy, the foloowing steps outline exactly how these imges are created. Download a recent UAA WAR file (such as cloudfoundry-identity-uaa-4.30.0.war) from any Maven repository and use the following Dockerfile:
+
+For complete transparancy, the foloowing steps outline exactly how these imges are created. Download a recent UAA WAR file (such as cloudfoundry-identity-uaa-74.19.0.war) from any Maven repository and use the following Dockerfile:
 
 ```
-FROM tomcat:8-jre8-alpine
+FROM ubuntu:18.04 AS base
 
-ENV CATALINA_OPTS="-Xmx800m"
+ENV TOMCAT_VERSION 8.5.61
+
+# Set locales
+RUN apt-get update && \
+apt-get install -y locales && \
+locale-gen en_GB.UTF-8
+ENV LANG en_GB.UTF-8
+ENV LC_CTYPE en_GB.UTF-8
+
+# Fix sh
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
+# Install dependencies
+RUN apt-get update && \
+apt-get install -y git build-essential curl wget software-properties-common
+
+# Install OpenJDK 11
+RUN \
+add-apt-repository -y ppa:openjdk-r/ppa && \
+apt-get update && \
+apt-get install -y openjdk-11-jdk wget unzip tar && \
+rm -rf /var/lib/apt/lists/*
+
+# Define commonly used JAVA_HOME variable
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
+
+# Get Tomcat
+RUN wget --quiet --no-cookies https://archive.apache.org/dist/tomcat/tomcat-8/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz -O /tmp/tomcat.tgz && \
+tar xzvf /tmp/tomcat.tgz -C /opt && \
+mv /opt/apache-tomcat-${TOMCAT_VERSION} /opt/tomcat && \
+rm /tmp/tomcat.tgz && \
+rm -rf /opt/tomcat/webapps/examples && \
+rm -rf /opt/tomcat/webapps/docs && \
+rm -rf /opt/tomcat/webapps/ROOT
+
+ENV CATALINA_HOME /opt/tomcat
+ENV PATH $PATH:$CATALINA_HOME/bin
+
+#
+# Add User
+#
+RUN useradd -ms /bin/bash --uid 1001 sas
+RUN chown -R sas:sas $CATALINA_HOME/
+USER 1001
+
+VOLUME "/opt/tomcat/webapps"
+WORKDIR /opt/tomcat
+
+# Launch Tomcat
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
+
+ENV CATALINA_OPTS="-Xmx800m -Djava.security.egd=file:/dev/./urandom"
 
 RUN rm $CATALINA_HOME/webapps/ROOT -r -f
-ADD cloudfoundry-identity-uaa-4.30.0.war $CATALINA_HOME/webapps/uaa.war
-
-
-RUN adduser --uid 1001 -D sas
-RUN chown -R sas:sas /usr/local/tomcat
-USER 1001
+ADD cloudfoundry-identity-uaa-74.29.0.war $CATALINA_HOME/webapps/uaa.war
 
 EXPOSE 8080
 ```
 A convenient way to run the UAA command-line client is to use a Docker container with only **cf-uaac** comand line client. Like the UAA container, a version is available in the ``ghcr.io/skolodzieski`` github repository. However, building it is simply a matter of using the following Dockerfile:
 
 ```
-FROM ruby:2.6-alpine3.9
+FROM ruby:2.7.2-alpine3.12
 
-# TODO: remove after https://github.com/docker-library/ruby/pull/209 was fixed.
+# TODO: remove after https://github.com/docker-library/ruby/pull/209 is fixed.
+#
 ENV PATH "/usr/local/bundle/bin:${PATH}"
 
-RUN apk add --no-cache musl-dev gcc make g++
-
-RUN gem install cf-uaac -v 3.2.0 --no-document
+RUN apk add --no-cache musl-dev gcc make g++ \
+    && apk add jq \
+    && gem install cf-uaac -v 3.2.0 --no-document
 ```
 
 ## Getting Started
@@ -149,9 +197,9 @@ Replace the image specifications for the three public-domain Docker images with 
 
 The deployment has been extensively tested with the following sample docker images:
 ```
-ghcr.io/skolodzieski/busybox       latest              219ee5171f80        5 days ago          1.23MB
-ghcr.io/skolodzieski/filebrowser   latest              8450c63ecd27        2 weeks ago         33.4MB
-ghcr.io/skolodzieski/postgres      10.4                978b82dc00dc        2 years ago         236MB
+ghcr.io/skolodzieski/busybox       latest
+ghcr.io/skolodzieski/filebrowser   latest
+ghcr.io/skolodzieski/postgres      12.5 
 ```
 
 ### Generate a Deployment with mkdeploy
