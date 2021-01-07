@@ -64,7 +64,7 @@ $ docker run -ti ghcr.io/skolodzieski/uaac-01 /bin/sh
 
 The following instructions create the connection to the uaa server, create a application service, and create a user.
 
-Set up the connection to the UAA server (assuming you are using the default UAA username and credentials of 'uaaUSER' 'uaaPASS'):
+Set up the connection to the UAA server (assuming you are using the default UAA username and credentials of 'uaaUSER' and 'uaaPASS'):
 ```
 uaac target https://<domain>.com/uaa --skip-ssl-validation
 uaac token client get uaaUSER -s uaaPASS
