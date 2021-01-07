@@ -109,10 +109,6 @@ spec:
             secretKeyRef:
                name: postgres-secret
                key:  password
-        - name: spring_datasource_username
-          value: "esp"
-        - name: spring_datasource_password
-          value: "esp_in_cloud"
         - name: spring_datasource_platform
           value: "postgresql"
         - name: spring_datasource_driver_class_name
