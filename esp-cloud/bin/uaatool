@@ -1,0 +1,111 @@
+#!/bin/bash
+
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+# usage 
+#
+show_usage() {
+    echo "Usage: $0"
+    echo "     REQUIRED options for all commands"
+    echo ""
+    echo "          -u url to reach the UAA server"
+    echo "          -C <uaa username>:<uaa password>"
+    echo ""
+    echo "     Commands:"
+    echo ""
+    echo "     create the uaa application client 'sv_client'"
+    echo "          -c"
+    echo ""
+    echo "     list all users"
+    echo "          -l"
+    echo ""
+    echo "     add a new user"
+    echo "          -a <username>:<email address>:<password>"
+    echo ""
+    echo "     delete an existing user"
+    echo "          -d <username>"
+    echo ""          
+    exit 1
+}
+
+ROOT=$0
+
+DOCKER_CMD="docker run -ti ghcr.io/skolodzieski/uaac:3.2.0 "
+
+check_required() {
+
+    [ -z $URL ] && echo "the UAA url is required" && show_usage
+    [ -z $UAAUSER ] && echo "the UAA username is required" && show_usage
+    [ -z $UAAPASS ] && echo "the UAA password is required" && show_usage
+}
+
+check_and_execute_command() {
+    [ -z $CMD ] && echo "no command specfied, must specify -c, -l, -a or -d" && echo && show_usage
+    case "$CMD" in
+        client_create)
+	    echo "create client account sv_client"
+	    return 0
+	    ;;
+	user_list)
+	    echo "list all users"
+	    $DOCKER_CMD user_get $URL $UAAUSER $UAAPASS
+	    return 0
+	    ;;
+	user_add)
+	    echo "Add a new user"
+	    [ -z $USER_NAME ]  && echo "username not specified, must use -a <username>:<email>:<password>" && echo &&  show_usage
+	    [ -z $USER_EMAIL ] && echo "email not specified, must use -a <username>:<email>:<password>" && echo &&  show_usage
+	    [ -z $USER_PASS ]  && echo "password not specified, must use -a <username>:<email>:<password>" && echo &&  show_usage
+	    $DOCKER_CMD user_add $URL $UAAUSER $UAAPASS $USER_NAME $USER_EMAIL $USER_PASS
+	    return 0
+	    ;;
+	user_remove)
+	    echo "remove an existing user"
+	    [ -z $USER_NAME ]  && echo "username not specified, must use -d <username>" && echo &&  show_usage
+	    $DOCKER_CMD user_remove $URL $UAAUSER $UAAPASS $USER_NAME
+	    return 0
+            ;;
+        *)
+            echo "unknown command: <$opt>" && show_usage
+    esac
+}
+
+which docker &> /dev/null
+if [[ $? -ne 0 ]] ; then
+    echo "docker must be installed to use this utility"
+    exit 0
+fi
+
+
+while getopts "?u:C:a:d:cl" opt; do
+    case "$opt" in
+        \?)
+            show_usage
+            return 1
+            ;;
+	u)  URL=$OPTARG
+	    ;;
+	C)  UAAUSER=`echo $OPTARG | cut -d : -f 1`
+	    UAAPASS=`echo $OPTARG | cut -d : -f 2`
+	    ;;
+        c)  CMD="client_create"
+            ;;
+	l)  CMD="user_list"
+	    ;;
+	a)  CMD="user_add"
+	    USER_NAME=`echo $OPTARG | cut -d : -f 1`
+	    USER_EMAIL=`echo $OPTARG | cut -d : -f 2`
+	    USER_PASS=`echo $OPTARG | cut -d : -f 3`
+	    ;;
+	d)  CMD="user_remove"
+	    USER_NAME=$OPTARG
+            ;;
+        *)
+            echo "bad option <$opt>" && show_usage
+    esac
+done
+
+check_required
+check_and_execute_command
+
