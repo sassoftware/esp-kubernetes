@@ -16,12 +16,12 @@ The following instructions create the connection to the uaa server, create an ap
 
 Create a service account (this only needs to be once for a deployment):
 ```
-     $ ./bin/uaatool -u <ingress domain> -C <uaa user name>:<uaa password>  -c
+     $ ./bin/uaatool -u <ingress domain> -C <uaa username>:<uaa password>  -c
 ```
 
-Create one or more user accounts:
+Create a user account:
 ```
-     $ ./bin/uaatool -u <ingress domain> -C <uaa user name>:<uaa password>  -a <user name>:<user email>:<user password> 
+     $ ./bin/uaatool -u <ingress domain> -C <uaa username>:<uaa password>  -a <username>:<email address>:<password> 
 ```
 
 The ```./bin/uaatool``` can also delete an existing user, and list all existing users. The full usage for the script is:
