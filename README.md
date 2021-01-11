@@ -295,7 +295,7 @@ An Ingress for each component should also appear in the namespace. For example:
 M  oauth2-proxy                                       xxxxxx.sas.com             80, 443   25h
    sas-event-stream-manager-app                       xxxxxx.sas.com             80, 443   25h
 C  sas-event-stream-processing-client-config-server   xxxxxx.sas.com             80        25h
-C  sas-event-stream-processing--app           xxxxxx.sas.com             80, 443   24h
+C  sas-event-stream-processing--app                   xxxxxx.sas.com             80, 443   24h
 C  sas-event-stream-processing-streamviewer-app       xxxxxx.sas.com             80, 443   25h
 C  sas-event-stream-processing-studio-app             xxxxxx.sas.com             80, 443   25h
 M  uaa                                                xxxxxx.sas.com             80, 443   25h
