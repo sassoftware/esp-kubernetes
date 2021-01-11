@@ -70,7 +70,7 @@ spec:
                 mountPath: /mnt/data  # path persistent volume gets mounted to
          initContainers:
          - name: config-data
-           image: ghcr.io/skolodzieski/busybox:latest
+           image: ghcr.io/skolodzieski/busybox:1.33.0
            #
            # Our nfs PV is owned by sas:sas which is 1001:1001, so
            #    use those credentials to make <namespace>/{DB,input,output}

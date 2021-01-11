@@ -45,6 +45,7 @@ check_and_execute_command() {
     case "$CMD" in
         client_create)
 	    echo "create client account sv_client"
+	    $DOCKER_CMD client_add $URL $UAAUSER $UAAPASS
 	    return 0
 	    ;;
 	user_list)

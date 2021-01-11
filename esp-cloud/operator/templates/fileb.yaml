@@ -56,7 +56,7 @@ spec:
          TEMPLATE_ESP_AZURE  - name: acr-secret
          containers:
          - name: espfb-container
-           image: ghcr.io/skolodzieski/filebrowser:latest
+           image: ghcr.io/skolodzieski/filebrowser:v2.11.0
            securityContext:
              allowPrivilegeEscalation: false
              readOnlyRootFilesystem: true
@@ -88,7 +88,7 @@ spec:
                 mountPath: /db
          initContainers:
          - name: config-data
-           image: ghcr.io/skolodzieski/busybox:latest
+           image: ghcr.io/skolodzieski/busybox:1.33.0
            #
            # Our nfs PV is owned by sas:sas which is 1001:1001, so
            #    use those credentials to make /mnt/data/{input,output}
