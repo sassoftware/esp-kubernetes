@@ -47,7 +47,6 @@ From this location, deploy the following Docker images that you obtained through
 From this location, deploy the following Docker images: 
   * SAS Oauth2_proxy
   * Pivotal User Account and Authentication (UAA) server (configured to store user credentials in PostgreSQL, but could also be reconfigured to read user credentials from alternative identity management (IM) systems)
-  **Note:** You must obtain the UAA Docker image from a reliable source or build it yourself.
 
 Each of these subdirectories contains README files with more specific, detailed instructions.
 
@@ -56,7 +55,8 @@ Each of these subdirectories contains README files with more specific, detailed 
 The /bin subdirectory of /esp-cloud provides the following scripts to facilitate deployment:
   * **mkdeploy** - creates a set of deployment YAML files. You must set appropriate environment variables before running this script.
   * **dodeploy** - deploys images on the Kubernetes cluster
-  * **mkproject** - converts XML project code into a Kubernetes custom resource file that works in the SAS Event Stream Processing Cloud Ecosystem  
+  * **mkproject** - converts XML project code into a Kubernetes custom resource file that works in the SAS Event Stream Processing Cloud Ecosystem
+  * **uaatool** - allows easy modification (add/delete/list) users in the UAA database used in a multiuser deployment.
 
 For more information about using these scripts, see "Getting Started."
   
@@ -74,89 +74,10 @@ For more information about using these scripts, see "Getting Started."
 For a multi-user deployment, here are the additional prerequisites:
 * access to a Pivotal UAA server in a container
 * access to the **cf-uaac** Pivotal UAA command-line client to configure the UAA server
-
-#### Creating Your Own UAA and UAAC Docker Containers
-The mutli-user deployment has been extensivly tested using the following sample docker images. These may be used for an initial deployment and testing.
+Both of these containers are supplied in the publically available repository:
 ```
-ghcr.io/skolodzieski/uaa           74.29.0
-ghcr.io/skolodzieski/uaac          3.2.0
-```
-
-For complete transparancy, the foloowing steps outline exactly how these imges are created. Download a recent UAA WAR file (such as cloudfoundry-identity-uaa-74.19.0.war) from any Maven repository and use the following Dockerfile:
-
-```
-FROM ubuntu:18.04 AS base
-
-ENV TOMCAT_VERSION 8.5.61
-
-# Set locales
-RUN apt-get update && \
-apt-get install -y locales && \
-locale-gen en_GB.UTF-8
-ENV LANG en_GB.UTF-8
-ENV LC_CTYPE en_GB.UTF-8
-
-# Fix sh
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-
-# Install dependencies
-RUN apt-get update && \
-apt-get install -y git build-essential curl wget software-properties-common
-
-# Install OpenJDK 11
-RUN \
-add-apt-repository -y ppa:openjdk-r/ppa && \
-apt-get update && \
-apt-get install -y openjdk-11-jdk wget unzip tar && \
-rm -rf /var/lib/apt/lists/*
-
-# Define commonly used JAVA_HOME variable
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
-
-# Get Tomcat
-RUN wget --quiet --no-cookies https://archive.apache.org/dist/tomcat/tomcat-8/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz -O /tmp/tomcat.tgz && \
-tar xzvf /tmp/tomcat.tgz -C /opt && \
-mv /opt/apache-tomcat-${TOMCAT_VERSION} /opt/tomcat && \
-rm /tmp/tomcat.tgz && \
-rm -rf /opt/tomcat/webapps/examples && \
-rm -rf /opt/tomcat/webapps/docs && \
-rm -rf /opt/tomcat/webapps/ROOT
-
-ENV CATALINA_HOME /opt/tomcat
-ENV PATH $PATH:$CATALINA_HOME/bin
-
-#
-# Add User
-#
-RUN useradd -ms /bin/bash --uid 1001 sas
-RUN chown -R sas:sas $CATALINA_HOME/
-USER 1001
-
-VOLUME "/opt/tomcat/webapps"
-WORKDIR /opt/tomcat
-
-# Launch Tomcat
-CMD ["/opt/tomcat/bin/catalina.sh", "run"]
-
-ENV CATALINA_OPTS="-Xmx800m -Djava.security.egd=file:/dev/./urandom"
-
-RUN rm $CATALINA_HOME/webapps/ROOT -r -f
-ADD cloudfoundry-identity-uaa-74.29.0.war $CATALINA_HOME/webapps/uaa.war
-
-EXPOSE 8080
-```
-A convenient way to run the UAA command-line client is to use a Docker container with only **cf-uaac** comand line client. Like the UAA container, a version is available in the ``ghcr.io/skolodzieski`` github repository. However, building it is simply a matter of using the following Dockerfile:
-
-```
-FROM ruby:2.7.2-alpine3.12
-
-# TODO: remove after https://github.com/docker-library/ruby/pull/209 is fixed.
-#
-ENV PATH "/usr/local/bundle/bin:${PATH}"
-
-RUN apk add --no-cache musl-dev gcc make g++ \
-    && apk add jq \
-    && gem install cf-uaac -v 3.2.0 --no-document
+ghcr.io/skolodzieski/uaac            3.2.0      265MB
+ghcr.io/skolodzieski/uaa             74.29.0    1.09GB
 ```
 
 ## Getting Started
@@ -183,23 +104,26 @@ The deployment can be performed in Open mode (no TLS or user authentication), or
 
 For more information, see [/esp-cloud](/esp-cloud). 
 
-### Modify the Location of the Public Domain Images
+### Location of the Public Domain Images
 
-Recent restrictions on image pulls from ```hub.docker.com``` forced the inclusion of three public domain Docker images in a private repository. 
-
-Pull these images: ```filebrowser/filebrowser```, ```busybox``` and ```postgres:10.4```. 
-
-Push them into your private repository. 
-
-Then edit the two files: ```esp-cloud/operator/templates/fileb.yaml```  and ```esp-cloud/operator/templates/postgres.yaml```. 
-
-Replace the image specifications for the three public-domain Docker images with the ones that you pushed to your private Docker repository.
-
-The deployment has been extensively tested with the following sample docker images:
+The deployment makes use of the following third party Docker images:
 ```
 ghcr.io/skolodzieski/busybox       latest
 ghcr.io/skolodzieski/filebrowser   latest
 ghcr.io/skolodzieski/postgres      12.5 
+```
+
+The two files: ```esp-cloud/operator/templates/fileb.yaml```  and ```esp-cloud/operator/templates/postgres.yaml``` reference these docker images and do not need to be modified as long as do not want to replace these third party images.
+
+### Define PostgreSQL/UAA Secrets
+
+The following four enviroment variables control the secrets (created at deployment time) for the Postgres Database and the Pivitol UAA server. 
+
+```
+       uaaUsername             --   Username for the UAA server, defaults to uaaUSER (only used in multiuser deployment)
+       uaaCredentials          --   Password for the UAA server, defaults to uaaPASS (only used in multiuser deployment)
+       postgresSQLUsername     --   Username for the Postgres Database
+       postgresSQLCredentials  --   Password for the Postgres Database
 ```
 
 ### Generate a Deployment with mkdeploy
@@ -319,30 +243,6 @@ filebrowser application. It creates two directories on the PV:
 
 These directories are used by the deployment. The input/ and output/ directories are created
 for use by running event stream processing projects that need to access files (CSV, XML, and so on).
-
-### Define PostgreSQL Secrets and Management with mkdeploy
-
-The **mkdeploy** script creates the file `esp-cloud/deploy/postgres.yaml`. The first few lines define the username and 
-password for the admin account in PostgreSQL.
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: postgres-secret
-type: Opaque
-data:
-  username: ZXNw
-  password: ZXNwX2luX2Nsb3Vk
-```
-These are base64 encoded strings. The default values are **esp** for the username and **esp_in_cloud** for the password. You can adjust values prior to the deployment. 
-
-After the deployment has completed and the PostgreSQL pod has started, you can administer the PostgreSQL instance with **psql** from the Kubernetes cluster. Use the following command to connect to psql: 
-
-```shell
-kubectl -n <namespace> exec -it postgres-deployment-6f9d6cc8cc-mhx79 -- psql -U esp
-```
-
-**Note:** The name of your PostgreSQL pod differs from **postgres-deployment-6f9d6cc8cc-mhx79**. 
 
 
 ### Deploy Images in Kubernetes with dodeploy
