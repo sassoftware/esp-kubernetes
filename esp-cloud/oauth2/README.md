@@ -8,76 +8,44 @@ A multi-user deployment deploys the following pods:
 * A Pivotal UAA server
 * The SAS OAuth2-proxy
 
-### Pivotal UAA Secrets and Management
-
-The **mkdeploy** script creates the file `esp-cloud/oauth2/uaa.yaml`. The first few lines define the username and 
-password for the client admin account in UAA. 
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: uaa-secret
-type: Opaque
-data:
-  username: YWRtaW4=
-  password: YWRtaW5zZWNyZXQ=
-```
-The passwords are base64 encoded strings. The default values are **admin** for the username and **adminsecret** for the password. You can change them before deployment. 
-
-After the deployment is successful and the uaa pod has started, you can administer the uaa instance with **uaac**, the UAA command line client.
-
-Also in the `esp-cloud/oauth2/uaa.yaml` is a configMap that contains the entire configuration file for the UAA server. You can customize this configuration before deployment. 
-
-**Note:** The file `uaa.yaml` is a template and should not be used as is. Enter your own private key and certificate.
-
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: uaa-config
-data:
-    uaa.yml: |-
-      issuer:
-        uri: http://localhost:8080/uaa
-      encryption:
-        active_key_label: CHANGE-THIS-KEY
-        encryption_keys:
-        - label: CHANGE-THIS-KEY
-          passphrase: CHANGEME
-      uaa:
-        # The hostname of the UAA that this login server will connect to
-        url: http://localhost:8080/uaa
-        token:
-          url: http://localhost:8080/uaa/oauth/token
- .
- .
- .
-```
-
 ### Service and User Accounts
 
-In order to configure a multi-user deployment, you must have access to the Cloud Foundry `uaac` command line tool.
-The following configuration examples assume that you can run the `uaac` command line tool from a Docker container:
-```shell
-$ docker run -ti ghcr.io/skolodzieski/uaac-01 /bin/sh
-```
+In order to configure a multi-user deployment, you must have access to the Cloud Foundry `uaac` command line tool. This is automated using a docker image of this tool and the supplied script *uaatool*.
 
-The following instructions create the connection to the uaa server, create a application service, and create a user.
+The following instructions create the connection to the uaa server, create an application service, and create a user.
 
-Set up the connection to the UAA server (assuming you are using the default UAA username and credentials of 'uaaUSER' and 'uaaPASS'):
+Create a service account (this only needs to be once for a deployment):
 ```
-uaac target https://<domain>.com/uaa --skip-ssl-validation
-uaac token client get uaaUSER -s uaaPASS
-```
-
-Create a service account:
-```
-uaac client add sv_client --authorities "uaa.resource"  --scope "openid email profile"  --autoapprove "openid" --authorized_grant_types "authorization_code refresh_token password client_credentials"  --redirect_uri https://<domain>.com/oauth2 -s secret
+     $ ./bin/uaatool -u <ingress domain> -C <uaa user name>:<uaa password>  -c
 ```
 
 Create one or more user accounts:
 ```
-uaac user add esp  --emails <name>@<domain>.com -p esppw
+     $ ./bin/uaatool -u <ingress domain> -C <uaa user name>:<uaa password>  -a <user name>:<user email>:<user password> 
+```
+
+The ```./bin/uaatool``` can also delete an existing user, and list all existing users. The full usage for the script is:
+```
+     $ ./bin/uaatool -?
+     Usage: ./bin/uaatool
+        REQUIRED options for all commands
+ 
+             -u url to reach the UAA server
+             -C <uaa username>:<uaa password>
+ 
+        Commands:
+ 
+        create the uaa application client 'sv_client'
+             -c
+ 
+        list all users
+             -l
+ 
+        add a new user
+             -a <username>:<email address>:<password>
+ 
+        delete an existing user
+             -d <username>
 ```
 
 The UAA server persists data to the running PostgreSQL database so that it is
