@@ -146,7 +146,6 @@ fi
 
 [ ! -f $ESP_LF ] && echo "License file <$ESP_LF> was not found, aborting." && exit 1
 LICB64GZ=`cat $ESP_LF | gzip - | base64 -w 0`
-LICB64=`cat $ESP_LF | base64 -w 0`
 
 
 ROOT=`readlink -f $ROOT`
@@ -219,9 +218,6 @@ for i in `find ${DEPLOYMENT} -name "*.y*ml"` ; do
 s|TEMPLATE_ESP_LICB64GZ|$LICB64GZ|g
 EOF
 
-    sed -i -f - $i << EOF
-s|TEMPLATE_ESP_LICB64|$LICB64|g
-EOF
     sed -i 's|TEMPLATE_ESP_NAMESPACE|'$ESP_NS'|g' $i
     sed -i 's|TEMPLATE_ESP_DOMAIN|'$ESP_DM'|g' $i
 

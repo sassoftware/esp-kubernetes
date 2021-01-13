@@ -105,15 +105,8 @@ spec:
         # END postgres config
         #
         volumeMounts:
-           - mountPath: "/opt/sas/viya/config/etc/sysconfig/sas-esm-service/default"
-             name: esm-license
-             readOnly: false
-        volumeMounts:
           - name: tmpdir
             mountPath: /tmp
       volumes:
         - name: tmpdir
           emptyDir: {}
-        - name: esm-license
-          secret:
-            secretName: esm-license
