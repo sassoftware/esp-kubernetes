@@ -45,7 +45,7 @@ spec:
              allowPrivilegeEscalation: false
              TEMPLATE_ESP_NOAZURErunAsUser:  1001
              TEMPLATE_ESP_NOAZURErunAsGroup: 1001
-             runAsNonRoot: true             
+             TEMPLATE_ESP_NOAZURErunAsNonRoot: true             
            ports:
              - containerPort: 5432  # servers REST port
                name: postgresdb
@@ -80,7 +80,7 @@ spec:
              allowPrivilegeEscalation: false
              TEMPLATE_ESP_NOAZURErunAsUser:  1001
              TEMPLATE_ESP_NOAZURErunAsGroup: 1001
-             runAsNonRoot: true             
+             TEMPLATE_ESP_NOAZURErunAsNonRoot: true             
            command: ['sh', '-c', 'mkdir -p /mnt/data/postgres']
            volumeMounts:
            - name: data
