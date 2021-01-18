@@ -30,13 +30,16 @@ az aks create --resource-group asuze-esp  --name azureCluster  --node-count 5 \
               --enable-addons monitoring --generate-ssh-keys
 ```
 * use the following command to obtain kubernetes credentials for your
-  newly created AKS cluster.
+  newly created AKS cluster. This adds access to the cluster via your 
+  kubernetes cli command line configuration. 
 ```
 az aks get-credentials --resource-group azure-esp  --name azureCluster
 ```
 * Create a namesspace for an **nginx** ingress controller, and install
   the ingress controller using helm.
 ```
+kubectl create ns ingress-basic
+
 helm install nginx-ingress ingress-nginx/ingress-nginx \
              --namespace ingress-basic --set controller.replicaCount=2 \
 	     --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
