@@ -9,7 +9,7 @@ show_usage() {
     echo "Usage: $0"
     echo "     REQUIRED options for all commands"
     echo ""
-    echo "          -u url to reach the UAA server"
+    echo "          -u hostname of uaa server (<namespace>.<domain>)
     echo "          -C <uaa username>:<uaa password>"
     echo ""
     echo "     Commands:"
