@@ -33,7 +33,7 @@ The ```./bin/uaatool``` can also delete an existing user, and list all existing 
      Usage: ./bin/uaatool
         REQUIRED options for all commands
  
-             -u hostname of uaa server
+             -u hostname of uaa server (<namespace>.<doamin>)
              -C <uaa username>:<uaa password>
  
         Commands:
