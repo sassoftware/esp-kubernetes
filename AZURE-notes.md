@@ -1,8 +1,9 @@
 ## Installation Notes for Azure Kubernetes Service (AKS)
 
 This document highlights the requirements to
-install a SAS Event Stream Processing eco-system in a simple Azure Kubernetes Service (AKS) cluster.  It does not provide instructions to create a new
-AKS cluster. For those instructions, please refer to the [AKS documentation](https://docs.microsoft.com/en-us/azure/aks/).
+install a SAS Event Stream Processing eco-system in a simple Azure Kubernetes Service (AKS) cluster.  It provides a specific set of steps to create
+a simple AKS cluster.
+For more detailed information about creating an AKS cluster, please refer to the [AKS documentation](https://docs.microsoft.com/en-us/azure/aks/).
 
 To use these notes, you _must_ have a working knowledge of Azure.
 
@@ -12,7 +13,7 @@ To use these notes, you _must_ have a working knowledge of Azure.
 * A private DNS for the AKS 
 * A Microsoft Azure Container Resource to store SAS Event Stream Processing containers
 
-### Installing SAS Event Strream Processing in an AKS Cluster
+### Installing SAS Event Stream Processing in an AKS Cluster
 To proceed, you must have Azure credentials, be able to
 log in to Azure through the Microsoft Azure Portal, and know how to use the Azure
 command line tools.
