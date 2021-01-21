@@ -10,8 +10,9 @@ To use these notes, you _must_ have a working knowledge of Azure.
 ### Required Infrastructure
 * A Kubernetes service (AKS) 
 * A **NGINX** ingress controller
-* A private DNS for the AKS 
-* A Microsoft Azure Container Resource to store SAS Event Stream Processing containers
+* A private DNS for the AKS
+* A virtual netwrk (AKS will create this for you)
+* A Microsoft Azure Container Registry to store SAS Event Stream Processing containers
 
 ### Installing SAS Event Stream Processing in an AKS Cluster
 To proceed, you must have Azure credentials, be able to
@@ -46,10 +47,13 @@ helm install nginx-ingress ingress-nginx/ingress-nginx \
 	     --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
 	     --set controller.admissionWebhooks.patch.nodeSelector."beta\.kubernetes\.io/os"=linux
 ```
+
+More details on installing **nginx** can be found at https://docs.microsoft.com/en-us/azure/aks/ingress-basic.
+
 * To enable secure authentication redirection (oauth2_proxy) to function in your
 AKS cluster, you need to create a private DNS. Do this through the Microsoft Azure Portal. The private DNS canb
 be bound to a virtual network. Perform this binding using the virtual network that is
-part of the AKS cluster.
+part of the AKS cluster. This can be replaced by a public DNS if one has an established domain. 
 * In the Microsoft Azure portal, create a **DNS A** record that points ```<namespace>.<domain>``` to your Ingress
 external IP. You can obtain the Ingress external IP using the following command. 
 ```
