@@ -146,6 +146,7 @@ Use the **mkdeploy** script to create a set of deployment YAML files. The script
 
           -C                          -- deploy clients
           -M                          -- enable multiuser mode
+          -A                          -- decorate deployment for Azure
 
 **Note:** Use the *-d* (Ingress domain root) parameter specified in the **mkdeploy** script to create Ingress routes for the deployed pods. All SAS Event Stream Processing applications within the Kubernetes cluster are now accessed through specific context roots and a single Ingress host. The Ingress host is specified in the form `<namespace>.<ingress domain root>`. 
     
