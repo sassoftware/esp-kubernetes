@@ -10,7 +10,7 @@ To use these notes, you _must_ have a working knowledge of Azure.
 ### Required Infrastructure
 * A Kubernetes service (AKS) 
 * A **NGINX** ingress controller
-* A private DNS for the AKS
+* A private (or public) DNS for the AKS
 * A virtual netwrk (AKS will create this for you)
 * A Microsoft Azure Container Registry to store SAS Event Stream Processing containers
 
@@ -19,49 +19,164 @@ To proceed, you must have Azure credentials, be able to
 log in to Azure through the Microsoft Azure Portal, and know how to use the Azure
 command line tools.
 
-Suppose that your resource
-group is named **azure-esp**, the namespace into which you are installing is
-named **tennant01** and the DNS domain is named **esp.com**. 
+The following example script can be modified and used to create the AKS.
 
-* Log into the Microsoft Azure portal and create a new Resource Group to contain all the
-required services of your AKS cluster.
-* Log in to the Microsoft command line and issue the following comand to create the basic cluster. 
-```
-az aks create --resource-group asuze-esp  --name azureCluster  --node-count 5 \
+```shell
+#!/bin/bash
+
+#
+# helm much be on your path!
+#
+az account show &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to azure" && exit 1
+which helm &>/dev/null      ; [ 0 -ne $? ] && echo "helm not found on path" && exit 1
+
+
+# To build a basic Azure K8 cluster, define the following ENV variables:
+#
+#  1. AZ_RG -- the azure resource group to create,
+#              this holds all Azure objects as a parent container.
+#
+#  2. AZ_CL -- the K8 cluster name
+#
+#  3. AZ_LO -- geographical location of the secondary resource group
+#              that Azure creates for you.
+#
+#  4. AZ_DM -- the domain used for the private DNS
+#
+#  5. AZ_NS -- the namespace that will be used to install, also for the
+#              private-dns A record: $AZ_NS.$AZ_DM --> public ip
+#
+
+#
+# When we write the credentials for the newly created AKS cluster
+#
+KUBE_CRED_FILE=~/AZ_CUBE.config
+
+AZ_RG=scottRG
+AZ_CL=scottCluster
+AZ_LO=eastus
+AZ_DM=azure.esp.com
+AZ_NS=sckolo
+
+
+AZ_NODE_NUM=5
+#
+# Standard_F16s_v2	16 cores	32 GB ram
+#
+# The Fsv2-series runs on the Intel® Xeon® Platinum 8272CL (Cascade
+#    Lake) processors and Intel® Xeon® Platinum 8168 (Skylake)
+#    processors. It features a sustained all core Turbo clock speed of 3.4
+#    GHz and a maximum single-core turbo frequency of 3.7 GHz.
+#
+# do "az vm list-sizes -o table -l eastus"
+#
+#    to see VM's that are available.
+#
+AZ_NODE_SIZE=Standard_F16s_v2
+
+
+echo "We are going to build an Azure K8 cluster with the following parameters"
+echo "  (all will be created, and should not already exist):"
+echo
+echo "  resource group:   $AZ_RG"
+echo "  cluster name:     $AZ_CL"
+echo "  cluster location: $AZ_LO"
+echo "  cluster domain:   $AZ_DM"
+echo "  cluster namespce: $AZ_NS"
+echo "     # of nodes:    $AZ_NODE_NUM"
+echo "     node type:     $AZ_NODE_SIZE"
+echo "  K8 config file:   $KUBE_CRED_FILE"
+echo
+read -p "Continue (yes/[no])? " ANS
+[ "$ANS" = "yes" ] || exit 1
+
+
+
+#
+# create the top level resource group that contains everything
+#
+az group create --location $AZ_LO --name $AZ_RG
+
+#
+# create a basic 5 node cluster
+#
+az aks create --resource-group $AZ_RG --name $AZ_CL \
+              --node-count $AZ_NODE_NUM --node-vm-size $AZ_NODE_SIZE \
               --enable-addons monitoring --generate-ssh-keys
-```
-* Use the following command to obtain Kubernetes credentials for your
-  newly created AKS cluster. This action adds access to the cluster through the 
-  Kubernetes CLI command line configuration. 
-```
-az aks get-credentials --resource-group azure-esp  --name azureCluster
-```
-* Create a namespace for an **NGINX** Ingress controller, and install
-  the Ingress controller using Helm.
-```
-kubectl create ns ingress-basic
+az aks wait --created  --resource-group $AZ_RG --name $AZ_CL
+
+#
+# get the K8 credentials for the new cluster into our kubeconfig
+#
+az aks get-credentials --resource-group $AZ_RG  --name $AZ_CL --file $KUBE_CRED_FILE --overwrite-existing
+export KUBECONFIG=$KUBE_CRED_FILE
+
+#
+# create the namespace for nginx
+#
+kubectl create ns nginx-basic
+
+#
+# create the namespace for ESP pods
+#
+kubectl create ns $AZ_NS
+
+#
+# use helm to install nginx
+#
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx &> /dev/null
+[ 0 -ne $? ] && echo "could not add the ingress-nginx helm repository" && exit 1
 
 helm install nginx-ingress ingress-nginx/ingress-nginx \
-             --namespace ingress-basic --set controller.replicaCount=2 \
+             --namespace nginx-basic --set controller.replicaCount=2 \
 	     --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
 	     --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
 	     --set controller.admissionWebhooks.patch.nodeSelector."beta\.kubernetes\.io/os"=linux
+#
+# create the private DNS zone
+#
+az network private-dns zone create --name $AZ_DM --resource-group $AZ_RG
+az network private-dns zone wait --created --name $AZ_DM --resource-group $AZ_RG
+
+#
+# get public IP into AZ_PIP
+#
+AZ_PIP=`kubectl -n nginx-basic get svc/nginx-ingress-ingress-nginx-controller --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`
+
+#
+# add the A record into the private DNS
+#
+az network private-dns record-set a add-record -g $AZ_RG -z $AZ_DM -n $AZ_NS -a $AZ_PIP
+
+#
+# get the virtual network
+#
+AZ_VN=`az network vnet list --resource-group MC_"$AZ_RG"_"$AZ_CL"_"$AZ_LO" | jq .[].name`
+AZ_VN=`echo $AZ_VN | xargs`    ; # remove double quotes.
+AZ_VNID=`az network vnet show -g MC_"$AZ_RG"_"$AZ_CL"_"$AZ_LO" -n $AZ_VN --query 'id' -o tsv`
+
+#
+# link the virtual network of the K8 custer and the private-dns
+#
+az network private-dns link vnet create -g $AZ_RG -n pDNS2vNet -z $AZ_DM -v $AZ_VNID -e False
+
+echo
+echo "********************************************************************"
+echo "1. add the following to your /etc/hosts file"
+echo
+echo "    $AZ_PIP $AZ_NS.$AZ_DM"
+echo
+echo
+echo "2. to use the uaatool to configure the UAA autentication server, set"
+echo
+echo "    export DOCKER_ARGS=\"--add-host=$AZ_PIP $AZ_NS.$AZ_DM:$AZ_PIP\""
+echo "********************************************************************"
 ```
 
-More details on installing **nginx** can be found at https://docs.microsoft.com/en-us/azure/aks/ingress-basic.
 
-* To enable secure authentication redirection (oauth2_proxy) to function in your
-AKS cluster, you need to create a private DNS. Do this through the Microsoft Azure Portal. The private DNS canb
-be bound to a virtual network. Perform this binding using the virtual network that is
-part of the AKS cluster. This can be replaced by a public DNS if one has an established domain. 
-* In the Microsoft Azure portal, create a **DNS A** record that points ```<namespace>.<domain>``` to your Ingress
-external IP. You can obtain the Ingress external IP using the following command. 
-```
-kubectl -n ingress-basic get service
-```
 * In order to install SAS Event Stream Processing into the new AKS
-cluster, make access to the Docker images for SAS Event Stream Processing
-available in the AKS cluster. One way to do this is to create
+cluster, access to the Docker images for SAS Event Stream Processing
+must be available in the AKS cluster. One way to do this is to create
 an Azure Container Registry and push the Docker images into the
 cotainer registry. Do this the same way that you push Docker
 images to any other Docker registry. Azure Container regsitries use credentials that are required to pull images. You can find these credentials on the Microsoft Azure Portal under the container registry
