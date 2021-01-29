@@ -20,6 +20,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     kubernetes.io/ingress.allow-http: "false"
     nginx.ingress.kubernetes.io/proxy-body-size: 500m
+    nginx.ingress.kubernetes.io/rewrite-target: /SASEventStreamProcessingStudio/$2
     TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
     TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
 spec:
@@ -30,7 +31,7 @@ spec:
       - backend:
           serviceName: sas-event-stream-processing-studio-app # the service to hit
           servicePort: 80            # externally exposed port
-        path: /SASEventStreamProcessingStudio
+        path: /SASEventStreamProcessingStudio(/|$)(.*)
   tls:
   - hosts:
     - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
