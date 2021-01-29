@@ -92,13 +92,13 @@ To prepare for deployment, follow these steps:
 mkdir deploy
 ```
 
-3. Click the Get Started button provided in your SOE.
+3. Click the **Get Started** button provided in your SOE.
 
-4. Log in to my.sas.com.
+4. Log in to [my.sas.com](https://my.sas.com/en/home.html).
 
 5. On the My SAS web page that opens, expand the information for the order that is listed by clicking the down arrow.
 
-6. In the pane that opens, examine the order information. The version indicates the release cadence and the version of SAS Viya software to be deployed. If you want to deploy a different version, select the cadence and release from the SAS Viya Version list.
+6. In the pane that opens, examine the order information. The version indicates the release cadence and the version of SAS Viya software to be deployed (for example, LTS 2020.1). If you want to deploy a different version, select the cadence and release from the SAS Viya Version list.
 
 7. Under Order Assets, click Download Certificates.
 
@@ -111,8 +111,6 @@ mkdir deploy
 11. Scroll down to the section of the page that is labeled SAS Mirror Manager. Click the Download Now link to download the SAS Mirror Manager package to the machine where you want to create your mirror registry.
 
 SAS recommends saving the file and uncompressing it in the $deploy directory.
-
-**Note:** Be sure to download the SAS Mirror Manager software from the SAS Mirror Manager download site. 
 
 12. Uncompress the downloaded file in the $deploy directory
 
