@@ -82,6 +82,45 @@ ghcr.io/skolodzieski/uaa             74.29.0    1.09GB
 ```
 
 ## Getting Started
+### Retreive Required Files
+To prepare for deployment, follow these steps:
+
+1. If you do not already have SAS Mirror Manager, download it from SAS Support.  For more information, go to the [SAS Mirror Manager website](https://support.sas.com/en/documentation/install-center/viya/deployment-tools/4/mirror-manager.html) 
+
+2. Create a deploy directory at the root level of the machine where Docker is running:
+```
+mkdir deploy
+```
+
+3. Click the Get Started button provided in your SOE.
+
+4. Log in to my.sas.com.
+
+5. On the My SAS web page that opens, expand the information for the order that is listed by clicking the down arrow.
+
+6. In the pane that opens, examine the order information. The version indicates the release cadence and the version of SAS Viya software to be deployed. If you want to deploy a different version, select the cadence and release from the SAS Viya Version list.
+
+7. Under Order Assets, click Download Certificates.
+
+8. Save the file, certs.zip, to the $deploy directory that you created in step 1.
+
+9. In the same Order Assets section of the page, click Download License.
+
+10. Save the license file (license.jwt) from my.sas.com to the $deploy directory.
+
+11. Scroll down to the section of the page that is labeled SAS Mirror Manager. Click the Download Now link to download the SAS Mirror Manager package to the machine where you want to create your mirror registry.
+
+SAS recommends saving the file and uncompressing it in the $deploy directory.
+
+**Note:** Be sure to download the SAS Mirror Manager software from the SAS Mirror Manager download site. 
+
+12. Uncompress the downloaded file in the $deploy directory
+
+13. Save the SOE in the same directory.
+
+14. Use SAS Mirror Manager to download asset tags as described [here](http://pubshelpcenter.unx.sas.com:8080/test/?cdcId=espcdc&cdcVersion=v_004&docsetId=dplyedge0phy0lax&docsetTarget=p13675fx02jyy7n1gs0t647n3vto.htm&locale=en).
+
+15. As directed in that topic, populate your mirror registry with your software.
 ### Set the Environment Variables
 
 Set the following environment variables before you use the deployment scripts. Use the names that you recorded for the Docker images that you downloaded through the SOE.
