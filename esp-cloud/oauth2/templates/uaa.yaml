@@ -28,7 +28,19 @@ spec:
            app: uaa
        spec:
          TEMPLATE_ESP_AZUREimagePullSecrets:
-         TEMPLATE_ESP_AZURE  - name: acr-secret         
+         TEMPLATE_ESP_AZURE  - name: acr-secret
+         initContainers:
+           - name: check-db-ready
+             image: ghcr.io/skolodzieski/postgres:12.5
+             command: ['sh', '-c', 
+               'until pg_isready -h postgres-service -p 80 -U $POSTGRES_USER; 
+               do echo waiting for database; sleep 2; done;']
+             env:
+               - name: POSTGRES_USER
+                 valueFrom:
+                   secretKeyRef:
+                     name: postgres-secret
+                     key:  username
          containers:
          - name: uaa-container
            image: TEMPLATE_UAA_IMAGE
