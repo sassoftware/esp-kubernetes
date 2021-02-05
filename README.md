@@ -113,7 +113,7 @@ SAS recommends saving the file and uncompressing it in the $deploy directory.
 
 12. Save the SOE in the same directory.
 
-13. Use SAS Mirror Manager to download asset tags as described [here](http://pubshelpcenter.unx.sas.com:8080/test/?cdcId=espcdc&cdcVersion=v_004&docsetId=dplyedge0phy0lax&docsetTarget=p13675fx02jyy7n1gs0t647n3vto.htm&locale=en). Use SAS Mirror Manager to obtain a list of available tags and record them for later use.
+13. Use SAS Mirror Manager to download asset tags as described [here](http://pubshelpcenter.unx.sas.com:8080/test/?cdcId=espcdc&cdcVersion=v_004&docsetId=dplyedge0phy0lax&docsetTarget=p13675fx02jyy7n1gs0t647n3vto.htm&locale=en). Record the list of available tags for later use.
 
 14. As directed in that topic, populate your mirror registry with your software.
 ### Set the Environment Variables
