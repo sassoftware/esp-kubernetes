@@ -1,0 +1,89 @@
+#!/bin/bash
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+ROOT=`dirname $0`
+ROOT=`readlink -f $ROOT`
+
+az account show &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to azure" && exit 1
+
+# usage 
+#
+show_usage() {
+    echo "Usage: $0"
+    echo ""
+    echo "required: -c <continer registry> -r <resource group>"
+    exit 1
+}   
+
+while getopts "?c:r:" opt; do
+    case "$opt" in
+        \?)
+            show_usage
+            return 1
+            ;;
+	r)  AZ_RG=$OPTARG
+	    ;;
+	c)  AZ_CR=$OPTARG
+	    ;;
+        *)
+            echo "bad option <$opt>" && show_usage
+    esac
+done
+
+[ -z $AZ_RG ]       && echo "resource group must be specified" && show_usage
+[ -z $AZ_CR ]       && echo "container registry must bespecified" && show_usage
+
+az acr login --name $AZ_CR ; [ 0 -ne $? ] && echo "could not log into Azure Container Registry" && exit 1
+which docker &>/dev/null ; [ 0 -ne $? ] && echo "docker not found on path" && exit 1
+
+AZ_CRLS=`az acr list --resource-group=$AZ_RG --query "[?name=='$AZ_CR'].loginServer" | jq .[]`
+AZ_CRLS=`eval echo $AZ_CRLS`
+
+echo "AZ_CRLS = $AZ_CRLS"
+
+rm -f $ROOT/azure-images
+
+
+for i in `env| fgrep IMAGE_ | fgrep repulp`; do
+
+    ENVV=`echo $i | cut -d = -f 1`
+    IMAGE=`echo $i | cut -d = -f 2`
+
+    REPO=`echo $IMAGE | cut -d : -f 1`
+    TAG=`echo $IMAGE | cut -d : -f 2`
+
+    AZURE_REPO=`basename $REPO`
+
+    echo $i | fgrep release &> /dev/null
+    if [[ 0 -eq $? ]]; then BUILD_LEVEL="release/"; fi 
+    echo $i | fgrep snapshot &> /dev/null
+    if [[ 0 -eq $? ]]; then BUILD_LEVEL="snapshot/"; fi 
+    echo
+    echo "AZURE_REPO = <$AZURE_REPO>"
+    echo "      REPO = <$REPO>"
+    echo "      TAG  = <$TAG>"
+
+    echo "Working on $IMAGE"
+    echo "   docker pull"
+    docker pull $IMAGE &> /dev/null
+    [ 0 -ne $? ] && echo "failed" && exit 0 
+    echo "   docker tag"
+    docker tag $IMAGE $AZ_CRLS/${BUILD_LEVEL}$AZURE_REPO:$TAG
+    [ 0 -ne $? ] && echo "failed" && exit 0
+    echo "   docker push"
+    docker push $AZ_CRLS/${BUILD_LEVEL}$AZURE_REPO:$TAG > /dev/null
+    [ 0 -ne $? ] && echo "failed" && exit 0
+    echo "   docker remove"
+    docker image rm $IMAGE &> /dev/null
+    [ 0 -ne $? ] && echo "failed" && exit 0
+    docker image rm $AZ_CRLS/${BUILD_LEVEL}$AZURE_REPO:$TAG &> /dev/null
+    [ 0 -ne $? ] && echo "failed" && exit 0
+    echo "All done"
+
+    echo "export $ENVV=$AZ_CRLS/${BUILD_LEVEL}$AZURE_REPO:$TAG" >> $ROOT/azure-images
+done
+
+echo "export IMAGE_UAA=ghcr.io/skolodzieski/uaa:74.29.0" >> $ROOT/azure-images
+
+. $ROOT/azure-images

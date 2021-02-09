@@ -1,0 +1,66 @@
+#!/bin/bash
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+ROOT=`dirname $0`
+ROOT=`readlink -f $ROOT`
+
+az account show &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to azure" && exit 1
+
+# usage 
+#
+show_usage() {
+    echo "Usage: $0"
+    echo ""
+    echo "required: -c <continer registry> -r <resource group>"
+    echo "optional: -p <registry prefix>"
+    exit 1
+}   
+
+while getopts "?c:r:p:" opt; do
+    case "$opt" in
+        \?)
+            show_usage
+            return 1
+            ;;
+	p)  BUILD_LEVEL=$OPTARG/
+	    ;;
+	r)  AZ_RG=$OPTARG
+	    ;;
+	c)  AZ_CR=$OPTARG
+	    ;;
+        *)
+            echo "bad option <$opt>" && show_usage
+    esac
+done
+
+[ -z $AZ_RG ]       && echo "resource group must be specified" && show_usage
+[ -z $AZ_CR ]       && echo "container registry must be specified" && show_usage
+
+az acr login --name $AZ_CR; [ 0 -ne $? ] && echo "could not log into Azure Container Registry" && exit 1
+
+AZ_CRLS=`az acr list --resource-group=$AZ_RG --query "[?name=='$AZ_CR'].loginServer" | jq .[]`
+AZ_CRLS=`eval echo $AZ_CRLS`
+
+get_latest_version() {
+    local REPO=$1
+    local TAG=`az acr repository show-tags --name $AZ_CR --repository $REPO  --orderby time_desc | jq .[] | head -1`
+    TAG=`eval echo $TAG`
+    echo $REPO:$TAG
+}
+
+get_image() {
+    local LV=`get_latest_version $2`
+    FOO=$AZ_CRLS/$LV
+    echo "export $1=$FOO"
+}
+
+get_image IMAGE_ESPOAUTH2P ${BUILD_LEVEL}sas-esp-oauth2-proxy
+get_image IMAGE_ESPESM ${BUILD_LEVEL}sas-event-stream-manager-app
+get_image IMAGE_ESPSTRMVWR ${BUILD_LEVEL}sas-event-stream-processing-streamviewer-app
+get_image IMAGE_OPERATOR ${BUILD_LEVEL}sas-esp-operator
+get_image IMAGE_LOADBAL ${BUILD_LEVEL}sas-esp-load-balancer
+get_image IMAGE_ESPSTUDIO ${BUILD_LEVEL}sas-event-stream-processing-studio-app
+get_image IMAGE_METERBILL ${BUILD_LEVEL}sas-event-stream-processing-metering-app
+get_image IMAGE_ESPSRV ${BUILD_LEVEL}sas-event-stream-processing-server-app
+echo "export IMAGE_UAA=ghcr.io/skolodzieski/uaa:74.29.0"

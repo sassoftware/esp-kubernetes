@@ -1,0 +1,174 @@
+#!/bin/bash
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+az account show &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to azure" && exit 1
+
+
+# To build a basic Azure K8 cluster, the following variables need 
+#    to be passed into the script via command line options. 
+#
+#   1. AZ_RG -- the azure resource group to create,
+#               this holds all Azure objects as a parent container.
+#
+#   2. AZ_CL -- the K8 cluster name
+#
+#   3. AZ_LO -- geographical location of the secondary resource group
+#               that Azure creates for you.
+#
+#   4. AZ_CR -- name of the container registry to create in $AZ_RG
+#
+#   5. KUBE_CRED_FILE where we write the kubeconfig file
+#
+# These can be passed in, but have defaults.
+#
+#   6. AZ_NODE_NUM number of nodes
+#
+#   7. AZ_NODE_SIZE the type of VM to use.
+#
+
+# defaults
+#
+AZ_NODE_NUM=5
+AZ_NODE_SIZE=Standard_F16s_v2
+
+# Standard_F16s_v2	16 cores	32 GB ram
+#
+# The Fsv2-series runs on the Intel® Xeon® Platinum 8272CL (Cascade
+#    Lake) processors and Intel® Xeon® Platinum 8168 (Skylake)
+#    processors. It features a sustained all core Turbo clock speed of 3.4
+#    GHz and a maximum single-core turbo frequency of 3.7 GHz.
+#
+# do "az vm list-sizes -o table -l eastus"
+#
+#    to see VM's that are available.
+#
+
+# usage 
+#
+show_usage() {
+    echo "Usage: $0"
+    echo ""
+    echo "required: -c <cluster name> -r <resource group>"
+    echo "          -g <geographical location>"
+    echo "          -C <container registry>"
+    echo "          -f <file to write kubeconfig to>"
+    echo ""
+    echo "optional: -n <number of node, default: 5>"
+    echo "          -s <vm size, default: Standard_F16s_v2>"
+    echo ""
+    echo "This command creates a new <resource group>. The <resource group>"
+    echo "   will contain a <container registry> that docker images can"
+    echo "   be pushed to. It also will contain a full a full AKS cluster"
+    echo "   named <cluster name>."
+    echo "The KUBE CONFIG file used to access the cluster will be"
+    echo "   written to <file to write kubeconfig to>."
+    exit 1
+}   
+
+while getopts "?C:c:r:g:t:f:n:s:" opt; do
+    case "$opt" in
+        \?)
+            show_usage
+            return 1
+            ;;
+	c)  AZ_CL=$OPTARG
+	    ;;
+	r)  AZ_RG=$OPTARG
+	    ;;
+	g)  AZ_LO=$OPTARG
+	    ;;
+	C)  AZ_CR=$OPTARG
+	    ;;
+	f)  KUBE_CRED_FILE=$OPTARG
+	    ;;
+	n)  AZ_NODE_NUM=$OPTARG
+	    ;;
+	s)  AZ_NODE_SIZE=$OPTARG
+	    ;;
+        *)
+            echo "bad option <$opt>" && show_usage
+    esac
+done
+
+[ -z $AZ_RG ]       && echo "resource group must be specified" && show_usage
+[ -z $AZ_CL ]       && echo "cluster name must be specified" && show_usage
+[ -z $AZ_LO ]       && echo "geographical location  must be specified" && show_usage
+[ -z $KUBE_CRED_FILE ]  && echo "file to write kubeconfig to must be specifed" && show_usage
+
+#
+# helm much be on your path!
+#
+which helm &>/dev/null      ; [ 0 -ne $? ] && echo "helm not found on path" && exit 1
+
+echo "We are going to build an Azure K8 cluster with the following parameters"
+echo "  (all will be created, and should not already exist):"
+echo
+echo "  resource group:     $AZ_RG"
+echo "  cluster name:       $AZ_CL"
+echo "  cluster location:   $AZ_LO"
+echo "  container registry: $AZ_CR"
+echo "     # of nodes:  $AZ_NODE_NUM"
+echo "     node type:   $AZ_NODE_SIZE"
+echo "  K8 config file: $KUBE_CRED_FILE"
+echo
+read -p "Continue (yes/[no])? " ANS
+[ "$ANS" = "yes" ] || exit 1
+
+#
+# create the top level resource group that contains everything
+#
+az group create --location $AZ_LO --name $AZ_RG
+[ 0 -ne $? ] && echo "could not create resource group" && exit 1
+#
+# create the container registry 
+#
+az acr create -n $AZ_CR -g $AZ_RG --sku Standard
+[ 0 -ne $? ] && echo "could not container registry" && exit 1
+az acr update -n $AZ_CR --admin-enabled true
+#
+# create a basic 5 node cluster
+#
+az aks create --resource-group $AZ_RG --name $AZ_CL \
+              --node-count $AZ_NODE_NUM --node-vm-size $AZ_NODE_SIZE \
+              --enable-addons monitoring --generate-ssh-keys \
+	      --enable-addons http_application_routing
+[ 0 -ne $? ] && echo "could not AKS cluster" && exit 1
+az aks wait --created  --resource-group $AZ_RG --name $AZ_CL 
+
+#
+# get the K8 credentials for the new cluster into our kubeconfig
+#
+rm -rf $KUBE_CRED_FILE
+az aks get-credentials --resource-group $AZ_RG  --name $AZ_CL --file $KUBE_CRED_FILE --overwrite-existing
+export KUBECONFIG=$KUBE_CRED_FILE
+
+#
+# create the namespace for nginx
+#
+kubectl create ns nginx-basic
+
+#
+# use helm to install nginx
+#
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx &> /dev/null
+[ 0 -ne $? ] && echo "could not add the ingress-nginx helm repository" && exit 1
+
+helm install nginx-ingress ingress-nginx/ingress-nginx \
+             --namespace nginx-basic --set controller.replicaCount=2 \
+	     --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+	     --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
+	     --set controller.admissionWebhooks.patch.nodeSelector."beta\.kubernetes\.io/os"=linux
+
+#
+# get DNS created by http_application_routing
+#
+AZ_DM=$(az aks show --resource-group $AZ_RG --name $AZ_CL --query addonProfiles.httpApplicationRouting.config.HTTPApplicationRoutingZoneName -o tsv)
+
+echo ""
+echo "Completed build resource group: $AZ_RG which contains:"
+echo "         AKS cluster:   $AZ_CL" 
+echo "              domain:   $AZ_DM"
+echo "   container registy:   $AZ_CR"
+echo "    KUBE CONFIG file:   $KUBE_CRED_FILE"
+echo ""

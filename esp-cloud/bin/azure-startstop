@@ -1,0 +1,44 @@
+#!/bin/bash
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+az account show &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to azure" && exit 1
+
+# usage 
+#
+show_usage() {
+    echo "Usage: $0"
+    echo ""
+    echo "required: -r <resource group> -c <cluster name>"
+    echo "     -s restart the cluster"
+    echo "     -d disable cluster (no-cost acrue)"
+    exit 1
+}   
+
+
+while getopts "?sdr:c:" opt; do
+    case "$opt" in
+        \?)
+            show_usage
+            return 1
+            ;;
+	r)  AZ_RG=$OPTARG
+	    ;;
+	c)  AZ_CL=$OPTARG
+	    ;;
+	s) 
+	    CMD="az aks start"
+	    ;;
+	d)
+	    CMD="az aks stop"
+	    ;;
+        *)
+            echo "bad option <$opt>" && show_usage
+    esac
+done
+
+[ -z "$CMD" ]   && echo "command not specified" && show_usage
+[ -z "$AZ_RG" ] && echo "resource group not set" && show_usage
+[ -z "$AZ_CL" ] && echo "cluster name not set" && show_usage
+
+$CMD --name $AZ_CL --resource-group $AZ_RG

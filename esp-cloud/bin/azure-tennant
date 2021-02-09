@@ -1,0 +1,103 @@
+#!/bin/bash
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+ROOT=`dirname $0`
+ROOT=`readlink -f $ROOT`
+
+az account show &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to azure" && exit 1
+
+# usage 
+#
+show_usage() {
+    echo "Usage: $0"
+    echo ""
+    echo "required: -C <continer registry> -r <resource group (of cluster)>"
+    echo "          -c <cluster name> -t <tennant name>"
+    echo ""
+    echo "optional: -g <resource group (of container registry>)"
+    exit 1
+}   
+
+while getopts "?C:c:r:t:g:" opt; do
+    case "$opt" in
+        \?)
+            show_usage
+            return 1
+            ;;
+	r)  AZ_RG=$OPTARG
+	    ;;
+	g)  AZ_CRG=$OPTARG
+	    ;;
+	C)  AZ_CR=$OPTARG
+	    ;;
+	c)  AZ_CL=$OPTARG
+	    ;;
+	t)  AZ_NS=$OPTARG
+	    ;;
+        *)
+            echo "bad option <$opt>" && show_usage
+    esac
+done
+
+[ -z $AZ_RG ]       && echo "resource group must be specified" && show_usage
+[ -z $AZ_CR ]       && echo "container registry must be specified" && show_usage
+[ -z $AZ_CL ]       && echo "cluster name must be specified" && show_usage
+[ -z $AZ_NS ]       && echo "K8 namespace must bespecified" && show_usage
+[ -z $AZ_CRG ] && AZ_CRG=$AZ_RG
+
+az acr login --name $AZ_CR; [ 0 -ne $? ] && echo "could not log into Azure Container Registry" && exit 1
+
+kubectl get ns/$AZ_NS &> /dev/null
+[ 0 -ne $? ] && kubectl create ns $AZ_NS
+
+ACR_PASS=`az acr credential show -n $AZ_CR | jq .passwords[0].value`
+ACR_PASS=`eval echo $ACR_PASS`
+
+ACR_USER=`az acr credential show -n $AZ_CR | jq .username`
+ACR_USER=`eval echo $ACR_USER`
+
+AZ_CRLS=`az acr list --resource-group=$AZ_CRG --query "[?name=='$AZ_CR'].loginServer" | jq .[]`
+AZ_CRLS=`eval echo $AZ_CRLS`
+
+[ -z $AZ_CRLS ] && echo "could not obtain login server for container registry" && exit 1
+
+echo "ACR_PASS: $ACR_PASS"
+echo "ACR_USER: $ACR_USER"
+echo " AZ_CRLS: $AZ_CRLS"
+
+kubectl create secret docker-registry acr-secret --namespace $AZ_NS \
+	--docker-server=$AZ_CRLS \
+	--docker-username=$ACR_USER \
+	--docker-password=$ACR_PASS
+
+#
+# get DNS created by http_application_routing
+#
+AZ_DM=$(az aks show --resource-group $AZ_RG --name $AZ_CL --query addonProfiles.httpApplicationRouting.config.HTTPApplicationRoutingZoneName -o tsv)
+
+#
+# get public IP into AZ_PIP
+#
+AZ_PIP=""
+while [[ -z $AZ_PIP ]]; do 
+    AZ_PIP=`kubectl -n nginx-basic get svc/nginx-ingress-ingress-nginx-controller --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`
+#    echo "AZ_PIP = <$AZ_PIP>"
+    if [[ -n $AZ_PIP ]]; then
+	break;
+    fi
+#    echo "sleeping for a second waiting for external IP"
+    sleep 1;
+done
+
+#
+# add in our DNS record for our default tennant.
+#
+AZ_LRG=$( az aks show --resource-group $AZ_RG --name $AZ_CL --query nodeResourceGroup -o tsv)
+az network dns record-set a delete     -g $AZ_LRG -z $AZ_DM -n $AZ_NS --yes
+az network dns record-set a add-record -g $AZ_LRG -z $AZ_DM -n $AZ_NS -a $AZ_PIP
+
+echo ""
+echo "cluster host is:   $AZ_NS.$AZ_DM"
+echo "cluster namespace: $AZ_NS"
+echo ""

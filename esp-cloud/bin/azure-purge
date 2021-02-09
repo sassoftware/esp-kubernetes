@@ -1,0 +1,65 @@
+#!/bin/bash
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+az account show &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to azure" && exit 1
+
+# usage 
+#
+show_usage() {
+    echo "Usage: $0"
+    echo ""
+    echo "required: -c <continer registry> -r <repository name>"
+    echo "          -k <number of tags to keep>"
+    exit 1
+}   
+
+
+while getopts "?k:r:c:" opt; do
+    case "$opt" in
+        \?)
+            show_usage
+            return 1
+            ;;
+	r)  AZ_RN=$OPTARG
+	    ;;
+	c)  AZ_CR=$OPTARG
+	    ;;
+	k) 
+	    KEEP=$OPTARG
+	    ;;
+        *)
+            echo "bad option <$opt>" && show_usage
+    esac
+done
+
+[ -z "$KEEP" ]  && echo "number of tags to keep not specified" && show_usage
+[ -z "$AZ_RN" ] && echo "repository name not specified" && show_usage
+[ -z "$AZ_CR" ] && echo "container registry not specified" && show_usage
+
+az acr login --name $AZ_CR; [ 0 -ne $? ] && echo "could not log into Azure Container Registry" && exit 1
+
+LIST=`az acr repository show-tags --name $AZ_CR --repository $AZ_RN --orderby time_asc | jq .[]`
+
+how_many() { 
+  echo $#
+}
+
+N=`how_many $LIST`
+
+if (( N > KEEP )); then
+    M=$(( N - KEEP ))
+    for i in $LIST ; do
+	TAG=`eval echo $i`
+	echo "purging tag $TAG"
+	az acr repository delete -n $AZ_CR --image $AZ_RN:$TAG --yes
+	M=$(( M - 1))
+	if (( M == 0 )); then
+	    break
+	fi
+    done
+else 
+   echo "We do not need to purge...."
+fi
+
+

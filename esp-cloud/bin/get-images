@@ -1,0 +1,60 @@
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+getTag3() {
+    curl -X GET -s -k https://repulpmaster.unx.sas.com/v2/${1}/${2}/tags/list | jq '.tags' | tr -d '", ' | tr -d ',' | head -n -1 | tail -n +1 | sort -t '-' -k 2 | tail -1
+}
+
+getImages() {
+
+    OPI="sas-esp-operator"
+    SRI="sas-event-stream-processing-server-app"
+    MTI="sas-event-stream-processing-metering-app"
+    LBI="sas-esp-load-balancer"
+    O2PI="sas-esp-oauth2-proxy"
+    ESMI="sas-event-stream-manager-app"
+    STRI="sas-event-stream-processing-streamviewer-app"
+    STUI="sas-event-stream-processing-studio-app"
+
+    REPO1="cdp-$BUILD_LEVEL-x64_oci_linux_2-docker-latest"
+    
+     OP=`getTag3 $REPO1 $OPI`
+     SR=`getTag3 $REPO1 $SRI`
+     MT=`getTag3 $REPO1 $MTI`
+     LB=`getTag3 $REPO1 $LBI`
+    O2P=`getTag3 $REPO1 $O2PI`
+    ESM=`getTag3 $REPO1 $ESMI`
+    STR=`getTag3 $REPO1 $STRI`
+    STU=`getTag3 $REPO1 $STUI`
+
+
+    export IMAGE_OPERATOR=repulpmaster.unx.sas.com/$REPO1/$OPI:$OP
+    export IMAGE_ESPSRV=repulpmaster.unx.sas.com/$REPO1/$SRI:$SR
+    export IMAGE_METERBILL=repulpmaster.unx.sas.com/$REPO1/$MTI:$MT
+    export IMAGE_LOADBAL=repulpmaster.unx.sas.com/$REPO1/$LBI:$LB
+    export IMAGE_ESPSTUDIO=repulpmaster.unx.sas.com/$REPO1/$STUI:$STU
+    export IMAGE_ESPSTRMVWR=repulpmaster.unx.sas.com/$REPO1/$STRI:$STR
+    export IMAGE_ESPESM=repulpmaster.unx.sas.com/$REPO1/$ESMI:$ESM
+    
+    export IMAGE_ESPOAUTH2P=repulpmaster.unx.sas.com/$REPO1/$O2PI:$O2P
+    export IMAGE_UAA=ghcr.io/skolodzieski/uaa:74.29.0
+}
+
+show_usage() {
+    echo "must be sourced, i.e. run as:"
+    echo ""
+    echo "    . ./bin/get-image [-R] | [-S]"
+    echo ""
+    echo "if run as a script: ./bin/get-images [-R] | [-S]"
+    echo "  env variables will not be set!"
+    echo "" 
+}   
+
+
+BUILD_LEVEL=""
+[ "$1" == "-R" ] && BUILD_LEVEL=release
+[ "$1" == "-S" ] && BUILD_LEVEL=snapshot
+
+[ -z $BUILD_LEVEL ] && show_usage  && return 1
+
+getImages
