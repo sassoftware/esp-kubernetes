@@ -14,181 +14,206 @@ To use these notes, you _must_ have a working knowledge of Azure.
 * A virtual netwrk (AKS will create this for you)
 * A Microsoft Azure Container Registry to store SAS Event Stream Processing containers
 
+
 ### Installing SAS Event Stream Processing in an AKS Cluster
 To proceed, you must have Azure credentials, be able to
 log in to Azure through the Microsoft Azure Portal, and know how to use the Azure
 command line tools.
 
-The following example script can be modified and used to create the AKS.
+A set of Azure specifics scripts are inluded that can help create and
+manage AKS clusters with SAS Event Stream processing.
 
-```shell
-#!/bin/bash
+```1. bin/azure-cluster -- build an AKS cluster from scratch```
 
-#
-# helm much be on your path!
-#
-az account show &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to azure" && exit 1
-which helm &>/dev/null      ; [ 0 -ne $? ] && echo "helm not found on path" && exit 1
+This command will create a new **AZURE Resource Group** contianing:
 
+- an AKS cluster
+- an Azure Container Registry
+- a Kubernetes config file for AKS access
 
-# To build a basic Azure K8 cluster, define the following ENV variables:
-#
-#  1. AZ_RG -- the azure resource group to create,
-#              this holds all Azure objects as a parent container.
-#
-#  2. AZ_CL -- the K8 cluster name
-#
-#  3. AZ_LO -- geographical location of the secondary resource group
-#              that Azure creates for you.
-#
-#  4. AZ_DM -- the domain used for the private DNS
-#
-#  5. AZ_NS -- the namespace that will be used to install, also for the
-#              private-dns A record: $AZ_NS.$AZ_DM --> public ip
-#
+The cluster is created in the specified geographical location.
 
-#
-# When we write the credentials for the newly created AKS cluster
-#
-KUBE_CRED_FILE=~/AZ_CUBE.config
+```
+    [bin]$ ./azure-cluster -?
+    Usage: ./bin/azure-cluster
 
-AZ_RG=scottRG
-AZ_CL=scottCluster
-AZ_LO=eastus
-AZ_DM=azure.esp.com
-AZ_NS=sckolo
-
-
-AZ_NODE_NUM=5
-#
-# Standard_F16s_v2	16 cores	32 GB ram
-#
-# The Fsv2-series runs on the Intel® Xeon® Platinum 8272CL (Cascade
-#    Lake) processors and Intel® Xeon® Platinum 8168 (Skylake)
-#    processors. It features a sustained all core Turbo clock speed of 3.4
-#    GHz and a maximum single-core turbo frequency of 3.7 GHz.
-#
-# do "az vm list-sizes -o table -l eastus"
-#
-#    to see VM's that are available.
-#
-AZ_NODE_SIZE=Standard_F16s_v2
-
-
-echo "We are going to build an Azure K8 cluster with the following parameters"
-echo "  (all will be created, and should not already exist):"
-echo
-echo "  resource group:   $AZ_RG"
-echo "  cluster name:     $AZ_CL"
-echo "  cluster location: $AZ_LO"
-echo "  cluster domain:   $AZ_DM"
-echo "  cluster namespce: $AZ_NS"
-echo "     # of nodes:    $AZ_NODE_NUM"
-echo "     node type:     $AZ_NODE_SIZE"
-echo "  K8 config file:   $KUBE_CRED_FILE"
-echo
-read -p "Continue (yes/[no])? " ANS
-[ "$ANS" = "yes" ] || exit 1
-
-
-
-#
-# create the top level resource group that contains everything
-#
-az group create --location $AZ_LO --name $AZ_RG
-
-#
-# create a basic 5 node cluster
-#
-az aks create --resource-group $AZ_RG --name $AZ_CL \
-              --node-count $AZ_NODE_NUM --node-vm-size $AZ_NODE_SIZE \
-              --enable-addons monitoring --generate-ssh-keys
-az aks wait --created  --resource-group $AZ_RG --name $AZ_CL
-
-#
-# get the K8 credentials for the new cluster into our kubeconfig
-#
-az aks get-credentials --resource-group $AZ_RG  --name $AZ_CL --file $KUBE_CRED_FILE --overwrite-existing
-export KUBECONFIG=$KUBE_CRED_FILE
-
-#
-# create the namespace for nginx
-#
-kubectl create ns nginx-basic
-
-#
-# create the namespace for ESP pods
-#
-kubectl create ns $AZ_NS
-
-#
-# use helm to install nginx
-#
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx &> /dev/null
-[ 0 -ne $? ] && echo "could not add the ingress-nginx helm repository" && exit 1
-
-helm install nginx-ingress ingress-nginx/ingress-nginx \
-             --namespace nginx-basic --set controller.replicaCount=2 \
-	     --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
-	     --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
-	     --set controller.admissionWebhooks.patch.nodeSelector."beta\.kubernetes\.io/os"=linux
-#
-# create the private DNS zone
-#
-az network private-dns zone create --name $AZ_DM --resource-group $AZ_RG
-az network private-dns zone wait --created --name $AZ_DM --resource-group $AZ_RG
-
-#
-# get public IP into AZ_PIP
-#
-AZ_PIP=`kubectl -n nginx-basic get svc/nginx-ingress-ingress-nginx-controller --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`
-
-#
-# add the A record into the private DNS
-#
-az network private-dns record-set a add-record -g $AZ_RG -z $AZ_DM -n $AZ_NS -a $AZ_PIP
-
-#
-# get the virtual network
-#
-AZ_VN=`az network vnet list --resource-group MC_"$AZ_RG"_"$AZ_CL"_"$AZ_LO" | jq .[].name`
-AZ_VN=`echo $AZ_VN | xargs`    ; # remove double quotes.
-AZ_VNID=`az network vnet show -g MC_"$AZ_RG"_"$AZ_CL"_"$AZ_LO" -n $AZ_VN --query 'id' -o tsv`
-
-#
-# link the virtual network of the K8 custer and the private-dns
-#
-az network private-dns link vnet create -g $AZ_RG -n pDNS2vNet -z $AZ_DM -v $AZ_VNID -e False
-
-echo
-echo "********************************************************************"
-echo "1. add the following to your /etc/hosts file"
-echo
-echo "    $AZ_PIP $AZ_NS.$AZ_DM"
-echo
-echo
-echo "2. to use the uaatool to configure the UAA autentication server, set"
-echo
-echo "    export DOCKER_ARGS=\"--add-host=$AZ_PIP $AZ_NS.$AZ_DM:$AZ_PIP\""
-echo "********************************************************************"
+         required: -c <cluster name> -r <resource group>
+                   -g <geographical location>
+		   -C <container registry>
+                   -f <file to write kubeconfig to>
+         optional: -n <number of node, default: 5>
+                   -s <vm size, default: Standard_F16s_v2>
+```
+script will report when finished something like:
+```
+Completed build resource group: sckoloRG which contains:
+         AKS cluster:   sckoloCL
+              domain:   b95d519bbe6e4e4c9585.eastus.aksapp.io
+   container registy:   sckoloCR
+    KUBE CONFIG file:   /mnt/data/home/sckolo/scottC-k8.conf
 ```
 
+```2. bin/azure-tennant  -- onboard tennant (create ns, and DNS entry)```
 
-* In order to install SAS Event Stream Processing into the new AKS
-cluster, access to the Docker images for SAS Event Stream Processing
-must be available in the AKS cluster. One way to do this is to create
-an Azure Container Registry and push the Docker images into the
-cotainer registry. Do this the same way that you push Docker
-images to any other Docker registry. Azure Container regsitries use credentials that are required to pull images. You can find these credentials on the Microsoft Azure Portal under the container registry
-service. You must add these credentials to a Kubernetes secret before
-you deploy SAS Event Stream Processing. Enter the credentials into the
-*acr-secret** Kubernetes object as follows:
+This script will onboard a tennant for ESP installation. What this translates to is:
+
+- creates a namespace in AKS with the tennant name
+- adds a DNS record to AKS to access the tennant eco-system
+
 ```
-    [AZURE]$ kubectl create secret docker-registry acr-secret --namespace tennant01
-                 --docker-server=espcontainers.azurecr.io
-                 --docker-username=<username> --docker-password=<password>
-```		 
-* Follow the Kubernetes deployment instructions provided in this GitHub repository. Use the
-**-A** switch when invoking the **mkdeploy** script.
+  [esp-k8-azure]$ ./bin/azure-tennant -?
+  Usage: ./bin/azure-tennant
 
+      required: -C <continer registry> -r <resource group (of cluster)>
+                -c <cluster name> -t <tennant name>
 
+      optional: -g <resource group (of container registry>)
+```
+script will report when finished something like:
+```
+cluster host is:   foo.51ebd19c25e24f55b35e.eastus.aksapp.io
+cluster namespace: foo
+```
+
+```3. bin/azure-startstop  -- start and stop AKS cluster to avoid charges```
+
+Start or Stop the AKS cluster. Stopping the cluster with this command avoids being charges by Microsoft. Starting/Stopping the cluster can take several minutes.
+
+```
+  [bin]$ ./azure-startstop -?
+  Usage: ./azure-startstop
+
+       required: -r <resource group> -c <cluster name>
+                 -s restart the cluster
+                 -d disable cluster (no-cost acrue)
+```
+
+```4. bin/azure-push -- add docker images to azure container registry (creates script "asure-images")```
+
+This script will look for the following env variables:
+- IMAGE_ESPOAUTH2P
+- IMAGE_ESPESM
+- IMAGE_ESPSTRMVWR
+- IMAGE_OPERATOR
+- IMAGE_LOADBAL
+- IMAGE_ESPSTUDIO
+- IMAGE_METERBILL
+- IMAGE_ESPSRV
+
+each one should point to an accessable docker image. The images are pulled, retagged, and pushed to the specified Azure Container Registry. If the image contains **snapshot** or **release**, than **snapshot/** or **release/** is added to the repository name in Azure.
+
+```
+   [bin]$ ./azure-push  -?
+   Usage: ./azure-push
+
+        required: -c <continer registry> -r <resource group>
+
+```
+
+```5. bin/azure-purge -- trim container registry to a fixed number of tags```
+
+Purge a names container repository to a fixed number of images. 
+
+```
+    [bin]$ ./azure-purge -?
+    Usage: ./azure-purge
+
+         required: -c <continer registry> -r <repository name>
+                   -k <number of tags to keep>
+```
+
+```6. bin/azure-get-images -- print latest images:tags for repository```
+
+Print the most recent set of ESP images in an Azure container registry. The ouput is in a format the can be cur/pasted into a terminal window to set the IMAGE_XXX env variables. 
+
+```
+    [bin]$ ./azure-get-images  -?
+    Usage: ./azure-get-images
+
+         required: -c <continer registry> -r <resource group> -R|-S
+         optional: -p <prefix for repository>
+```
+
+```7. (FOR SAS ONLY) bin/get-images -- populate IMAGE_XXX env vars from release/snapshot repulpmaster repo```
+
+This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpmaster** reposiory and populate the IMAGE_XXX environment with the latest docker images. 
+ 
+```
+    [bin]$ . ./get-images -?
+    must be sourced, i.e. run as:
+
+        . ./bin/get-image [-R] | [-S]
+
+    if run as a script: ./bin/get-images [-R] | [-S]
+        env variables will not be set!
+```
+**Full creation of Azure cluster, onboard tennant, and install os ESP:**
+
+```
+[esp-k8-azure]$ ./bin/azure-cluster -c sckoloCL -r sckoloRG -g eastus -C sckoloCR -f ~/sckoloCL-k8.conf
+  .
+  .
+  .
+Completed build resource group: sckoloRG which contains:
+         AKS cluster:   sckoloCL
+              domain:   41533d7e0a234fdd8d99.eastus.aksapp.io
+   container registy:   sckoloCR
+    KUBE CONFIG file:   /mnt/data/home/sckolo/sckoloCL-k8.conf
+```
+```
+[esp-k8-azure]$ export KUBECONFIG=~/sckoloCL-k8.conf
+```
+```
+[esp-k8-azure]$ ./bin/azure-tennant -C sckoloCR -r sckoloRG -c sckoloCL -t esp
+  .
+  .
+  .
+cluster host is:   esp.41533d7e0a234fdd8d99.eastus.aksapp.io
+cluster namespace: esp
+```
+```
+[esp-k8-azure]$ . ./bin/get-images -S
+```
+```
+[esp-k8-azure]$ ./bin/azure-push -c sckoloCR -r sckoloRG
+  .
+  .
+  .
+ This should push a full set of required docker images into your
+ container repository. It will create ./bin/azure images with the
+ list of images in exportable format.
+
+Use this command to set al the env variable images in your shell:
+
+[esp-k8-azure]$ . ./bin/azure-images
+```
+Now change to the github esp-kubernetes/esp-cloud project directory.
+```
+[esp-cloud]$ ./bin/mkdeploy -l ../../LICENSE/setin90.sas -n esp -d 41533d7e0a234fdd8d99.eastus.aksapp.io -r -C -M -A
+  .
+  .
+  .
+[esp-cloud]$ ./bin/dodeploy -n esp
+
+[esp-cloud]$ kubectl -n esp get pods
+NAME                                                              READY   STATUS    RESTARTS   AGE
+espfb-deployment-57c5c4674f-d5x9v                                 1/1     Running   0          2m6s
+oauth2-proxy-54d4bff8d9-n9nmq                                     1/1     Running   0          2m1s
+postgres-deployment-6fb4b464c6-hlztb                              1/1     Running   0          2m34s
+sas-esp-operator-fd4654998-p6cn2                                  1/1     Running   0          2m3s
+sas-event-stream-manager-app-6dbb9dcc-fg4wn                       1/1     Running   0          2m2s
+sas-event-stream-processing-client-config-server-6b8cfd798hftld   1/1     Running   0          84s
+sas-event-stream-processing-metering-app-5df6647b58-ct4wj         1/1     Running   0          2m5s
+sas-event-stream-processing-streamviewer-app-5d7478f878-qwq97     1/1     Running   0          2m1s
+sas-event-stream-processing-studio-app-755c974645-vp8h7           1/1     Running   0          2m2s
+uaa-deployment-94ddb9b48-k9vgp
+```
+
+Add the client account:
+```
+    [esp-cloud]$ ./bin/uaatool -u esp.41533d7e0a234fdd8d99.eastus.aksapp.io -C uaaUSER:uaaPASS -c
+```
+Add a user account:
+```
+    [esp-cloud]$ ./bin/uaatool -u esp.41533d7e0a234fdd8d99.eastus.aksapp.io -C uaaUSER:uaaPASS -a scott:Scott.Kolodzieski@sas.com:scottpw
+```
