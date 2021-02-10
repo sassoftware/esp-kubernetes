@@ -82,9 +82,54 @@ ghcr.io/skolodzieski/uaa             74.29.0    1.09GB
 ```
 
 ## Getting Started
+### Retreive Required Files
+To prepare for deployment, follow these steps:
+
+1. Create a directory at the root level of the machine where Docker is running. For example:
+```
+$mkdir mydeploy
+```
+2. Click the **Get Started** button provided in your SOE.
+
+3. Log in to [my.sas.com](https://my.sas.com/en/home.html).
+
+4. On the My SAS web page that opens, expand the information for the order by clicking the down arrow.
+
+5. In the pane that opens, examine the order information. The version indicates the release cadence and the version of SAS Viya software to be deployed (for example, LTS 2020.1). If you want to deploy a different version, then select the cadence and release from the SAS Viya Version list.
+
+6. Under Order Assets, click Download Certificates.
+
+7. Save the file, certs.zip, to the $mydeploy directory that you created in step 1.
+
+8. In the same Order Assets section of the page, click Download License.
+
+9. Save the license file (license.jwt) from my.sas.com to the $mydeploy directory.
+
+10. Scroll down to the section of the page that is labeled SAS Mirror Manager. Click [Download Now](https://support.sas.com/en/documentation/install-center/viya/deployment-tools/4/mirror-manager.html) to download the SAS Mirror Manager package to the machine where you want to create your mirror registry.
+
+SAS recommends saving the file and uncompressing it in the $mydeploy directory.
+
+11. Uncompress the downloaded files in the $mydeploy directory
+
+12. Save the SOE in the same directory.
+
+13. Use SAS Mirror Manager to download asset tags as described [here](http://pubshelpcenter.unx.sas.com:8080/test/?cdcId=espcdc&cdcVersion=v_004&docsetId=dplyedge0phy0lax&docsetTarget=p13675fx02jyy7n1gs0t647n3vto.htm&locale=en).
+
+14. Record the list of assets that you need to complete deployment, which look something like this:
+```
+sas-event-stream-manager-app:7.9.17-20210114.1610585769219
+sas-event-stream-processing-metering-app:10.78.0-20201214.1607929237374
+sas-esp-load-balancer:7.6.0-20201001.1601570347918
+sas-esp-operator:10.77.2-20201210.1607615447889
+sas-event-stream-processing-studio-app:7.9.15-20210114.1610585675385
+sas-event-stream-processing-streamviewer-app:7.9.17-20210114.1610584965330
+sas-event-stream-processing-server-app:10.79.26-20210115.1610737535603
+```
+
+14. As directed [here](http://pubshelpcenter.unx.sas.com:8080/test/?cdcId=espcdc&cdcVersion=v_004&docsetId=dplyedge0phy0lax&docsetTarget=p13675fx02jyy7n1gs0t647n3vto.htm&locale=en), populate your mirror registry with your software.
 ### Set the Environment Variables
 
-Set the following environment variables before you use the deployment scripts. Use the names that you recorded for the Docker images that you downloaded through the SOE.
+Set the following environment variables before you use the deployment scripts. Refer to the names of the docker images in your mirror registry and to the names of the docker images that you pulled for the OAuth2 proxy and the Pivotal UAA server.
 ```shell
 IMAGE_ESPSRV      = "name of image for SAS Event Stream Processing Server"
 IMAGE_LOADBAL     = "name of image for SAS Event Stream Processing Load Balancer"
