@@ -126,7 +126,7 @@ sas-event-stream-processing-streamviewer-app:7.9.17-20210114.1610584965330
 sas-event-stream-processing-server-app:10.79.26-20210115.1610737535603
 ```
 
-14. As directed in that [topic](http://pubshelpcenter.unx.sas.com:8080/test/?cdcId=espcdc&cdcVersion=v_004&docsetId=dplyedge0phy0lax&docsetTarget=p13675fx02jyy7n1gs0t647n3vto.htm&locale=en), populate your mirror registry with your software.
+14. As directed [here](http://pubshelpcenter.unx.sas.com:8080/test/?cdcId=espcdc&cdcVersion=v_004&docsetId=dplyedge0phy0lax&docsetTarget=p13675fx02jyy7n1gs0t647n3vto.htm&locale=en), populate your mirror registry with your software.
 ### Set the Environment Variables
 
 Set the following environment variables before you use the deployment scripts. Refer to the names of the docker images in your mirror registry and to the names of the docker images that you pulled for the OAuth2 proxy and the Pivotal UAA server.
