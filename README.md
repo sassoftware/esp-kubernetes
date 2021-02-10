@@ -107,9 +107,9 @@ $mkdir mydeploy
 
 10. Scroll down to the section of the page that is labeled SAS Mirror Manager. Click [Download Now](https://support.sas.com/en/documentation/install-center/viya/deployment-tools/4/mirror-manager.html) to download the SAS Mirror Manager package to the machine where you want to create your mirror registry.
 
-SAS recommends saving the file and uncompressing it in the $deploy directory.
+SAS recommends saving the file and uncompressing it in the $mydeploy directory.
 
-11. Uncompress the downloaded files in the $deploy directory
+11. Uncompress the downloaded files in the $mydeploy directory
 
 12. Save the SOE in the same directory.
 
