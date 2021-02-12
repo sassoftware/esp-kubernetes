@@ -15,10 +15,7 @@ Use the tools in this repository for either of the following deployment approach
 * lightweight open, multi-user, multi-tenant deployment
 * lightweight open, single-user deployment
 
-Before you proceed:
-* Decide which deployment approach you intend to take. Carefully read the associated prerequisites for your chosen deployment before editing any file or running any script.
-* Download the pre-built Docker images made available through your SAS Event Stream Processing Software Order Email (SOE).  The SOE points you to information about how to download these images and load them into a local Docker repository.
-* Record the names of the images that you download. You specify these names when you set essential environment variables.
+Before you proceed, decide which of these deployment approach you intend to take. Carefully read the associated prerequisites for your chosen approach before editing any file or running any script.
 
 ## Components of the SAS Event Stream Processing Cloud Ecosystem
 ### YAML Templates 
@@ -64,7 +61,7 @@ For more information about using these scripts, see "Getting Started."
 
 ### Persistent Volume
 
-**Important**: To deploy the Docker images that you have downloaded, you must have a running Kubernetes cluster and two persistent volumes (PVs) available for use.  Work with your Kubernetes administrator to obtain access to a cluster with the required PVs. By default, the persistent volume claims (PVCs) use the Kubernetes storage class "nfs-client" and are dynamically provisioned.  You can change these settings appropriately for your specific installation.
+**Important**: To deploy the Docker images that you download, you must have a running Kubernetes cluster and two persistent volumes (PVs) available for use.  Work with your Kubernetes administrator to obtain access to a cluster with the required PVs. By default, the persistent volume claims (PVCs) use the Kubernetes storage class "nfs-client" and are dynamically provisioned.  You can change these settings appropriately for your specific installation.
 
  * The first PV is a backing store for the PostgreSQL database, which requires Write access to the persistent volume. Because the PostgreSQL pod is the only pod that writes to this PV, assign it the access mode **ReadWriteOnce**. A typical deployment with no stored projects or metadata uses about 68MB of storage. For a smaller deployment, 20GB of storage for the PV should be adequate. 
  
@@ -83,53 +80,103 @@ ghcr.io/skolodzieski/uaa             74.29.0    1.09GB
 
 ## Getting Started
 ### Retreive Required Files
+
 To prepare for deployment, follow these steps:
 
 1. Create a directory at the root level of the machine where Docker is running. For example:
-```
-$mkdir mydeploy
-```
-2. Click the **Get Started** button provided in your SOE.
 
-3. Log in to [my.sas.com](https://my.sas.com/en/home.html).
+   ```unix
+   $mkdir myesp
+   ```
 
-4. On the My SAS web page that opens, expand the information for the order by clicking the down arrow.
+1. Open the software order email (SOE) that you received from SAS, and click the
+   **Get Started** button.
 
-5. In the pane that opens, examine the order information. The version indicates the release cadence and the version of SAS Viya software to be deployed (for example, LTS 2020.1). If you want to deploy a different version, then select the cadence and release from the SAS Viya Version list.
+1. Log in to `my.sas.com`.
 
-6. Under Order Assets, click Download Certificates.
+1. On the My SAS web page that opens, expand the information for the order by
+   clicking the down arrow.
 
-7. Save the file, certs.zip, to the $mydeploy directory that you created in step 1.
+1. In the pane that opens, examine the order information. The version indicates
+   the release cadence and the version of SAS Viya software to be deployed (for
+   example, LTS 2020.1). If you want to deploy a different version, select the
+   cadence and release from the **SAS Viya Version** list.
 
-8. In the same Order Assets section of the page, click Download License.
+1. Under Order Assets, click **Download Certificates**.
 
-9. Save the license file (license.jwt) from my.sas.com to the $mydeploy directory.
+1. Save the file, `SASViyaV4-order-ID_certs.zip`, to the `myesp` directory that
+   you created in step 1.
 
-10. Scroll down to the section of the page that is labeled SAS Mirror Manager. Click [Download Now](https://support.sas.com/en/documentation/install-center/viya/deployment-tools/4/mirror-manager.html) to download the SAS Mirror Manager package to the machine where you want to create your mirror registry.
+1. In the same Order Assets section of the page, click **Download License**.
 
-SAS recommends saving the file and uncompressing it in the $mydeploy directory.
+1. Save the license file (`license.jwt`) from `my.sas.com` to the `myesp`
+   directory.
 
-11. Uncompress the downloaded files in the $mydeploy directory
+1. Scroll down to the section of the page that is labeled **SAS Mirror
+   Manager**. Click
+   [Download Now](https://support.sas.com/en/documentation/install-center/viya/deployment-tools/4/mirror-manager.html)
+   to download the SAS Mirror Manager package to the machine where you want to
+   create your mirror registry.
 
-12. Save the SOE in the same directory.
+   Or use wget to download SAS Mirror Manager:
 
-13. Use SAS Mirror Manager to download asset tags as described [here](http://pubshelpcenter.unx.sas.com:8080/test/?cdcId=espcdc&cdcVersion=v_004&docsetId=dplyedge0phy0lax&docsetTarget=p13675fx02jyy7n1gs0t647n3vto.htm&locale=en).
+   ```unix
+   wget https://support.sas.com/installation/viya/4/sas-mirror-manager/lax/mirrormgr-linux.tgz
+   ```
 
-14. Record the list of assets that you need to complete deployment, which look something like this:
-```
-sas-event-stream-manager-app:7.9.17-20210114.1610585769219
-sas-event-stream-processing-metering-app:10.78.0-20201214.1607929237374
-sas-esp-load-balancer:7.6.0-20201001.1601570347918
-sas-esp-operator:10.77.2-20201210.1607615447889
-sas-event-stream-processing-studio-app:7.9.15-20210114.1610585675385
-sas-event-stream-processing-streamviewer-app:7.9.17-20210114.1610584965330
-sas-event-stream-processing-server-app:10.79.26-20210115.1610737535603
-```
+   SAS recommends saving the file in the `myesp` directory.
 
-14. As directed [here](http://pubshelpcenter.unx.sas.com:8080/test/?cdcId=espcdc&cdcVersion=v_004&docsetId=dplyedge0phy0lax&docsetTarget=p13675fx02jyy7n1gs0t647n3vto.htm&locale=en), populate your mirror registry with your software.
+1. Uncompress the downloaded file in the `myesp` directory:
+
+   ```unix
+   tar -xvf mirrormgr-linux.tgz
+   ```
+
+1. (Optional) Save the SOE in the same directory. The information in the SOE can be useful should you need to contact SAS Technical Support with questions or issues.
+
+1. Use SAS Mirror Manager to download asset tags:
+
+   ```unix
+   ./mirrormgr list remote docker tags --deployment-data SASViyaV4-order-ID_certs.zip --cadence cadence –latest
+   ```
+
+1. Record this list of available tags for later use.
+
+1. Populate your mirror registry with the software that you ordered. For example:
+
+   ```unix
+   ./mirrormgr --deployment-data SASViyaV4_${ORDER}_certs.zip mirror registry \
+   --destination myregistry.mydomain.com \
+   --username myregistryuser \
+   --password myregistrypassword \
+   --cadence SAS-release-cadence \
+   --latest \
+   --log-file /tmp/mirrormgr.log \
+   --workers 10
+   ```
+
+1. Clone the following project:
+
+   ```git
+   git clone https://github.com/sassoftware/esp-kubernetes.git
+   ```
+
+1. Note the list of assets that you need to complete the deployment, which
+   looks something like this:
+
+   ```txt
+   myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-event-stream-manager-app:7.9.17-20210114.1610585769219
+   myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-event-stream-processing-metering-app:10.78.0-20201214.1607929237374
+   myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-esp-load-balancer:7.6.0-20201001.1601570347918
+   myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-esp-operator:10.77.2-20201210.1607615447889
+   myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-event-stream-processing-studio-app:7.9.15-20210114.1610585675385
+   myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-event-stream-processing-streamviewer-app:7.9.17-20210114.1610584965330
+   myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-event-stream-processing-server-app:10.79.26-20210115.1610737535603
+   ```
 ### Set the Environment Variables
 
 Set the following environment variables before you use the deployment scripts. Refer to the names of the docker images in your mirror registry and to the names of the docker images that you pulled for the OAuth2 proxy and the Pivotal UAA server.
+
 ```shell
 IMAGE_ESPSRV      = "name of image for SAS Event Stream Processing Server"
 IMAGE_LOADBAL     = "name of image for SAS Event Stream Processing Load Balancer"
@@ -142,6 +189,11 @@ IMAGE_ESPSTUDIO   = "name of image for SAS Event Stream Processing Studio"
 
 IMAGE_ESPOAUTH2P  = "name of image for SAS Oauth2 Proxy"
 IMAGE_UAA         = "name of image for Pivotal UAA Server"
+```
+
+For example:
+```shell
+IMAGE_ESPSRV=myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-event-stream-processing-server-app:10.79.26-20210115.1610737535603
 ```
 
 Perform the SAS Event Stream Processing cloud deployment from a single directory, /esp-cloud. A single script enables the deployment of the ESP operator and the web-based clients. 
