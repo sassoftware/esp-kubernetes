@@ -15,10 +15,7 @@ Use the tools in this repository for either of the following deployment approach
 * lightweight open, multi-user, multi-tenant deployment
 * lightweight open, single-user deployment
 
-Before you proceed:
-* Decide which deployment approach you intend to take. Carefully read the associated prerequisites for your chosen deployment before editing any file or running any script.
-* Download the pre-built Docker images made available through your SAS Event Stream Processing Software Order Email (SOE).  The SOE points you to information about how to download these images and load them into a local Docker repository.
-* Record the names of the images that you download. You specify these names when you set essential environment variables.
+Before you proceed, decide which of these deployment approach you intend to take. Carefully read the associated prerequisites for your chosen approach before editing any file or running any script.
 
 ## Components of the SAS Event Stream Processing Cloud Ecosystem
 ### YAML Templates 
@@ -64,7 +61,7 @@ For more information about using these scripts, see "Getting Started."
 
 ### Persistent Volume
 
-**Important**: To deploy the Docker images that you have downloaded, you must have a running Kubernetes cluster and two persistent volumes (PVs) available for use.  Work with your Kubernetes administrator to obtain access to a cluster with the required PVs. By default, the persistent volume claims (PVCs) use the Kubernetes storage class "nfs-client" and are dynamically provisioned.  You can change these settings appropriately for your specific installation.
+**Important**: To deploy the Docker images that you download, you must have a running Kubernetes cluster and two persistent volumes (PVs) available for use.  Work with your Kubernetes administrator to obtain access to a cluster with the required PVs. By default, the persistent volume claims (PVCs) use the Kubernetes storage class "nfs-client" and are dynamically provisioned.  You can change these settings appropriately for your specific installation.
 
  * The first PV is a backing store for the PostgreSQL database, which requires Write access to the persistent volume. Because the PostgreSQL pod is the only pod that writes to this PV, assign it the access mode **ReadWriteOnce**. A typical deployment with no stored projects or metadata uses about 68MB of storage. For a smaller deployment, 20GB of storage for the PV should be adequate. 
  
