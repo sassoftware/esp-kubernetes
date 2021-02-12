@@ -134,6 +134,8 @@ az aks create --resource-group $AZ_RG --name $AZ_CL \
               --node-count $AZ_NODE_NUM --node-vm-size $AZ_NODE_SIZE \
               --enable-addons monitoring --generate-ssh-keys \
 	      --enable-addons http_application_routing
+#	      --api-server-authorized-ip-ranges 149.173.0.0/16 \
+#	      --load-balancer-sku standard \
 [ 0 -ne $? ] && echo "could not AKS cluster" && exit 1
 az aks wait --created  --resource-group $AZ_RG --name $AZ_CL 
 
@@ -154,6 +156,7 @@ kubectl -n nginx-basic apply -f $ROOT/../share/nginx-cm.yaml
 #
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx &> /dev/null
 [ 0 -ne $? ] && echo "could not add the ingress-nginx helm repository" && exit 1
+
 
 helm install nginx-ingress ingress-nginx/ingress-nginx \
              --namespace nginx-basic --set controller.replicaCount=2 \

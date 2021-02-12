@@ -83,10 +83,12 @@ spec:
           value: "_oauth2_proxy"
         - name: ESP_OAUTH2_ENABLED
           value: "false"
+        - name: server_servlet_context_path
+          value: "/"
         #
         # Below is the postgres configuration
         #
-        - name: spring_datasource_url
+        - name: SPRING_DATASOURCE_URL
           value: "jdbc:postgresql://postgres-service:80/esp"
         - name: spring_datasource_username
           valueFrom:
