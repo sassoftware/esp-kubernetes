@@ -19,6 +19,12 @@ spec:
         - name: sas-esp-operator
           # Replace this with the built image name
           image: TEMPLATE_ESP_OPERATOR_IMAGE
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsUser: 1001
+            runAsNonRoot: true             
           command:
               #- esp-operator
           imagePullPolicy: Always
