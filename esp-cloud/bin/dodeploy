@@ -89,55 +89,11 @@ done
 # apply pcv.yaml
 if [ -f $DEPLOYMENT/pvc.yaml ] ; then
     kubectl -n ${ESP_NS} apply -f $DEPLOYMENT/pvc.yaml
-    i=0;
-    OK="n"
-    echo ""
-    while [[ i -le 10 ]] ;
-    do
-        echo -n "."
-        sleep 2;
-	kubectl -n ${ESP_NS} get pvc/esp-pv | fgrep -i bound &>/dev/null	
-        if [ $? -eq 0 ]; then
-	    OK="y"
-            echo ""
-            echo "  The Persitent Volume has been sucessfully bound!"
-	    break;
-        fi
-        i=$((i+1));
-    done;
-    echo ""
-    if [[ "n" = "$OK" ]] ; then
-	echo "  After 10 iteration, Persitent Volume Claim remains unbound"
-	echo "     aborting deployment"
-	exit 1
-    fi
 fi
 
 # apply pcv-pg.yaml
 if [ -f $DEPLOYMENT/pvc-pg.yaml ] ; then
     kubectl -n ${ESP_NS} apply -f $DEPLOYMENT/pvc-pg.yaml
-    i=0;
-    OK="n"
-    echo ""
-    while [[ i -le 10 ]] ;
-    do
-        echo -n "."
-        sleep 2;
-	kubectl -n ${ESP_NS} get pvc/esp-pv-pg | fgrep -i bound &>/dev/null	
-        if [ $? -eq 0 ]; then
-	    OK="y"
-            echo ""
-            echo "  The Persitent Volume has been sucessfully bound!"
-	    break;
-        fi
-        i=$((i+1));
-    done;
-    echo ""
-    if [[ "n" = "$OK" ]] ; then
-	echo "  After 10 iteration, Persitent Volume Claim remains unbound"
-	echo "     aborting deployment"
-	exit 1
-    fi
 fi
 
 

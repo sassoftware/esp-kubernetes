@@ -8,6 +8,9 @@ spec:
   espProperties:
     "env.server.license": "ESP_LICENSE"
     #"server.disableTrace": "false"
+    meta.meteringhost: "http://sas-event-stream-processing-metering-app"
+    meta.meteringport: "80"
+    meta.meteringcontext: eventStreamProcessing/v1 # the API URL will be meteringhost:meteringport/meteringcontext/<endpoings> 
   operatorProperties: # the properties ESP operator use to configure projects
     #"server.tls.issuer": "letsencrypt-staging"
   limits:

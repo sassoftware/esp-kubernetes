@@ -1,0 +1,100 @@
+#!/bin/bash
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+ROOT=`dirname "$(readlink -f "$0")"`
+
+# usage
+#
+show_usage() {
+    echo "Usage: $0"
+    echo ""
+    echo "required: -c <cluster name>"
+    echo "          -m <CIDR to allow in security group>"
+    echo ""
+    echo "This command modifies the network security group for"
+    echo "    for an EKS cluster. It allows trafic to flow from"
+    echo "    the specifies CIDR to the clusters ingress."
+    echo ""
+    exit 1
+}
+
+while getopts "?c:m:" opt; do
+    case "$opt" in
+        \?)
+            show_usage
+            return 1
+            ;;
+        m)  AWS_CIDR=$OPTARG
+            ;;
+        c)  AWS_CL=$OPTARG
+            ;;
+        *)
+            echo "bad option <$opt>" && show_usage
+    esac
+done
+
+[ -z $AWS_CL ]       && echo "cluster name must be specified" && show_usage
+[ -z $AWS_CIDR ]     && echo "allowed CIDR must be specified" && show_usage
+
+# First identify the vpc, nodegroup to obtain the correct security group
+#    to modify
+#
+vpc_id=`aws ec2 describe-vpcs --filters Name=tag:aws:cloudformation:stack-name,Values=eksctl-${AWS_CL}-cluster --query "Vpcs[*].VpcId" --output text`
+vpc_id_quoted=\"$vpc_id\"
+echo "vpc ID is $vpc_id"
+
+nodegroup=`eval echo $(eksctl get nodegroup --cluster ${AWS_CL} -o json | jq .[].Name)`
+echo "nodegroup name is $nodegroup"
+
+securitygroup=eksctl-${AWS_CL}-nodegroup-${nodegroup}
+echo "securitygroup tag name is $securitygroup"
+
+sg_id=`aws ec2 describe-security-groups --filters Name=vpc-id,Values=${vpc_id} Name=tag:aws:cloudformation:stack-name,Values=$securitygroup --query "SecurityGroups[0].GroupId" --output text`
+echo "securitygroup ID is ${sg_id}"
+
+#my_ip=`curl -s https://checkip.amazonaws.com`
+#echo "My IP is $my_ip"
+
+# remove icmp, silently (it might not exist)
+#
+aws ec2 revoke-security-group-ingress --group-id ${sg_id} --protocol icmp --port 3-4  --cidr 0.0.0.0/0 &> /dev/null
+if [ $? -eq 0 ]; then
+    echo removed icmp from 0.0.0.0/0
+fi
+
+vpc_cidr=`aws ec2 describe-vpcs --vpc-ids $vpc_id --query "Vpcs[*].CidrBlock" --output text`
+
+# add back icmp from vpc cidr
+aws ec2 authorize-security-group-ingress --group-id ${sg_id} --protocol icmp --port 3-4 --cidr $vpc_cidr
+if [ $? -eq 0 ]; then
+    echo added icmp from $vpc_cidr
+fi
+
+# find the destination ports
+ports=`aws elbv2 describe-target-groups | jq '.TargetGroups[] | select(.VpcId=='"${vpc_id_quoted}"') | .Port'`
+for port in $ports
+do
+    # remove 0.0.0.0 from security group (if it exists)
+    #
+    aws ec2 revoke-security-group-ingress --group-id ${sg_id} --protocol tcp --port ${port} --cidr 0.0.0.0/0 &> /dev/null
+    if [ $? -eq 0 ]; then
+        echo removed tcp from 0.0.0.0/0 to port $port
+    fi
+
+    # allow $AWS_CIDR traffic
+    #
+    aws ec2 authorize-security-group-ingress --group-id ${sg_id} --protocol tcp --port $port --cidr ${AWS_CIDR}
+    if [ $? -eq 0 ]; then
+        echo added tcp from ${AWS_CIDR} to port $port
+    fi
+
+    ips=`aws ec2 describe-instances  --filter "Name=vpc-id,Values=${vpc_id}" --query "Reservations[*].Instances[*].PublicIpAddress"   --output=text`
+    for ip in $ips
+    do
+        aws ec2 authorize-security-group-ingress --group-id $sg_id --protocol tcp --port $port --cidr ${ip}/32
+        if [ $? -eq 0 ]; then
+            echo added tcp from ${ip}/32 to port $port
+        fi
+    done
+done

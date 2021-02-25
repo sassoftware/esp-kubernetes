@@ -1,0 +1,152 @@
+#!/bin/bash
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+ROOT=`dirname "$(readlink -f "$0")"`
+
+aws sts get-caller-identity &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to AWS" && exit 1
+
+# To build a basic Azure K8 cluster, the following variables need 
+#    to be passed into the script via command line options. 
+#
+#   1. AWS_CL -- the K8 cluster name
+#
+#   2. AWS_LO -- geographical location of CLUSTER
+#
+#   3. KUBE_CRED_FILE where we write the kubeconfig file
+#
+# These can be passed in, but have defaults.
+#
+#   4. AWS_NODE_NUM number of nodes
+#
+#   5. AWS_NODE_SIZE the type of VM to use.
+#
+#   6. AWS_ZONES a comma seperate list of redundancy zones
+#
+
+# defaults
+#
+AWS_NODE_NUM=5
+AWS_NODE_SIZE=m5.4xlarge
+
+# m5.4xlarge	16 cores	64 GB ram
+#
+# M5 instances are the latest generation of General Purpose Instances
+#    powered by Intel Xeon® Platinum 8175M processors. This family
+#    provides a balance of compute, memory, and network resources,
+#    and is a good choice for many applications.
+# Up to 3.1 GHz Intel Xeon® Platinum 8175M processors with new Intel
+#    Advanced Vector Extension (AVX-512) instruction set
+#
+
+# usage 
+#
+show_usage() {
+    echo "Usage: $0"
+    echo ""
+    echo "required: -c <cluster name>"
+    echo "          -g <geographical location>"
+    echo "          -f <file to write kubeconfig to>"
+    echo ""
+    echo "optional: -n <number of node, default: 5>"
+    echo "          -s <vm size, default: Standard_F16s_v2>"
+    echo "          -z <comma seperate list of redundance zones>"
+    echo ""
+    echo "This command creates a <container registry> that docker images"
+    echo "    can be pushed to. It also creates a full EKS cluster"
+    echo "    named <cluster name>."
+    echo "The KUBE CONFIG file used to access the cluster will be"
+    echo "   written to <file to write kubeconfig to>."
+    exit 1
+}   
+
+while getopts "?c:r:g:t:f:n:s:z:" opt; do
+    case "$opt" in
+        \?)
+            show_usage
+            return 1
+            ;;
+	g)  AWS_LO=$OPTARG
+	    ;;
+	c)  AWS_CL=$OPTARG
+	    ;;
+	f)  KUBE_CRED_FILE=$OPTARG
+	    ;;
+	n)  AWS_NODE_NUM=$OPTARG
+	    ;;
+	s)  AWS_NODE_SIZE=$OPTARG
+	    ;;
+	z)  AWS_ZONES=$OPTARG
+	    ;;
+        *)
+            echo "bad option <$opt>" && show_usage
+    esac
+done
+
+[ -z $AWS_CL ]       && echo "cluster name must be specified" && show_usage
+[ -z $AWS_LO ]       && echo "geographical location  must be specified" && show_usage
+[ -z $KUBE_CRED_FILE ]  && echo "file to write kubeconfig to must be specifed" && show_usage
+
+if [ -n $AWS_ZONE ] ; then
+    AWS_ARGS="--zones=$AWS_ZONES"
+else
+    AWS_ARGS=""
+fi
+
+
+#
+# helm much be on your path!
+#
+#which helm &>/dev/null      ; [ 0 -ne $? ] && echo "helm not found on path" && exit 1
+
+echo "We are going to build an AWS EKS K8 cluster with the following"
+echo "  parameters (all will be created, and should not already exist):"
+echo
+echo "  cluster name:       $AWS_CL"
+echo "  cluster location:   $AWS_LO"
+echo "     # of nodes:  $AWS_NODE_NUM"
+echo "     node type:   $AWS_NODE_SIZE"
+echo "  K8 config file: $KUBE_CRED_FILE"
+echo
+read -p "Continue (yes/[no])? " ANS
+[ "$ANS" = "yes" ] || exit 1
+
+#
+# create a basic 5 node cluster
+#
+# get the K8 credentials for the new cluster into our kubeconfig
+#
+rm -rf $KUBE_CRED_FILE ; touch $KUBE_CRED_FILE
+export KUBECONFIG=$KUBE_CRED_FILE
+eksctl create cluster --kubeconfig=$KUBE_CRED_FILE --name=sckolo-cl --nodes=$AWS_NODE_NUM --node-type=$AWS_NODE_SIZE \
+       --region=$AWS_LO $AWS_ARGS
+[ 0 -ne $? ] && echo "could not create EKS cluster" && exit 1
+
+#
+# create the namespace for nginx
+#
+kubectl create ns ingress-nginx
+kubectl -n ingress-nginx apply -f $ROOT/../share/nginx-cm.yaml
+#
+# use helm to install nginx
+#
+#helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx &> /dev/null
+#[ 0 -ne $? ] && echo "could not add the ingress-nginx helm repository" && exit 1
+
+
+#helm install nginx-ingress ingress-nginx/ingress-nginx \
+#             --namespace nginx-basic --set controller.replicaCount=2 \
+#	     --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+#	     --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
+#	     --set controller.admissionWebhooks.patch.nodeSelector."beta\.kubernetes\.io/os"=linux
+
+kubectl -n ingress-nginx apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.44.0/deploy/static/provider/aws/deploy.yaml
+
+AWS_DM=`kubectl -n ingress-nginx get svc/ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].hostname`
+
+echo ""
+echo "Completed build od EKS cluster:"
+echo "         EKS cluster:   $AWS_CL" 
+echo "              domain:   $AWS_DM"
+echo "    KUBE CONFIG file:   $KUBE_CRED_FILE"
+echo ""
