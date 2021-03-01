@@ -144,6 +144,41 @@ kubectl -n ingress-nginx apply -f https://raw.githubusercontent.com/kubernetes/i
 
 AWS_DM=`kubectl -n ingress-nginx get svc/ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].hostname`
 
+
+# create the EFS file system, and get it ID.
+#
+aws efs create-file-system --region ${AWS_LO} --tags Key=Name,Value=${AWS_CL}-efs
+AWS_FS=$(aws efs describe-file-systems --query "FileSystems[?Name == \`${AWS_CL}-efs\`].FileSystemId" | jq .[0])
+AWS_FS=$(eval echo ${AWS_FS})
+
+# now we get the security group to add to the mount points of the file system
+#
+AWS_VPC_ID=$(aws eks describe-cluster --name $AWS_CL --query "cluster.resourcesVpcConfig.vpcId" --output text)
+AWS_SNS=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$EKS_VPC_ID --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId' | jq .[])
+AWS_NG=$(eval echo $(eksctl get nodegroup --cluster ${AWS_CL} -o json | jq .[].Name))
+AWS_SG_NAME=eksctl-${AWS_CL}-nodegroup-${AWS_NG}
+AWS_SG=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values=${AWS_VPC_ID} Name=tag:aws:cloudformation:stack-name,Values=$AWS_SG_NAME --query "SecurityGroups[0].GroupId" --output text)
+
+for subnet in ${AWS_SNS} ; do
+    sn=$(eval echo ${subnet})
+    aws efs create-mount-target --file-system-id ${AWS_FS} \
+    --security-group  ${AWS_SG} --subnet-id ${sn} --region ${AWS_LO}
+done
+
+# Deploy the EFS CSI provisioner
+#
+kubectl apply -k "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/dev/?ref=master"
+
+# deploy the storage class
+#
+kubectl apply -f - <<EOF
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: efs-sc
+provisioner: efs.csi.aws.com
+EOF
+
 echo ""
 echo "Completed build od EKS cluster:"
 echo "         EKS cluster:   $AWS_CL" 

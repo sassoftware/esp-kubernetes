@@ -66,10 +66,16 @@ fi
 vpc_cidr=`aws ec2 describe-vpcs --vpc-ids $vpc_id --query "Vpcs[*].CidrBlock" --output text`
 
 # add back icmp from vpc cidr
-aws ec2 authorize-security-group-ingress --group-id ${sg_id} --protocol icmp --port 3-4 --cidr $vpc_cidr
+#
+aws ec2 authorize-security-group-ingress --group-id ${sg_id} --protocol icmp --port 3-4 --cidr ${vpc_cidr}
 if [ $? -eq 0 ]; then
     echo added icmp from $vpc_cidr
 fi
+
+# here we add an NFS rule so EFS can work between cluster nodes.
+#
+aws ec2 authorize-security-group-ingress --group-id ${sg_id} --protocol tcp --port 2049 --cidr ${vpc_cidr}
+
 
 # find the destination ports
 ports=`aws elbv2 describe-target-groups | jq '.TargetGroups[] | select(.VpcId=='"${vpc_id_quoted}"') | .Port'`
