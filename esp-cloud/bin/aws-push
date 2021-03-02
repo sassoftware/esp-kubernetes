@@ -29,7 +29,7 @@ while getopts "?r:" opt; do
     esac
 done
 
-[ -z $AWS_REG ] && echo "region EKS cluster resides in must be specified" && exit 1
+[ -z $AWS_REG ] && echo "region EKS cluster resides in must be specified" && show_usage
 
 AWS_ACCID=`aws sts get-caller-identity | jq '.Account'`
 [ 0 -ne $? ] && echo "could not obtain AWS Account ID" && exit 1
