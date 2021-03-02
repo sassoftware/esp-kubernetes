@@ -13,90 +13,74 @@ show_usage() {
     echo "Usage: $0"
     echo ""
     echo "required: -c <cluster name> -t <tennant name>"
-    echo "          -r <EKS geographical region>"
     echo ""
     exit 1
 }   
 
-while getopts "?C:c:r:t:g:" opt; do
+while getopts "?c:t:" opt; do
     case "$opt" in
         \?)
             show_usage
             return 1
             ;;
-	r)  AZ_RG=$OPTARG
+	c)  AWS_CL=$OPTARG
 	    ;;
-	g)  AZ_CRG=$OPTARG
-	    ;;
-	C)  AZ_CR=$OPTARG
-	    ;;
-	c)  AZ_CL=$OPTARG
-	    ;;
-	t)  AZ_NS=$OPTARG
+	t)  AWS_NS=$OPTARG
 	    ;;
         *)
             echo "bad option <$opt>" && show_usage
     esac
 done
 
-[ -z $AZ_RG ]       && echo "resource group must be specified" && show_usage
-[ -z $AZ_CR ]       && echo "container registry must be specified" && show_usage
-[ -z $AZ_CL ]       && echo "cluster name must be specified" && show_usage
-[ -z $AZ_NS ]       && echo "K8 namespace must bespecified" && show_usage
-[ -z $AZ_CRG ] && AZ_CRG=$AZ_RG
+[ -z $AWS_CL ]       && echo "cluster name must be specified" && show_usage
+[ -z $AWS_NS ]       && echo "K8 namespace must be specified" && show_usage
 
-az acr login --name $AZ_CR; [ 0 -ne $? ] && echo "could not log into Azure Container Registry" && exit 1
+echo "creating K8 namespace"
+kubectl get ns/$AWS_NS &> /dev/null
+[ 0 -ne $? ] && kubectl create ns $AWS_NS
 
-kubectl get ns/$AZ_NS &> /dev/null
-[ 0 -ne $? ] && kubectl create ns $AZ_NS
+AWS_FS=$(aws efs describe-file-systems --query "FileSystems[?Name == \`${AWS_CL}-efs\`].FileSystemId" | jq .[0])
+AWS_FS=$(eval echo ${AWS_FS})
 
-ACR_PASS=`az acr credential show -n $AZ_CR | jq .passwords[0].value`
-ACR_PASS=`eval echo $ACR_PASS`
-
-ACR_USER=`az acr credential show -n $AZ_CR | jq .username`
-ACR_USER=`eval echo $ACR_USER`
-
-AZ_CRLS=`az acr list --resource-group=$AZ_CRG --query "[?name=='$AZ_CR'].loginServer" | jq .[]`
-AZ_CRLS=`eval echo $AZ_CRLS`
-
-[ -z $AZ_CRLS ] && echo "could not obtain login server for container registry" && exit 1
-
-echo "ACR_PASS: $ACR_PASS"
-echo "ACR_USER: $ACR_USER"
-echo " AZ_CRLS: $AZ_CRLS"
-
-kubectl create secret docker-registry acr-secret --namespace $AZ_NS \
-	--docker-server=$AZ_CRLS \
-	--docker-username=$ACR_USER \
-	--docker-password=$ACR_PASS
-
+# Now we create an access-point in EFS for the tennant. 
 #
-# get DNS created by http_application_routing
-#
-AZ_DM=$(az aks show --resource-group $AZ_RG --name $AZ_CL --query addonProfiles.httpApplicationRouting.config.HTTPApplicationRoutingZoneName -o tsv)
+echo "creating EFS access point"
+aws efs create-access-point --client-token ${AWS_NS} \
+    --file-system-id ${AWS_FS} --posix-user Uid=1001,Gid=1001 \
+    --root-directory "Path=/${AWS_NS},CreationInfo={OwnerUid=1001,OwnerGid=1001,Permissions=0755}" >> /dev/null
 
-#
-# get public IP into AZ_PIP
-#
-AZ_PIP=""
-while [[ -z $AZ_PIP ]]; do 
-    AZ_PIP=`kubectl -n nginx-basic get svc/nginx-ingress-ingress-nginx-controller --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`
-#    echo "AZ_PIP = <$AZ_PIP>"
-    if [[ -n $AZ_PIP ]]; then
-	break;
-    fi
-#    echo "sleeping for a second waiting for external IP"
-    sleep 1;
-done
+AWS_AP=$(aws efs describe-access-points --file-system-id ${AWS_FS} |  jq " .AccessPoints[] | select(.ClientToken==\"${AWS_NS}\") | .AccessPointId")
+AWS_AP=$(eval echo ${AWS_AP})
 
-#
-# add in our DNS record for our default tennant.
-#
-AZ_LRG=$( az aks show --resource-group $AZ_RG --name $AZ_CL --query nodeResourceGroup -o tsv)
-az network dns record-set a delete     -g $AZ_LRG -z $AZ_DM -n $AZ_NS --yes
-az network dns record-set a add-record -g $AZ_LRG -z $AZ_DM -n $AZ_NS -a $AZ_PIP
+echo "creating RWX persistent volume"
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: efs-pv-${AWS_NS}
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: ${AWS_FS}::${AWS_AP}
+EOF
+
+AWS_DM=$(kubectl -n ingress-nginx get svc/ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].hostname)
 
 echo ""
-echo "cluster host is:   $AZ_NS.$AZ_DM"
-echo "cluster namespace: $AZ_NS"
+echo ""
+echo "Created kubernetes namespace, EFS access point, and"
+echo "   RXW persitent volume"
+echo ""
+echo "You must add an alias record to DNS that points"
+echo ""
+echo "   ${AWS_NS}.<your domain>  --> ${AWS_DM}"
+echo ""
+echo "cluster namespace: $AWS_NS"
 echo ""

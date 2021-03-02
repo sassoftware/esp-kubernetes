@@ -4,9 +4,13 @@
 
 ROOT=`dirname "$(readlink -f "$0")"`
 
+# Build a AWS cluster, Create a EFS for cluster use, add EFS access to
+#    EKS security group, add in nginx ingress 
+#
+
 aws sts get-caller-identity &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to AWS" && exit 1
 
-# To build a basic Azure K8 cluster, the following variables need 
+# To build a basic AWS K8 cluster, the following variables need 
 #    to be passed into the script via command line options. 
 #
 #   1. AWS_CL -- the K8 cluster name
@@ -93,12 +97,6 @@ else
     AWS_ARGS=""
 fi
 
-
-#
-# helm much be on your path!
-#
-#which helm &>/dev/null      ; [ 0 -ne $? ] && echo "helm not found on path" && exit 1
-
 echo "We are going to build an AWS EKS K8 cluster with the following"
 echo "  parameters (all will be created, and should not already exist):"
 echo
@@ -130,20 +128,10 @@ kubectl -n ingress-nginx apply -f $ROOT/../share/nginx-cm.yaml
 #
 # use helm to install nginx
 #
-#helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx &> /dev/null
-#[ 0 -ne $? ] && echo "could not add the ingress-nginx helm repository" && exit 1
-
-
-#helm install nginx-ingress ingress-nginx/ingress-nginx \
-#             --namespace nginx-basic --set controller.replicaCount=2 \
-#	     --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
-#	     --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
-#	     --set controller.admissionWebhooks.patch.nodeSelector."beta\.kubernetes\.io/os"=linux
 
 kubectl -n ingress-nginx apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.44.0/deploy/static/provider/aws/deploy.yaml
 
 AWS_DM=`kubectl -n ingress-nginx get svc/ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].hostname`
-
 
 # create the EFS file system, and get it ID.
 #
