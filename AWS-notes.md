@@ -1,4 +1,4 @@
-## Installation Notes for AWS Kubernetes Service (EKS)
+## Installation Notes for AWS -- Elastic Kubernetes Service (EKS)
 
 This document highlights the requirements to
 install a SAS Event Stream Processing eco-system in a simple AWS Kubernetes Service (EKS) cluster.  It provides a specific set of steps to create
@@ -24,7 +24,7 @@ are also required (eksctl).
 A set of AWS specifics scripts are inluded that can help create and
 manage EKS clusters with SAS Event Stream processing.
 
-```1. bin/aws-cluster -- build an EKS cluster from scratch```
+### bin/aws-cluster -- build an EKS cluster from scratch
 
 This command will create a new EKS cluster. The cluster is created in
 the specified geographical location. An AWS Elastic File System (EFS)
@@ -49,7 +49,7 @@ Completed build resource group: sckoloRG which contains:
     KUBE CONFIG file:   /mnt/data/home/sckolo/scottC-k8.conf
 ```
 
-```2. bin/aws-network  -- configure external access to the EKS network```
+### bin/aws-network  -- configure external access to the EKS network
 
 Modifies the security groups for the VPC associated with the EKS
 cluster to allow extern access through the ingress host. A CIDR style
@@ -63,7 +63,7 @@ IP can be specified (149.173.0.0/16 for SAS internal access [Cary]).
 ```
 
 
-```3. bin/aws-tennant  -- onboard tennant (create ns, EFS access point)```
+### bin/aws-tennant  -- onboard tennant (create ns, EFS access point)
 
 This script will onboard a tennant for ESP installation. What this translates to is:
 
@@ -83,7 +83,7 @@ cluster host is:   foo.51ebd19c25e24f55b35e.eastus.aksapp.io
 cluster namespace: foo
 ```
 
-```4. bin/aws-push -- add docker images to elastic container registry (creates script "aws-images")```
+### bin/aws-push -- add docker images to elastic container registry (creates script "aws-images")
 
 This script will look for the following env variables:
 - IMAGE_ESPOAUTH2P
@@ -105,7 +105,7 @@ each one should point to an accessable docker image. The images are pulled, reta
 
 ```
 
-```5. bin/aws-get-images -- print latest images:tags for repository```
+### bin/aws-get-images -- print latest images:tags for repository
 
 Print the most recent set of ESP images in an AWS container registry. The ouput is in a format the can be cur/pasted into a terminal window to set the IMAGE_XXX env variables. 
 
