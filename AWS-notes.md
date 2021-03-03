@@ -143,28 +143,33 @@ $ ./bin/aws -cluster -c sckolo-cl -g us-east-1  -f ~/aws-sckolo-cl-k8.conf
   .
   .
   .
-Completed build resource group: sckoloRG which contains:
-         AKS cluster:   sckoloCL
-              domain:   41533d7e0a234fdd8d99.eastus.aksapp.io
-   container registy:   sckoloCR
-    KUBE CONFIG file:   /mnt/data/home/sckolo/sckoloCL-k8.conf
+Completed build od EKS cluster:
+         EKS cluster:   sckolo-cl
+              domain:   ac55499e0028b4b4eae9026a8b8f9c48-781de1576c00671f.elb.us-east-2.amazonaws.com
+    KUBE CONFIG file:   /mnt/data/home/sckolo/AWS.yaml
+```
+
+**At this point you need to enter an alias into a DNS server. You need to point \<tennant name\>.\<domain name\> --> ac55499e0028b4b4eae9026a8b8f9c48-781de1576c00671f.elb.us-east-2.amazonaws.com**
+
+**The \<tennnant name\> is fairly arbitrary, the \<domain name\> is governed by your DNS server. The \<tennant name\> and \<domain name\> will be used later when deploying the ESP application to the EKS cluster.**
+
+```
+$ export KUBECONFIG=~/aws-sckolo-cl-k8.conf
 ```
 ```
-[esp-k8-azure]$ export KUBECONFIG=~/sckoloCL-k8.conf
-```
-```
-[esp-k8-azure]$ ./bin/azure-tennant -C sckoloCR -r sckoloRG -c sckoloCL -t esp
+$ ./bin/aws-network -c sckolo-cl  -m 149.173.0.0/16 
+nodegroup name is ng-188f74b1
+securitygroup tag name is eksctl-sckolo-cl-nodegroup-ng-188f74b1
+securitygroup ID is sg-0102d2ea94dea287d  .
   .
   .
   .
-cluster host is:   esp.41533d7e0a234fdd8d99.eastus.aksapp.io
-cluster namespace: esp
 ```
 ```
-[esp-k8-azure]$ . ./bin/get-images -S
+$ . ./bin/get-images -S
 ```
 ```
-[esp-k8-azure]$ ./bin/azure-push -c sckoloCR -r sckoloRG
+$ ./bin/aws-push -r us-east-2
   .
   .
   .
@@ -174,11 +179,12 @@ cluster namespace: esp
 
 Use this command to set al the env variable images in your shell:
 
-[esp-k8-azure]$ . ./bin/azure-images
+$ ./bin/aws-get-images -r us-east-2 -p snapshot
+$ . ./bin/aws-images
 ```
 Now change to the github esp-kubernetes/esp-cloud project directory.
 ```
-[esp-cloud]$ ./bin/mkdeploy -l ../../LICENSE/setin90.sas -n esp -d 41533d7e0a234fdd8d99.eastus.aksapp.io -r -C -M -A
+$ ./bin/mkdeploy -l ../../LICENSE/setin90.sas -n <tennant name> -d <domain name> -r -C -M -W
   .
   .
   .
