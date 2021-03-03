@@ -24,6 +24,7 @@ are also required (eksctl).
 A set of AWS specifics scripts are inluded that can help create and
 manage EKS clusters with SAS Event Stream processing.
 
+---
 ### bin/aws-cluster -- build an EKS cluster from scratch
 
 This command will create a new EKS cluster. The cluster is created in
@@ -49,6 +50,7 @@ Completed build resource group: sckoloRG which contains:
     KUBE CONFIG file:   /mnt/data/home/sckolo/scottC-k8.conf
 ```
 
+---
 ### bin/aws-network  -- configure external access to the EKS network
 
 Modifies the security groups for the VPC associated with the EKS
@@ -62,7 +64,7 @@ IP can be specified (149.173.0.0/16 for SAS internal access [Cary]).
        required: -m <allowed CIDR> -c <cluster name>
 ```
 
-
+---
 ### bin/aws-tennant  -- onboard tennant (create ns, EFS access point)
 
 This script will onboard a tennant for ESP installation. What this translates to is:
@@ -83,6 +85,7 @@ cluster host is:   foo.51ebd19c25e24f55b35e.eastus.aksapp.io
 cluster namespace: foo
 ```
 
+---
 ### bin/aws-push -- add docker images to elastic container registry (creates script "aws-images")
 
 This script will look for the following env variables:
@@ -105,6 +108,7 @@ each one should point to an accessable docker image. The images are pulled, reta
 
 ```
 
+---
 ### bin/aws-get-images -- print latest images:tags for repository
 
 Print the most recent set of ESP images in an AWS container registry. The ouput is in a format the can be cur/pasted into a terminal window to set the IMAGE_XXX env variables. 
@@ -130,6 +134,8 @@ This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpm
     if run as a script: ./bin/get-images [-R] | [-S]
         env variables will not be set!
 ```
+
+---
 **Full creation of AWS EKS cluster, onboard tennant, and install os ESP:**
 
 ```
