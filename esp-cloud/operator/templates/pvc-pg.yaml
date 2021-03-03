@@ -8,8 +8,9 @@ metadata:
 #   annotations:
 #     volume.beta.kubernetes.io/storage-class: "nfs-client"   
 spec:
-   TEMPLATE_ESP_NOAZUREstorageClassName: nfs-client 
+   TEMPLATE_ESP_NFSstorageClassName: nfs-client 
    TEMPLATE_ESP_AZUREstorageClassName: default
+   TEMPLATE_ESP_AWSstorageClassName: gp2
    accessModes:
      - ReadWriteOnce # This volume is used for Postgres storage
    resources:

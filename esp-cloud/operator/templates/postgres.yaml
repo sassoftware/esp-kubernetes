@@ -37,15 +37,15 @@ spec:
            app: postgres
        spec:
          TEMPLATE_ESP_AZUREimagePullSecrets:
-         TEMPLATE_ESP_AZURE  - name: acr-secret         
+         TEMPLATE_ESP_AZURE  - name: acr-secret
+         securityContext:
+           runAsUser:  1001
+           runAsGroup: 1001
+           fsGroup: 1001
+           runAsNonRoot: true             
          containers:
          - name: postgres
            image: ghcr.io/skolodzieski/postgres:12.5
-           securityContext:
-             allowPrivilegeEscalation: false
-             TEMPLATE_ESP_NOAZURErunAsUser:  1001
-             TEMPLATE_ESP_NOAZURErunAsGroup: 1001
-             TEMPLATE_ESP_NOAZURErunAsNonRoot: true             
            ports:
              - containerPort: 5432  # servers REST port
                name: postgresdb
@@ -76,11 +76,6 @@ spec:
            #    use those credentials to make <namespace>/{DB,input,output}
            #    directories.
            #
-           securityContext:
-             allowPrivilegeEscalation: false
-             TEMPLATE_ESP_NOAZURErunAsUser:  1001
-             TEMPLATE_ESP_NOAZURErunAsGroup: 1001
-             TEMPLATE_ESP_NOAZURErunAsNonRoot: true             
            command: ['sh', '-c', 'mkdir -p /mnt/data/postgres']
            volumeMounts:
            - name: data
