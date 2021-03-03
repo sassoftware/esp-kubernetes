@@ -74,15 +74,21 @@ This script will onboard a tennant for ESP installation. What this translates to
 - create a PV on the access point to be used when deploying to the namespace.
 
 ```
-  $ ./bin/aws-tennant -?
-  Usage: ./bin/aws-tennant
+  [bin]$ ./aws-tennant -?
+  Usage: .aws-tennant
 
       required: -c <cluster name> -t <tennant name>
 ```
 script will report when finished something like:
 ```
-cluster host is:   foo.51ebd19c25e24f55b35e.eastus.aksapp.io
-cluster namespace: foo
+Created kubernetes namespace, EFS access point, and
+   RXW persitent volume
+
+You must add an alias record to DNS that points
+
+   sckolo.<your domain>  --> "ab627578fd4c14b59bb6f3b3097e740a-c27d8bc8a19ea39a.elb.us-east-2.amazonaws.com"
+
+cluster namespace: sckolo
 ```
 
 ---
@@ -149,10 +155,6 @@ Completed build od EKS cluster:
     KUBE CONFIG file:   /mnt/data/home/sckolo/AWS.yaml
 ```
 
-**At this point you need to enter an alias into a DNS server. You need to point \<tennant name\>.\<domain name\> --> ac55499e0028b4b4eae9026a8b8f9c48-781de1576c00671f.elb.us-east-2.amazonaws.com**
-
-**The \<tennnant name\> is fairly arbitrary, the \<domain name\> is governed by your DNS server. The \<tennant name\> and \<domain name\> will be used later when deploying the ESP application to the EKS cluster.**
-
 ```
 $ export KUBECONFIG=~/aws-sckolo-cl-k8.conf
 ```
@@ -166,6 +168,23 @@ securitygroup ID is sg-0102d2ea94dea287d  .
   .
 ```
 ```
+./bin/aws-tennant  -c sckolo-cl -t sckolo
+  .
+  .
+  .
+Created kubernetes namespace, EFS access point, and
+   RXW persitent volume
+
+You must add an alias record to DNS that points
+
+   sckolo.<your domain>  --> "ab627578fd4c14b59bb6f3b3097e740a-c27d8bc8a19ea39a.elb.us-east-2.amazonaws.com"
+
+cluster namespace: sckolo
+```
+**At this point you need to enter an alias into a DNS server. You need to point \<tennant name\>.\<domain name\> --> ac55499e0028b4b4eae9026a8b8f9c48-781de1576c00671f.elb.us-east-2.amazonaws.com**
+
+**The \<tennnant name\> is fairly arbitrary, the \<domain name\> is governed by your DNS server. The \<tennant name\> and \<domain name\> will be used later when deploying the ESP application to the EKS cluster.**
+
 $ . ./bin/get-images -S
 ```
 ```
