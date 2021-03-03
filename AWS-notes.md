@@ -158,6 +158,7 @@ Completed build od EKS cluster:
 ```
 $ export KUBECONFIG=~/aws-sckolo-cl-k8.conf
 ```
+
 ```
 $ ./bin/aws-network -c sckolo-cl  -m 149.173.0.0/16 
 nodegroup name is ng-188f74b1
@@ -167,6 +168,7 @@ securitygroup ID is sg-0102d2ea94dea287d  .
   .
   .
 ```
+
 ```
 ./bin/aws-tennant  -c sckolo-cl -t sckolo
   .
@@ -181,13 +183,13 @@ You must add an alias record to DNS that points
 
 cluster namespace: sckolo
 ```
+
 **At this point you need to enter an alias into a DNS server. You need to point \<tennant name\>.\<domain name\> --> ac55499e0028b4b4eae9026a8b8f9c48-781de1576c00671f.elb.us-east-2.amazonaws.com**
 
 **The \<tennnant name\> is fairly arbitrary, the \<domain name\> is governed by your DNS server. The \<tennant name\> and \<domain name\> will be used later when deploying the ESP application to the EKS cluster.**
 
+```
 $ . ./bin/get-images -S
-```
-```
 $ ./bin/aws-push -r us-east-2
   .
   .
@@ -201,7 +203,9 @@ Use this command to set al the env variable images in your shell:
 $ ./bin/aws-get-images -r us-east-2 -p snapshot
 $ . ./bin/aws-images
 ```
+
 Now change to the github esp-kubernetes/esp-cloud project directory.
+
 ```
 $ ./bin/mkdeploy -l ../../LICENSE/setin90.sas -n <tennant name> -d <domain name> -r -C -M -W
   .
