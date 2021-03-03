@@ -1,4 +1,4 @@
-## Installation Notes for AWS Kubernetes Service (EKS)
+## Installation Notes for AWS -- Elastic Kubernetes Service (EKS)
 
 This document highlights the requirements to
 install a SAS Event Stream Processing eco-system in a simple AWS Kubernetes Service (EKS) cluster.  It provides a specific set of steps to create
@@ -24,7 +24,8 @@ are also required (eksctl).
 A set of AWS specifics scripts are inluded that can help create and
 manage EKS clusters with SAS Event Stream processing.
 
-```1. bin/aws-cluster -- build an EKS cluster from scratch```
+---
+### bin/aws-cluster -- build an EKS cluster from scratch
 
 This command will create a new EKS cluster. The cluster is created in
 the specified geographical location. An AWS Elastic File System (EFS)
@@ -49,7 +50,8 @@ Completed build resource group: sckoloRG which contains:
     KUBE CONFIG file:   /mnt/data/home/sckolo/scottC-k8.conf
 ```
 
-```2. bin/aws-network  -- configure external access to the EKS network```
+---
+### bin/aws-network  -- configure external access to the EKS network
 
 Modifies the security groups for the VPC associated with the EKS
 cluster to allow extern access through the ingress host. A CIDR style
@@ -62,8 +64,8 @@ IP can be specified (149.173.0.0/16 for SAS internal access [Cary]).
        required: -m <allowed CIDR> -c <cluster name>
 ```
 
-
-```3. bin/aws-tennant  -- onboard tennant (create ns, EFS access point)```
+---
+### bin/aws-tennant  -- onboard tennant (create ns, EFS access point)
 
 This script will onboard a tennant for ESP installation. What this translates to is:
 
@@ -72,18 +74,25 @@ This script will onboard a tennant for ESP installation. What this translates to
 - create a PV on the access point to be used when deploying to the namespace.
 
 ```
-  $ ./bin/aws-tennant -?
-  Usage: ./bin/aws-tennant
+  [bin]$ ./aws-tennant -?
+  Usage: .aws-tennant
 
       required: -c <cluster name> -t <tennant name>
 ```
 script will report when finished something like:
 ```
-cluster host is:   foo.51ebd19c25e24f55b35e.eastus.aksapp.io
-cluster namespace: foo
+Created kubernetes namespace, EFS access point, and
+   RXW persitent volume
+
+You must add an alias record to DNS that points
+
+   sckolo.<your domain>  --> "ab627578fd4c14b59bb6f3b3097e740a-c27d8bc8a19ea39a.elb.us-east-2.amazonaws.com"
+
+cluster namespace: sckolo
 ```
 
-```4. bin/aws-push -- add docker images to elastic container registry (creates script "aws-images")```
+---
+### bin/aws-push -- add docker images to elastic container registry (creates script "aws-images")
 
 This script will look for the following env variables:
 - IMAGE_ESPOAUTH2P
@@ -105,7 +114,8 @@ each one should point to an accessable docker image. The images are pulled, reta
 
 ```
 
-```5. bin/aws-get-images -- print latest images:tags for repository```
+---
+### bin/aws-get-images -- print latest images:tags for repository
 
 Print the most recent set of ESP images in an AWS container registry. The ouput is in a format the can be cur/pasted into a terminal window to set the IMAGE_XXX env variables. 
 
@@ -130,6 +140,8 @@ This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpm
     if run as a script: ./bin/get-images [-R] | [-S]
         env variables will not be set!
 ```
+
+---
 **Full creation of AWS EKS cluster, onboard tennant, and install os ESP:**
 
 ```
@@ -137,28 +149,48 @@ $ ./bin/aws -cluster -c sckolo-cl -g us-east-1  -f ~/aws-sckolo-cl-k8.conf
   .
   .
   .
-Completed build resource group: sckoloRG which contains:
-         AKS cluster:   sckoloCL
-              domain:   41533d7e0a234fdd8d99.eastus.aksapp.io
-   container registy:   sckoloCR
-    KUBE CONFIG file:   /mnt/data/home/sckolo/sckoloCL-k8.conf
+Completed build od EKS cluster:
+         EKS cluster:   sckolo-cl
+              domain:   ac55499e0028b4b4eae9026a8b8f9c48-781de1576c00671f.elb.us-east-2.amazonaws.com
+    KUBE CONFIG file:   /mnt/data/home/sckolo/AWS.yaml
 ```
+
 ```
-[esp-k8-azure]$ export KUBECONFIG=~/sckoloCL-k8.conf
+$ export KUBECONFIG=~/aws-sckolo-cl-k8.conf
 ```
+
 ```
-[esp-k8-azure]$ ./bin/azure-tennant -C sckoloCR -r sckoloRG -c sckoloCL -t esp
+$ ./bin/aws-network -c sckolo-cl  -m 149.173.0.0/16 
+nodegroup name is ng-188f74b1
+securitygroup tag name is eksctl-sckolo-cl-nodegroup-ng-188f74b1
+securitygroup ID is sg-0102d2ea94dea287d  .
   .
   .
   .
-cluster host is:   esp.41533d7e0a234fdd8d99.eastus.aksapp.io
-cluster namespace: esp
 ```
+
 ```
-[esp-k8-azure]$ . ./bin/get-images -S
+./bin/aws-tennant  -c sckolo-cl -t sckolo
+  .
+  .
+  .
+Created kubernetes namespace, EFS access point, and
+   RXW persitent volume
+
+You must add an alias record to DNS that points
+
+   sckolo.<your domain>  --> "ab627578fd4c14b59bb6f3b3097e740a-c27d8bc8a19ea39a.elb.us-east-2.amazonaws.com"
+
+cluster namespace: sckolo
 ```
+
+**At this point you need to enter an alias into a DNS server. You need to point \<tennant name\>.\<domain name\> --> ac55499e0028b4b4eae9026a8b8f9c48-781de1576c00671f.elb.us-east-2.amazonaws.com**
+
+**The \<tennnant name\> is fairly arbitrary, the \<domain name\> is governed by your DNS server. The \<tennant name\> and \<domain name\> will be used later when deploying the ESP application to the EKS cluster.**
+
 ```
-[esp-k8-azure]$ ./bin/azure-push -c sckoloCR -r sckoloRG
+$ . ./bin/get-images -S
+$ ./bin/aws-push -r us-east-2
   .
   .
   .
@@ -168,11 +200,14 @@ cluster namespace: esp
 
 Use this command to set al the env variable images in your shell:
 
-[esp-k8-azure]$ . ./bin/azure-images
+$ ./bin/aws-get-images -r us-east-2 -p snapshot
+$ . ./bin/aws-images
 ```
+
 Now change to the github esp-kubernetes/esp-cloud project directory.
+
 ```
-[esp-cloud]$ ./bin/mkdeploy -l ../../LICENSE/setin90.sas -n esp -d 41533d7e0a234fdd8d99.eastus.aksapp.io -r -C -M -A
+$ ./bin/mkdeploy -l ../../LICENSE/setin90.sas -n <tennant name> -d <domain name> -r -C -M -W
   .
   .
   .
