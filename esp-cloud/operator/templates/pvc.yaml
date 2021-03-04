@@ -8,7 +8,7 @@ metadata:
 #   annotations:
 #     volume.beta.kubernetes.io/storage-class: "nfs-client
 spec:
-   TEMPLATE_ESP_NFSEstorageClassName: nfs-client 
+   TEMPLATE_ESP_NFSstorageClassName: nfs-client 
    TEMPLATE_ESP_AZUREstorageClassName: azurefile
    TEMPLATE_ESP_AWSstorageClassName: efs-sc
    accessModes:
