@@ -116,7 +116,7 @@ read -p "Continue (yes/[no])? " ANS
 #
 rm -rf $KUBE_CRED_FILE ; touch $KUBE_CRED_FILE
 export KUBECONFIG=$KUBE_CRED_FILE
-eksctl create cluster --kubeconfig=$KUBE_CRED_FILE --name=sckolo-cl --nodes=$AWS_NODE_NUM --node-type=$AWS_NODE_SIZE \
+eksctl create cluster --kubeconfig=$KUBE_CRED_FILE --name=$AWS_CL --nodes=$AWS_NODE_NUM --node-type=$AWS_NODE_SIZE \
        --region=$AWS_LO $AWS_ARGS
 [ 0 -ne $? ] && echo "could not create EKS cluster" && exit 1
 

@@ -99,7 +99,7 @@ spec:
              readOnlyRootFilesystem: true
              runAsGroup: 1001
              runAsUser: 1001
-           command: ['sh', '-c', 'mkdir -p /mnt/data/input ; mkdir -p /mnt/data/output ; touch /db/filebrowser.db']
+           command: ['sh', '-c', 'mkdir -p /mnt/data/input ; mkdir -p /mnt/data/output ; mkdir -p /mnt/data/mas-store ; touch /db/filebrowser.db']
            volumeMounts:
            - name: data
              mountPath: /mnt/data

@@ -10,7 +10,8 @@ spec:
     #"server.disableTrace": "false"
     meta.meteringhost: "http://sas-event-stream-processing-metering-app"
     meta.meteringport: "80"
-    meta.meteringcontext: eventStreamProcessing/v1 # the API URL will be meteringhost:meteringport/meteringcontext/<endpoings> 
+    meta.meteringcontext: eventStreamProcessing/v1 # the API URL will be meteringhost:meteringport/meteringcontext/<endpoings>
+    server.store-location: /mnt/data/mas-store
   operatorProperties: # the properties ESP operator use to configure projects
     #"server.tls.issuer": "letsencrypt-staging"
   limits:
