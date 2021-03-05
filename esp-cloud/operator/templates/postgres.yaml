@@ -45,6 +45,8 @@ spec:
            runAsNonRoot: true             
          containers:
          - name: postgres
+           securityContext:
+             readOnlyRootFilesystem: true
            image: ghcr.io/skolodzieski/postgres:12.5
            ports:
              - containerPort: 5432  # servers REST port
@@ -68,8 +70,14 @@ spec:
            volumeMounts:
               - name: data            # the volume specified below
                 mountPath: /mnt/data  # path persistent volume gets mounted to
+              - name: pid
+                mountPath: /var/run/postgresql
+              - name: tmp
+                mountPath: /tmp
          initContainers:
          - name: config-data
+           securityContext:
+             readOnlyRootFilesystem: true
            image: ghcr.io/skolodzieski/busybox:1.33.0
            #
            # Our nfs PV is owned by sas:sas which is 1001:1001, so
@@ -84,10 +92,8 @@ spec:
            - name: data
              persistentVolumeClaim:
                claimName: esp-pv-pg
- #          - name: postgres-init
- #            configMap:
- #              name: espdb-config
- #              items:
- #              - key: init-esp.sh
- #                path: init-esp.sh
+           - name: pid
+             emptyDir: {}
+           - name: tmp
+             emptyDir: {}
             

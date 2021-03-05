@@ -5,19 +5,17 @@
 ROOT=`dirname $0`
 ROOT=`readlink -f $ROOT`
 
-aws sts get-caller-identity &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to AWS" && exit 1
-
 # usage 
 #
 show_usage() {
     echo "Usage: $0"
     echo ""
-    echo "required: -c <cluster name> -t <tennant name>"
+    echo "required: -c <cluster name> -t <tennant name> -g <geographical location>"
     echo ""
     exit 1
 }   
 
-while getopts "?c:t:" opt; do
+while getopts "?c:t:g:" opt; do
     case "$opt" in
         \?)
             show_usage
@@ -27,6 +25,8 @@ while getopts "?c:t:" opt; do
 	    ;;
 	t)  AWS_NS=$OPTARG
 	    ;;
+	g)  AWS_LO=$OPTARG
+	    ;;
         *)
             echo "bad option <$opt>" && show_usage
     esac
@@ -34,6 +34,11 @@ done
 
 [ -z $AWS_CL ]       && echo "cluster name must be specified" && show_usage
 [ -z $AWS_NS ]       && echo "K8 namespace must be specified" && show_usage
+[ -z $AWS_LO ]       && echo "region EKS cluster resides in must be specified" && show_usage
+
+aws sts get-caller-identity &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to AWS" && exit 1
+aws configure set region ${AWS_LO}
+
 
 echo "creating K8 namespace"
 kubectl get ns/$AWS_NS &> /dev/null

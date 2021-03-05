@@ -8,8 +8,6 @@ ROOT=`dirname "$(readlink -f "$0")"`
 #    EKS security group, add in nginx ingress 
 #
 
-aws sts get-caller-identity &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to AWS" && exit 1
-
 # To build a basic AWS K8 cluster, the following variables need 
 #    to be passed into the script via command line options. 
 #
@@ -97,6 +95,10 @@ else
     AWS_ARGS=""
 fi
 
+aws sts get-caller-identity &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to AWS" && exit 1
+aws configure set region ${AWS_LO}
+
+
 echo "We are going to build an AWS EKS K8 cluster with the following"
 echo "  parameters (all will be created, and should not already exist):"
 echo
@@ -117,7 +119,7 @@ read -p "Continue (yes/[no])? " ANS
 rm -rf $KUBE_CRED_FILE ; touch $KUBE_CRED_FILE
 export KUBECONFIG=$KUBE_CRED_FILE
 eksctl create cluster --kubeconfig=$KUBE_CRED_FILE --name=$AWS_CL --nodes=$AWS_NODE_NUM --node-type=$AWS_NODE_SIZE \
-       --region=$AWS_LO $AWS_ARGS
+       $AWS_ARGS
 [ 0 -ne $? ] && echo "could not create EKS cluster" && exit 1
 
 #
@@ -136,7 +138,7 @@ done
 
 # create the EFS file system, and get it ID.
 #
-aws efs create-file-system --region ${AWS_LO} --tags Key=Name,Value=${AWS_CL}-efs
+aws efs create-file-system --tags Key=Name,Value=${AWS_CL}-efs
 AWS_FS=$(aws efs describe-file-systems --query "FileSystems[?Name == \`${AWS_CL}-efs\`].FileSystemId" | jq .[0])
 AWS_FS=$(eval echo ${AWS_FS})
 
@@ -151,7 +153,7 @@ AWS_SG=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values=${AWS_VPC
 for subnet in ${AWS_SNS} ; do
     sn=$(eval echo ${subnet})
     aws efs create-mount-target --file-system-id ${AWS_FS} \
-    --security-group  ${AWS_SG} --subnet-id ${sn} --region ${AWS_LO}
+    --security-group  ${AWS_SG} --subnet-id ${sn}
 done
 
 # Deploy the EFS CSI provisioner

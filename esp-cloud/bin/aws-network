@@ -11,6 +11,7 @@ show_usage() {
     echo ""
     echo "required: -c <cluster name>"
     echo "          -m <CIDR to allow in security group>"
+    echo "          -g <geographical location>"
     echo ""
     echo "This command modifies the network security group for"
     echo "    for an EKS cluster. It allows trafic to flow from"
@@ -19,7 +20,7 @@ show_usage() {
     exit 1
 }
 
-while getopts "?c:m:" opt; do
+while getopts "?c:m:g:" opt; do
     case "$opt" in
         \?)
             show_usage
@@ -29,6 +30,8 @@ while getopts "?c:m:" opt; do
             ;;
         c)  AWS_CL=$OPTARG
             ;;
+	g)  AWS_LO=$OPTARG
+	    ;;
         *)
             echo "bad option <$opt>" && show_usage
     esac
@@ -36,6 +39,11 @@ done
 
 [ -z $AWS_CL ]       && echo "cluster name must be specified" && show_usage
 [ -z $AWS_CIDR ]     && echo "allowed CIDR must be specified" && show_usage
+[ -z $AWS_LO ]       && echo "region EKS cluster resides in must be specified" && show_usage
+
+az account show &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to azure" && exit 1
+aws configure set region ${AWS_LO}
+
 
 # First identify the vpc, nodegroup to obtain the correct security group
 #    to modify
