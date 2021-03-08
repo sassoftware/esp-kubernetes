@@ -62,6 +62,7 @@ IP can be specified (149.173.0.0/16 for SAS internal access [Cary]).
   Usage: ./aws-network
 
        required: -m <allowed CIDR> -c <cluster name>
+                 -g <geographical location>
 ```
 
 ---
@@ -78,6 +79,7 @@ This script will onboard a tennant for ESP installation. What this translates to
   Usage: .aws-tennant
 
       required: -c <cluster name> -t <tennant name>
+                -g <geographical location>
 ```
 script will report when finished something like:
 ```
@@ -110,7 +112,7 @@ each one should point to an accessable docker image. The images are pulled, reta
    [bin]$ ./aws-push  -?
    Usage: ./aws-push
 
-        required: -r <EKS geographical region>
+        required: -g <geographical location>
 
 ```
 
@@ -123,7 +125,7 @@ Print the most recent set of ESP images in an AWS container registry. The ouput 
     [bin]$ ./aws-get-images  -?
     Usage: ./aws-get-images
 
-         required: -r <geographical region>
+         required: -g <geographical location>
          optional: -p <prefix for repository> (snapshot | release)
 ```
 
@@ -145,7 +147,7 @@ This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpm
 **Full creation of AWS EKS cluster, onboard tennant, and install os ESP:**
 
 ```
-$ ./bin/aws -cluster -c sckolo-cl -g us-east-1  -f ~/aws-sckolo-cl-k8.conf
+$ ./bin/aws -cluster -c sckolo-cl -g us-east-2  -f ~/aws-sckolo-cl-k8.conf
   .
   .
   .
@@ -160,7 +162,7 @@ $ export KUBECONFIG=~/aws-sckolo-cl-k8.conf
 ```
 
 ```
-$ ./bin/aws-network -c sckolo-cl  -m 149.173.0.0/16 
+$ ./bin/aws-network -c sckolo-cl  -m 149.173.0.0/16 -g us-east-2
 nodegroup name is ng-188f74b1
 securitygroup tag name is eksctl-sckolo-cl-nodegroup-ng-188f74b1
 securitygroup ID is sg-0102d2ea94dea287d  .
@@ -170,7 +172,7 @@ securitygroup ID is sg-0102d2ea94dea287d  .
 ```
 
 ```
-./bin/aws-tennant  -c sckolo-cl -t sckolo
+./bin/aws-tennant  -c sckolo-cl -t sckolo -g us-east-2
   .
   .
   .
@@ -190,7 +192,7 @@ cluster namespace: sckolo
 
 ```
 $ . ./bin/get-images -S
-$ ./bin/aws-push -r us-east-2
+$ ./bin/aws-push -g us-east-2
   .
   .
   .
@@ -200,7 +202,7 @@ $ ./bin/aws-push -r us-east-2
 
 Use this command to set al the env variable images in your shell:
 
-$ ./bin/aws-get-images -r us-east-2 -p snapshot
+$ ./bin/aws-get-images -g us-east-2 -p snapshot
 $ . ./bin/aws-images
 ```
 

@@ -10,7 +10,8 @@ ROOT=`readlink -f $ROOT`
 show_usage() {
     echo "Usage: $0"
     echo ""
-    echo "required: -c <cluster name> -t <tennant name> -g <geographical location>"
+    echo "required: -c <cluster name> -t <tennant name>"
+    echo            -g <geographical location>"
     echo ""
     exit 1
 }   

@@ -10,7 +10,7 @@ ROOT=`readlink -f $ROOT`
 show_usage() {
     echo "Usage: $0"
     echo ""
-    echo "required: -g <EKS geographical region>"
+    echo "required: -g <geographical region>"
     exit 1
 }   
 

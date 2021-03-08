@@ -86,7 +86,7 @@ while getopts "?c:r:g:t:f:n:s:z:" opt; do
 done
 
 [ -z $AWS_CL ]       && echo "cluster name must be specified" && show_usage
-[ -z $AWS_LO ]       && echo "geographical location  must be specified" && show_usage
+[ -z $AWS_LO ]       && echo "region EKS cluster resides in must be specified" && show_usage
 [ -z $KUBE_CRED_FILE ]  && echo "file to write kubeconfig to must be specifed" && show_usage
 
 if [ -n $AWS_ZONE ] ; then
