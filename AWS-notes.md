@@ -129,7 +129,8 @@ Print the most recent set of ESP images in an AWS container registry. The ouput 
          optional: -p <prefix for repository> (snapshot | release)
 ```
 
-```6. (FOR SAS ONLY) bin/get-images -- populate IMAGE_XXX env vars from release/snapshot repulpmaster repo```
+---
+### (FOR SAS ONLY) bin/get-images -- populate IMAGE_XXX env vars from release/snapshot repulpmaster repo
 
 This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpmaster** reposiory and populate the IMAGE_XXX environment with the latest docker images. 
  
@@ -144,7 +145,7 @@ This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpm
 ```
 
 ---
-**Full creation of AWS EKS cluster, onboard tennant, and install os ESP:**
+## Full creation of AWS EKS cluster, onboard tennant, and install os ESP
 
 ```
 $ ./bin/aws -cluster -c sckolo-cl -g us-east-2  -f ~/aws-sckolo-cl-k8.conf
