@@ -154,7 +154,8 @@ This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpm
     if run as a script: ./bin/get-images [-R] | [-S]
         env variables will not be set!
 ```
-**Full creation of Azure cluster, onboard tennant, and install os ESP:**
+
+## Full creation of Azure cluster, onboard tennant, and install os ESP
 
 ```
 [esp-k8-azure]$ ./bin/azure-cluster -c sckoloCL -r sckoloRG -g eastus -C sckoloCR -f ~/sckoloCL-k8.conf
