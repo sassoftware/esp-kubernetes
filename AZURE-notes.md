@@ -23,7 +23,8 @@ command line tools.
 A set of Azure specifics scripts are inluded that can help create and
 manage AKS clusters with SAS Event Stream processing.
 
-```1. bin/azure-cluster -- build an AKS cluster from scratch```
+---
+### bin/azure-cluster -- build an AKS cluster from scratch
 
 This command will create a new **AZURE Resource Group** contianing:
 
@@ -53,7 +54,8 @@ Completed build resource group: sckoloRG which contains:
     KUBE CONFIG file:   /mnt/data/home/sckolo/scottC-k8.conf
 ```
 
-```2. bin/azure-tennant  -- onboard tennant (create ns, and DNS entry)```
+---
+### bin/azure-tennant  -- onboard tennant (create ns, and DNS entry)
 
 This script will onboard a tennant for ESP installation. What this translates to is:
 
@@ -75,7 +77,8 @@ cluster host is:   foo.51ebd19c25e24f55b35e.eastus.aksapp.io
 cluster namespace: foo
 ```
 
-```3. bin/azure-startstop  -- start and stop AKS cluster to avoid charges```
+---
+### bin/azure-startstop  -- start and stop AKS cluster to avoid charges
 
 Start or Stop the AKS cluster. Stopping the cluster with this command avoids being charges by Microsoft. Starting/Stopping the cluster can take several minutes.
 
@@ -88,7 +91,8 @@ Start or Stop the AKS cluster. Stopping the cluster with this command avoids bei
                  -d disable cluster (no-cost acrue)
 ```
 
-```4. bin/azure-push -- add docker images to azure container registry (creates script "asure-images")```
+---
+### bin/azure-push -- add docker images to azure container registry (creates script "asure-images")
 
 This script will look for the following env variables:
 - IMAGE_ESPOAUTH2P
@@ -110,7 +114,8 @@ each one should point to an accessable docker image. The images are pulled, reta
 
 ```
 
-```5. bin/azure-purge -- trim container registry to a fixed number of tags```
+---
+### bin/azure-purge -- trim container registry to a fixed number of tags
 
 Purge a names container repository to a fixed number of images. 
 
@@ -122,7 +127,8 @@ Purge a names container repository to a fixed number of images.
                    -k <number of tags to keep>
 ```
 
-```6. bin/azure-get-images -- print latest images:tags for repository```
+---
+### bin/azure-get-images -- print latest images:tags for repository
 
 Print the most recent set of ESP images in an Azure container registry. The ouput is in a format the can be cur/pasted into a terminal window to set the IMAGE_XXX env variables. 
 
@@ -134,7 +140,8 @@ Print the most recent set of ESP images in an Azure container registry. The oupu
          optional: -p <prefix for repository>
 ```
 
-```7. (FOR SAS ONLY) bin/get-images -- populate IMAGE_XXX env vars from release/snapshot repulpmaster repo```
+---
+### (FOR SAS ONLY) bin/get-images -- populate IMAGE_XXX env vars from release/snapshot repulpmaster repo
 
 This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpmaster** reposiory and populate the IMAGE_XXX environment with the latest docker images. 
  
