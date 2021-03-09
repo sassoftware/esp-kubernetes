@@ -1,36 +1,35 @@
-## Installation Notes for AWS -- Elastic Kubernetes Service (EKS)
+## Installation Notes for Amazon Elastic Kubernetes Service (Amazon EKS)
+This document describes the requirements to
+install a SAS Event Stream Processing eco-system in a simple Amazon Elastic Kubernetes Service (Amazon EKS) cluster.  It also provides a specific set of steps to create
+a simple Amazon EKS cluster.
 
-This document highlights the requirements to
-install a SAS Event Stream Processing eco-system in a simple AWS Kubernetes Service (EKS) cluster.  It provides a specific set of steps to create
-a simple EKS cluster.
-For more detailed information about creating an AKS cluster, please refer to the [EKS documentation](https://console.aws.amazon.com/eks/).
+For more detailed information about how to create an Amazon EKS cluster, please refer to the [documentation](https://console.aws.amazon.com/eks/).
 
-To use these notes, you _must_ have a working knowledge of AWS.
+**IMPORTANT** To use these notes, you _must_ have an extensive knowledge of Amazon EKS.
 
 ### Required Infrastructure
-* A Kubernetes service (EKS) 
-* A **NGINX** ingress controller
-* A public DNS for the EKS
-* A VPC (EKS will create this for you)
-* An AWS Elastic Container Registry to store SAS Event Stream Processing containers
+* A Kubernetes service (Amazon EKS) 
+* A **NGINX** Ingress controller
+* A public Domain Name System (DNS) for the Amazon EKS
+* An Amazon Virtual Private Cloud (VPC) (Amazon EKS creates this for you)
+* An Amazon Elastic Container Registry (ECR) to store SAS Event Stream Processing containers
+* The Amazon EKS command line tools (eksctl)
 
+To proceed, you must have Amazon EKS credentials, be able to
+log in to Amazon EKS through the [AWS Management Console](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-console.html), and know
+how to use the [Amazon EKS command line tools](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html). 
 
-### Installing SAS Event Stream Processing in an EKS Cluster
-To proceed, you must have AWS credentials, be able to
-log in to AWS through the AWS Management Center, and know
-how to use the AWS command line tools. The EKS command line tools
-are also required (eksctl).
-
-A set of AWS specifics scripts are inluded that can help create and
-manage EKS clusters with SAS Event Stream processing.
+### Installing SAS Event Stream Processing in an Amazon EKS Cluster
+The following set of scripts are inluded to help create and
+manage Amazon EKS clusters with SAS Event Stream Processing.
 
 ---
-### bin/aws-cluster -- build an EKS cluster from scratch
+#### bin/aws-cluster -- Build a New Amazon EKS Cluster
 
-This command will create a new EKS cluster. The cluster is created in
-the specified geographical location. An AWS Elastic File System (EFS)
-is created and associate with the cluster to provide a Read Write Many
-persistent volume that may be used for testing.
+This script creates a new Amazon EKS cluster. The cluster is created in
+the geographical location that you specify. An Amazon Elastic File System (Amazon EFS)
+is created and associated with the cluster in order to provide a Read Write Many
+persistent volume (PV) that you can use for testing.
 
 ```
     [bin]$ ./aws-cluster -?
@@ -42,7 +41,7 @@ persistent volume that may be used for testing.
          optional: -n <number of node, default: 5>
                    -s <vm size, default: m5.4xlarge>
 ```
-script will report when finished something like:
+When it completes, the script reports something like this:
 ```
 Completed build resource group: sckoloRG which contains:
          EKS cluster:   sckolo-cl
@@ -51,11 +50,13 @@ Completed build resource group: sckoloRG which contains:
 ```
 
 ---
-### bin/aws-network  -- configure external access to the EKS network
+#### bin/aws-network  -- Configure External Access to the Amazon EKS Network
 
-Modifies the security groups for the VPC associated with the EKS
-cluster to allow extern access through the ingress host. A CIDR style
-IP can be specified (149.173.0.0/16 for SAS internal access [Cary]).
+This script modifies the security groups for the Amazon Virtual Private Cloud (VPC) that is associated with the Amazon EKS
+cluster. This enables external access through the Ingress host. You can specify a Classless Inter-Domain Routing (CIDR) style
+IP.
+
+<!--(149.173.0.0/16 for SAS internal access [Cary]).-->
 
 ```
   [bin]$ ./aws-network -?
@@ -64,15 +65,18 @@ IP can be specified (149.173.0.0/16 for SAS internal access [Cary]).
        required: -m <allowed CIDR> -c <cluster name>
                  -g <geographical location>
 ```
-
+For example:
+```
+./aws-network -c sckolo-cl  -m x.x.x.x/x -g us-east-2
+```
 ---
-### bin/aws-tennant  -- onboard tennant (create ns, EFS access point)
+#### bin/aws-tenant  -- Onboard Tenant (Create Namespace and EFS Access Point)
 
-This script will onboard a tennant for ESP installation. What this translates to is:
+This script onboards a tenant to install SAS Event Stream Processing. Specifically, it does the following:
 
-- creates a namespace in EKS with the tennant name
-- create an access point in EFS for the tennant
-- create a PV on the access point to be used when deploying to the namespace.
+- Creates a namespace in Amazon EKS with the tenant name
+- Creates an access point in EFS for the tenant
+- Creates a PV on the access point to be used when deploying to the namespace
 
 ```
   [bin]$ ./aws-tennant -?
@@ -81,7 +85,7 @@ This script will onboard a tennant for ESP installation. What this translates to
       required: -c <cluster name> -t <tennant name>
                 -g <geographical location>
 ```
-script will report when finished something like:
+When it completes, the script reports something like this:
 ```
 Created kubernetes namespace, EFS access point, and
    RXW persitent volume
@@ -94,9 +98,9 @@ cluster namespace: sckolo
 ```
 
 ---
-### bin/aws-push -- add docker images to elastic container registry (creates script "aws-images")
+#### bin/aws-push -- Add Docker Images to Amazon ECR (Creates a Script Named "aws-images")
 
-This script will look for the following env variables:
+This script looks for the following environment variables:
 - IMAGE_ESPOAUTH2P
 - IMAGE_ESPESM
 - IMAGE_ESPSTRMVWR
@@ -106,7 +110,7 @@ This script will look for the following env variables:
 - IMAGE_METERBILL
 - IMAGE_ESPSRV
 
-each one should point to an accessable docker image. The images are pulled, retagged, and pushed to the AWS Elastic Container Registry. If the image contains **snapshot** or **release**, than **snapshot/** or **release/** is added to the repository name in ECR.
+Each environment variable needs to point to an accessible Docker image. The images are pulled, retagged, and pushed to the Amazon ECR. If the image contains **snapshot** or **release**, then **snapshot/** or **release/** is added to the repository name in the Amazon ECR.
 
 ```
    [bin]$ ./aws-push  -?
@@ -117,9 +121,9 @@ each one should point to an accessable docker image. The images are pulled, reta
 ```
 
 ---
-### bin/aws-get-images -- print latest images:tags for repository
+#### bin/aws-get-images -- Print Latest images:tags for Repository
 
-Print the most recent set of ESP images in an AWS container registry. The ouput is in a format the can be cur/pasted into a terminal window to set the IMAGE_XXX env variables. 
+This script prints the most recent set of SAS Event Stream Processing images in an Amazon EKS container registry. The output is in a format that can be cut and pasted into a terminal window in order to set the IMAGE_XXX environment variables. 
 
 ```
     [bin]$ ./aws-get-images  -?
@@ -130,9 +134,9 @@ Print the most recent set of ESP images in an AWS container registry. The ouput 
 ```
 
 ---
-### (FOR SAS ONLY) bin/get-images -- populate IMAGE_XXX env vars from release/snapshot repulpmaster repo
+#### (FOR SAS ONLY) bin/get-images -- Populate IMAGE_XXX Environment Variables from release/snapshot repulpmaster Repository
 
-This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpmaster** reposiory and populate the IMAGE_XXX environment with the latest docker images. 
+When sourced (that is, run as: . ./bin/get-images), this script goes to a **SAS repulpmaster** repository and populates the IMAGE_XXX environment with the latest Docker images. 
  
 ```
     [bin]$ . ./get-images -?
@@ -145,14 +149,14 @@ This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpm
 ```
 
 ---
-## Full creation of AWS EKS cluster, onboard tennant, and install os ESP
+### Full Creation of Amazon EKS Cluster, Onboard Tenant, and Install os ESP
 
 ```
 $ ./bin/aws -cluster -c sckolo-cl -g us-east-2  -f ~/aws-sckolo-cl-k8.conf
   .
   .
   .
-Completed build od EKS cluster:
+Completed build of EKS cluster:
          EKS cluster:   sckolo-cl
               domain:   ac55499e0028b4b4eae9026a8b8f9c48-781de1576c00671f.elb.us-east-2.amazonaws.com
     KUBE CONFIG file:   /mnt/data/home/sckolo/AWS.yaml
@@ -187,9 +191,9 @@ You must add an alias record to DNS that points
 cluster namespace: sckolo
 ```
 
-**At this point you need to enter an alias into a DNS server. You need to point \<tennant name\>.\<domain name\> --> ac55499e0028b4b4eae9026a8b8f9c48-781de1576c00671f.elb.us-east-2.amazonaws.com**
+**At this point you must enter an alias into a DNS server. You must point \<tenant name\>.\<domain name\> --> ac55499e0028b4b4eae9026a8b8f9c48-781de1576c00671f.elb.us-east-2.amazonaws.com**
 
-**The \<tennnant name\> is fairly arbitrary, the \<domain name\> is governed by your DNS server. The \<tennant name\> and \<domain name\> will be used later when deploying the ESP application to the EKS cluster.**
+**The \<tenant name\> is arbitrary, the \<domain name\> is governed by your DNS server. The \<tenant name\> and \<domain name\> are used later when deploying the SAS Event Stream Processing application to the Amazon EKS cluster.**
 
 ```
 $ . ./bin/get-images -S
@@ -207,7 +211,7 @@ $ ./bin/aws-get-images -g us-east-2 -p snapshot
 $ . ./bin/aws-images
 ```
 
-Now change to the github esp-kubernetes/esp-cloud project directory.
+Change to the GitHub esp-kubernetes/esp-cloud project directory.
 
 ```
 $ ./bin/mkdeploy -l ../../LICENSE/setin90.sas -n <tennant name> -d <domain name> -r -C -M -W
