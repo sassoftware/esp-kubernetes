@@ -82,7 +82,7 @@ spec:
         - name: SAS_ESP_COMMON_APP_AUTHZ_COOKIE
           value: "true"
         - name: SAS_ESP_COMMON_APP_AUTHZ_COOKIE_NAME
-          value: "_oauth2_proxy"
+          value: "user"
         #
         # Below is the postgres configuration
         #
