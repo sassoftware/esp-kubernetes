@@ -4,12 +4,12 @@
 
 ROOT=`dirname "$(readlink -f "$0")"`
 
-# Build a AWS cluster, Create a EFS for cluster use, add EFS access to
-#    EKS security group, add in nginx ingress 
+# Build a AWS cluster, [Create a EFS for cluster use, add EFS access to
+#    EKS security group] or [nfs-provisioner], add in nginx ingress
 #
 
-# To build a basic AWS K8 cluster, the following variables need 
-#    to be passed into the script via command line options. 
+# To build a basic AWS K8 cluster, the following variables need
+#    to be passed into the script via command line options.
 #
 #   1. AWS_CL -- the K8 cluster name
 #
@@ -31,7 +31,7 @@ ROOT=`dirname "$(readlink -f "$0")"`
 AWS_NODE_NUM=5
 AWS_NODE_SIZE=m5.4xlarge
 
-# m5.4xlarge	16 cores	64 GB ram
+# m5.4xlarge    16 cores        64 GB ram
 #
 # M5 instances are the latest generation of General Purpose Instances
 #    powered by Intel Xeon® Platinum 8175M processors. This family
@@ -41,7 +41,7 @@ AWS_NODE_SIZE=m5.4xlarge
 #    Advanced Vector Extension (AVX-512) instruction set
 #
 
-# usage 
+# usage
 #
 show_usage() {
     echo "Usage: $0"
@@ -60,7 +60,7 @@ show_usage() {
     echo "The KUBE CONFIG file used to access the cluster will be"
     echo "   written to <file to write kubeconfig to>."
     exit 1
-}   
+}
 
 while getopts "?c:r:g:t:f:n:s:z:" opt; do
     case "$opt" in
@@ -68,18 +68,18 @@ while getopts "?c:r:g:t:f:n:s:z:" opt; do
             show_usage
             return 1
             ;;
-	g)  AWS_LO=$OPTARG
-	    ;;
-	c)  AWS_CL=$OPTARG
-	    ;;
-	f)  KUBE_CRED_FILE=$OPTARG
-	    ;;
-	n)  AWS_NODE_NUM=$OPTARG
-	    ;;
-	s)  AWS_NODE_SIZE=$OPTARG
-	    ;;
-	z)  AWS_ZONES=$OPTARG
-	    ;;
+        g)  AWS_LO=$OPTARG
+            ;;
+        c)  AWS_CL=$OPTARG
+            ;;
+        f)  KUBE_CRED_FILE=$OPTARG
+            ;;
+        n)  AWS_NODE_NUM=$OPTARG
+            ;;
+        s)  AWS_NODE_SIZE=$OPTARG
+            ;;
+        z)  AWS_ZONES=$OPTARG
+            ;;
         *)
             echo "bad option <$opt>" && show_usage
     esac
@@ -135,44 +135,54 @@ while [ -z ${AWS_DM} ]; do
     AWS_DM=`kubectl -n ingress-nginx get svc/ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].hostname`
 done
 
+USE_EFS="no"
 
-# create the EFS file system, and get it ID.
-#
-aws efs create-file-system --tags Key=Name,Value=${AWS_CL}-efs
-AWS_FS=$(aws efs describe-file-systems --query "FileSystems[?Name == \`${AWS_CL}-efs\`].FileSystemId" | jq .[0])
-AWS_FS=$(eval echo ${AWS_FS})
+if [[ "$USE_EFS" == "yes" ]] ; then
 
-# now we get the security group to add to the mount points of the file system
-#
-AWS_VPC_ID=$(aws eks describe-cluster --name $AWS_CL --query "cluster.resourcesVpcConfig.vpcId" --output text)
-AWS_SNS=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$AWS_VPC_ID --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId' | jq .[])
-AWS_NG=$(eval echo $(eksctl get nodegroup --cluster ${AWS_CL} -o json | jq .[].Name))
-AWS_SG_NAME=eksctl-${AWS_CL}-nodegroup-${AWS_NG}
-AWS_SG=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values=${AWS_VPC_ID} Name=tag:aws:cloudformation:stack-name,Values=$AWS_SG_NAME --query "SecurityGroups[0].GroupId" --output text)
+    # create the EFS file system, and get it ID.
+    #
+    aws efs create-file-system --tags Key=Name,Value=${AWS_CL}-efs
+    AWS_FS=$(aws efs describe-file-systems --query "FileSystems[?Name == \`${AWS_CL}-efs\`].FileSystemId" | jq .[0])
+    AWS_FS=$(eval echo ${AWS_FS})
 
-for subnet in ${AWS_SNS} ; do
-    sn=$(eval echo ${subnet})
-    aws efs create-mount-target --file-system-id ${AWS_FS} \
-    --security-group  ${AWS_SG} --subnet-id ${sn}
-done
+    # now we get the security group to add to the mount points of the file system
+    #
+    AWS_VPC_ID=$(aws eks describe-cluster --name $AWS_CL --query "cluster.resourcesVpcConfig.vpcId" --output text)
+    AWS_SNS=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$AWS_VPC_ID --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId' | jq .[])
+    AWS_NG=$(eval echo $(eksctl get nodegroup --cluster ${AWS_CL} -o json | jq .[].Name))
+    AWS_SG_NAME=eksctl-${AWS_CL}-nodegroup-${AWS_NG}
+    AWS_SG=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values=${AWS_VPC_ID} Name=tag:aws:cloudformation:stack-name,Values=$AWS_SG_NAME --query "SecurityGroups[0].GroupId" --output text)
 
-# Deploy the EFS CSI provisioner
-#
-kubectl apply -k "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/dev/?ref=master"
+    for subnet in ${AWS_SNS} ; do
+        sn=$(eval echo ${subnet})
+        aws efs create-mount-target --file-system-id ${AWS_FS} \
+            --security-group  ${AWS_SG} --subnet-id ${sn}
+    done
 
-# deploy the storage class
-#
-kubectl apply -f - <<EOF
+    # Deploy the EFS CSI provisioner
+    #
+    kubectl apply -k "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/dev/?ref=master"
+
+    # deploy the storage class
+    #
+    kubectl apply -f - <<EOF
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
   name: efs-sc
 provisioner: efs.csi.aws.com
 EOF
+else
+    #
+    # add in NFS server for test PV. 
+    #
+    helm repo add stable https://charts.helm.sh/stable
+    helm install nfs-server stable/nfs-server-provisioner -f $ROOT/../share/nfs-config.yaml
+fi
 
 echo ""
 echo "Completed build od EKS cluster:"
-echo "         EKS cluster:   $AWS_CL" 
+echo "         EKS cluster:   $AWS_CL"
 echo "              domain:   $AWS_DM"
 echo "    KUBE CONFIG file:   $KUBE_CRED_FILE"
 echo ""
