@@ -80,7 +80,7 @@ if [ $? -eq 0 ]; then
     echo added icmp from $vpc_cidr
 fi
 
-# here we add an NFS rule so EFS can work between cluster nodes.
+# here we add an NFS rule to work between cluster nodes.
 #
 aws ec2 authorize-security-group-ingress --group-id ${sg_id} --protocol tcp --port 2049 --cidr ${vpc_cidr}
 

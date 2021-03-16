@@ -134,8 +134,6 @@ az aks create --resource-group $AZ_RG --name $AZ_CL \
               --node-count $AZ_NODE_NUM --node-vm-size $AZ_NODE_SIZE \
               --enable-addons monitoring --generate-ssh-keys \
 	      --enable-addons http_application_routing
-#	      --api-server-authorized-ip-ranges 149.173.0.0/16 \
-#	      --load-balancer-sku standard \
 [ 0 -ne $? ] && echo "could not AKS cluster" && exit 1
 az aks wait --created  --resource-group $AZ_RG --name $AZ_CL 
 
@@ -168,6 +166,12 @@ helm install nginx-ingress ingress-nginx/ingress-nginx \
 # get DNS created by http_application_routing
 #
 AZ_DM=$(az aks show --resource-group $AZ_RG --name $AZ_CL --query addonProfiles.httpApplicationRouting.config.HTTPApplicationRoutingZoneName -o tsv)
+
+#
+# add in NFS server for test PV. 
+#
+helm repo add stable https://charts.helm.sh/stable
+helm install nfs-server stable/nfs-server-provisioner -f $ROOT/../share/nfs-config.yaml
 
 echo ""
 echo "Completed build resource group: $AZ_RG which contains:"

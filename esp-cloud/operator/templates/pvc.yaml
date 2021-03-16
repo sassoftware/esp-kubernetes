@@ -8,9 +8,7 @@ metadata:
 #   annotations:
 #     volume.beta.kubernetes.io/storage-class: "nfs-client
 spec:
-   TEMPLATE_ESP_NFSstorageClassName: nfs-client 
-   TEMPLATE_ESP_AZUREstorageClassName: azurefile
-   TEMPLATE_ESP_AWSstorageClassName: efs-sc
+   storageClassName: nfs-client 
    accessModes:
      - ReadWriteMany # This volume is used for ESP projects input/output files
    resources:
