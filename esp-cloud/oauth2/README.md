@@ -8,19 +8,14 @@ A multi-user deployment deploys the following pods:
 * A Pivotal UAA server
 * The SAS OAuth2-proxy
 
-### Service and User Accounts
+### User Accounts
 
 In order to configure a multi-user deployment, you must have access to the Cloud Foundry `uaac` command line tool. This is automated using a docker image of this tool and the supplied script *uaatool*. **Note:** This script runs a pre-built docker image containing the **uaac** command line tool. In order to function properly, the docker image needs to be able to access the **UAA** server via the ```https://<namespace>.<domain>``` url. If the hostname ```<namespace>.<domain>``` is not publically resolvable via DNS, the following environment variable should be set to set the ```<namespace>.<domain>``` to ```ip-address``` binding in the docker image. 
 
 
 ```export DOCKER_ARGS="--add-host=<namespace>.<domain>:<ipv4-address>"```
 
-The following instructions create the connection to the uaa server, create an application service, and create a user.
-
-Create a service account (this only needs to be once for a deployment):
-```
-     $ ./bin/uaatool -u <namespace>.<domain> -C <uaa username>:<uaa password>  -c
-```
+The following instructions create the connection to the uaa server and create a user account.
 
 Create a user account:
 ```
@@ -37,9 +32,6 @@ The ```./bin/uaatool``` can also delete an existing user, and list all existing 
              -C <uaa username>:<uaa password>
  
         Commands:
- 
-        create the uaa application client 'sv_client'
-             -c
  
         list all users
              -l
