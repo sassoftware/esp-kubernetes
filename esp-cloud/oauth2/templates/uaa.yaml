@@ -144,7 +144,16 @@ data:
             secret: TEMPLATE_UAA_CREDENTIALS
             authorized-grant-types: client_credentials
             scope: none
-            authorities: uaa.admin,clients.admin,clients.read,clients.write,clients.secret             
+            authorities: uaa.admin,clients.admin,clients.read,clients.write,clients.secret
+          sv_client:
+            id: sv_client
+            secret: secret
+            scope: openid,profile,email
+            authorized-grant-types: refresh_token,password,client_credentials,authorization_code
+            redirect-uri: https://TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN/oauth2
+            autoapprove: true
+            authorities: uaa.resource
+            name: sv_client
       login:
         url: http://localhost:8080/uaa
         authorize:
