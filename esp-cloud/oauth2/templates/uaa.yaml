@@ -98,6 +98,12 @@ data:
     uaa.yml: |-
       logging:
         config: "/uaa/log4j2.properties"
+      password:
+        policy:
+          global:
+            minLength: 8
+            requireDigit: 1
+            requireUpperCaseCharacter: 1
       issuer:
         uri: http://localhost:8080/uaa
       encryption:
