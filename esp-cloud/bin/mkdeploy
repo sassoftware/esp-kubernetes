@@ -52,12 +52,13 @@ CLIENTS=no
 MULTI=no
 ESP_AZURE_COMMENT="#"
 ESP_AWS_COMMENT="#"
+ESP_GCP_COMMENT="#"
 ESP_NFS_COMMENT=""
 ESP_MULTI_COMMENT="#"
 ESP_OPEN_COMMENT=""
 
 SUBDIRS="operator"
-while getopts "?c:l:n:o:s:d:m:b:e:t:v:a:ryCMAW" opt; do
+while getopts "?c:l:n:o:s:d:m:b:e:t:v:a:ryCMAWG" opt; do
     case "$opt" in
         \?)
             show_usage
@@ -81,6 +82,9 @@ while getopts "?c:l:n:o:s:d:m:b:e:t:v:a:ryCMAW" opt; do
 	    ESP_NFS_COMMENT="#"
 	    ;;
 	W)  ESP_AWS_COMMENT=""
+	    ESP_NFS_COMMENT="#"
+	    ;;
+	G)  ESP_GCP_COMMENT=""
 	    ESP_NFS_COMMENT="#"
 	    ;;
         o)  ESP_OP=$OPTARG
@@ -238,6 +242,7 @@ EOF
     sed -i 's|TEMPLATE_ESP_MULTI|'$ESP_MULTI_COMMENT'|g' $i
     sed -i 's|TEMPLATE_ESP_AZURE|'$ESP_AZURE_COMMENT'|g' $i    
     sed -i 's|TEMPLATE_ESP_AWS|'$ESP_AWS_COMMENT'|g' $i    
+    sed -i 's|TEMPLATE_ESP_GCP|'$ESP_GCP_COMMENT'|g' $i    
     sed -i 's|TEMPLATE_ESP_NFS|'$ESP_NFS_COMMENT'|g' $i
     sed -i 's|TEMPLATE_UAA_IMAGE|'$ESP_UAA'|g' $i
     sed -i 's|TEMPLATE_UAA_ADMIN|'$uaaUsername'|g' $i

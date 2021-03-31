@@ -4,6 +4,11 @@
 
 ROOT=`dirname "$(readlink -f "$0")"`
 
+#
+# helm much be on your path!
+#
+which helm &>/dev/null      ; [ 0 -ne $? ] && echo "helm not found on path" && exit 1
+
 # Build a AWS cluster, [Create a EFS for cluster use, add EFS access to
 #    EKS security group] or [nfs-provisioner], add in nginx ingress
 #
