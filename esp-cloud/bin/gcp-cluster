@@ -1,0 +1,187 @@
+#!/bin/bash
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+ROOT=`dirname "$(readlink -f "$0")"`
+
+#
+# helm much be on your path!
+#
+which helm &>/dev/null      ; [ 0 -ne $? ] && echo "helm not found on path" && exit 1
+
+# Build a GCP cluster (GKE), installs nfs-provisioner, add an
+#    nginx ingress controller.
+#
+
+# To build a basic GKE K8 cluster, the following variables need
+#    to be passed into the script via command line options.
+#
+#   1. GCP_CL -- the K8 cluster name
+#
+#   2. GCP_RG -- geographical region of CLUSTER
+#
+#   3. GCP_PR -- the GCP project (subscription)
+#
+#   4. KUBE_CRED_FILE where we write the kubeconfig file
+#
+# These can be passed in, but have defaults.
+#
+#   5. GCP_NODE_NUM number of nodes
+#
+#   6. GCP_NODE_SIZE the type of VM to use.
+#
+
+# defaults
+#
+GCP_DISK_SIZE="192"
+GCP_NODE_NUM=5
+GCP_NODE_SIZE=e2-standard-16
+
+# e2-standard-16   16 cores        64 GB ram
+#
+# E2 machine types are cost-optimized machine types that offer sizing
+# between 2 to 32 vCPUs and 0.5 to 8 GB of memory per vCPU. E2 machine
+# types are available on the following predefined CPU platforms: Intel
+# Skylake, Broadwell, Haswell, and AMD EPYC Rome processors.
+#
+
+# usage
+#
+show_usage() {
+    echo "Usage: $0"
+    echo ""
+    echo "required: -c <cluster name>"
+    echo "          -p <gcp project>"
+    echo "          -g <geographical location>"
+    echo "          -d <domain for private DNS zone>"
+    echo "          -f <file to write kubeconfig to>"
+    echo ""
+    echo "optional: -n <number of node, default: 5>"
+    echo "          -s <vm size, default: e2-standard-16>"
+    echo ""
+    echo "This command creates a private DNS zone and a full GKE cluster"
+    echo "    named <cluster name>."
+    echo "The KUBE CONFIG file used to access the cluster will be"
+    echo "   written to <file to write kubeconfig to>."
+    exit 1
+}
+
+while getopts "?d:p:c:r:g:t:f:n:s:" opt; do
+    case "$opt" in
+        \?)
+            show_usage
+            return 1
+            ;;
+        g)  GCP_LO=$OPTARG
+            ;;
+        p)  GCP_PR=$OPTARG
+            ;;
+        c)  GCP_CL=$OPTARG
+            ;;
+        d)  GCP_DM=$OPTARG
+            ;;
+        f)  KUBE_CRED_FILE=$OPTARG
+            ;;
+        n)  GCP_NODE_NUM=$OPTARG
+            ;;
+        s)  GCP_NODE_SIZE=$OPTARG
+            ;;
+        *)
+            echo "bad option <$opt>" && show_usage
+    esac
+done
+
+[ -z $GCP_PR ]       && echo "GCP project (subscription) must be specified" && show_usage
+[ -z $GCP_CL ]       && echo "cluster name must be specified" && show_usage
+[ -z $GCP_LO ]       && echo "region GKE cluster resides in must be specified" && show_usage
+[ -z $GCP_DM ]       && echo "Domain name for private DNS must be specified" && show_usage
+[ -z $KUBE_CRED_FILE ]  && echo "file to write kubeconfig to must be specifed" && show_usage
+
+GCP_ZN="${GCP_LO}-b"
+
+gcloud organizations list &> /dev/null ; [ 0 -ne $? ] && echo "not logged in to GCP" && exit 1
+
+echo "We are going to build an GCP GKE K8 cluster with the following"
+echo "  parameters (all will be created, and should not already exist):"
+echo
+echo " GCP project:  $GCP_PR"
+echo ""
+echo "  cluster name:       $GCP_CL"
+echo "  cluster region:     $GCP_LO"
+echo "  cluster zone:       $GCP_ZN"
+echo "     # of nodes:  $GCP_NODE_NUM"
+echo "     node type:   $GCP_NODE_SIZE"
+echo "  K8 config file: $KUBE_CRED_FILE"
+echo
+read -p "Continue (yes/[no])? " ANS
+[ "$ANS" = "yes" ] || exit 1
+
+#
+# create a basic 5 node cluster
+#
+# get the K8 credentials for the new cluster into our kubeconfig
+#
+gcloud beta container --project ${GCP_PR} \
+       clusters create ${GCP_CL} --zone ${GCP_ZN} \
+       --no-enable-basic-auth \
+       --release-channel "regular" --machine-type ${GCP_NODE_SIZE} \
+       --image-type "COS" --disk-type "pd-standard" \
+       --disk-size ${GCP_DISK_SIZE} --metadata disable-legacy-endpoints=true \
+       --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
+       --num-nodes ${GCP_NODE_NUM} --enable-stackdriver-kubernetes \
+       --enable-ip-alias --network "projects/${GCP_PR}/global/networks/default" \
+       --subnetwork "projects/${GCP_PR}/regions/${GCP_LO}/subnetworks/default" \
+       --default-max-pods-per-node "110" --no-enable-master-authorized-networks \
+       --addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver \
+       --enable-autoupgrade --enable-autorepair --max-surge-upgrade 1 --max-unavailable-upgrade 0 \
+       --enable-shielded-nodes --node-locations ${GCP_ZN}
+
+export KUBECONFIG=${KUBE_CRED_FILE}
+mv ${KUBECONFIG} ${KUBECONFIG}.bu
+gcloud container clusters get-credentials ${GCP_CL} --zone ${GCP_ZN} --project ${GCP_PR}
+
+[ 0 -ne $? ] && echo "could not create GKE cluster" && exit 1
+
+#
+# create the namespace for nginx
+#
+kubectl create ns ingress-nginx
+kubectl -n ingress-nginx apply -f $ROOT/../share/nginx-cm.yaml
+kubectl -n ingress-nginx apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.44.0/deploy/static/provider/aws/deploy.yaml
+
+GCP_IP=$(kubectl -n ingress-nginx get svc/ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].ip)
+GCP_IP=$(eval echo $GCP_IP)
+while [ "null" == "$GCP_IP" ]; do
+    echo "sleeping 1 second" ; sleep 1
+    GCP_IP=$(kubectl -n ingress-nginx get svc/ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].ip)
+    GCP_IP=$(eval echo $GCP_IP)
+done
+
+echo "GCP_IP : <$GCP_IP>"
+
+#
+# add in NFS server for test PV. 
+#
+helm repo add stable https://charts.helm.sh/stable
+helm install nfs-server stable/nfs-server-provisioner -f $ROOT/../share/nfs-config.yaml
+
+#
+# Add private DNS for inside cluster 
+#
+gcloud beta dns --project=${GCP_PR} managed-zones create ${GCP_CL}-zone --description="" --dns-name="${GCP_DM}." --visibility="private" --networks="default"
+#
+# add zone to private DNS
+#
+#gcloud dns --project=solorgasub1 record-sets transaction start --zone=test
+#gcloud dns --project=solorgasub1 record-sets transaction add ${GCP_IP} --name=esp-gcp.unx.sas.com. --ttl=300 --type=A --zone=test
+#gcloud dns --project=solorgasub1 record-sets transaction execute --zone=test
+
+
+
+echo ""
+echo "Completed build od GKE cluster:"
+echo "         GKE cluster:   $GCP_CL"
+echo "              domain:   $GCP_DM"
+echo "     loadbalancer ip:   $GCP_IP"
+echo "    KUBE CONFIG file:   $KUBE_CRED_FILE"
+echo ""

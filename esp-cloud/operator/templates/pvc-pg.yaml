@@ -9,6 +9,7 @@ spec:
    TEMPLATE_ESP_NFSstorageClassName: nfs-client 
    TEMPLATE_ESP_AZUREstorageClassName: default
    TEMPLATE_ESP_AWSstorageClassName: gp2
+   TEMPLATE_ESP_GCPstorageClassName: standard
    accessModes:
      - ReadWriteOnce # This volume is used for Postgres storage
    resources:
