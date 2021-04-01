@@ -1,0 +1,84 @@
+#!/bin/bash
+#  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+
+ROOT=`dirname $0`
+ROOT=`readlink -f $ROOT`
+
+# usage 
+#
+show_usage() {
+    echo "Usage: $0"
+    echo ""
+    echo "required: -p <GCP project>"
+    exit 1
+}   
+
+while getopts "?p:" opt; do
+    case "$opt" in
+        \?)
+            show_usage
+            return 1
+            ;;
+	p)  GCP_PR=$OPTARG
+	    ;;
+        *)
+            echo "bad option <$opt>" && show_usage
+    esac
+done
+
+[ -z $GCP_PR ] && echo "GCP project must be specified" && show_usage
+
+gcloud organizations list &> /dev/null ; [ 0 -ne $? ] && echo "not logged in to GCP" && exit 1
+
+GCP_CRLS=gcr.io/${GCP_PR}
+gcloud services enable containerregistry.googleapis.com
+gcloud auth configure-docker
+
+which docker &>/dev/null ; [ 0 -ne $? ] && echo "docker not found on path" && exit 1
+
+rm -f $ROOT/gcp-images
+
+for i in `env| fgrep IMAGE_ | fgrep repulp`; do
+
+    ENVV=`echo $i | cut -d = -f 1`
+    IMAGE=`echo $i | cut -d = -f 2`
+
+    REPO=`echo $IMAGE | cut -d : -f 1`
+    TAG=`echo $IMAGE | cut -d : -f 2`
+
+    GCP_REPO=`basename $REPO`
+
+    echo $i | fgrep release &> /dev/null
+    if [[ 0 -eq $? ]]; then BUILD_LEVEL="release/"; fi 
+    echo $i | fgrep snapshot &> /dev/null
+    if [[ 0 -eq $? ]]; then BUILD_LEVEL="snapshot/"; fi 
+    echo
+    echo "GCP_REPO = <$GCP_REPO>"
+    echo "      REPO = <$REPO>"
+    echo "      TAG  = <$TAG>"
+
+    echo "Working on $IMAGE"
+    echo "   docker pull"
+    docker pull $IMAGE &> /dev/null
+    [ 0 -ne $? ] && echo "failed" && exit 0 
+
+    echo "   docker tag"
+    docker tag $IMAGE $GCP_CRLS/${BUILD_LEVEL}$GCP_REPO:$TAG    
+    [ 0 -ne $? ] && echo "failed" && exit 0
+    echo "   docker push"
+    docker push $GCP_CRLS/${BUILD_LEVEL}$GCP_REPO:$TAG
+    [ 0 -ne $? ] && echo "failed" && exit 0
+    echo "   docker remove"
+    docker image rm $IMAGE &> /dev/null
+    [ 0 -ne $? ] && echo "failed" && exit 0
+    docker image rm $GCP_CRLS/${BUILD_LEVEL}$GCP_REPO:$TAG
+    [ 0 -ne $? ] && echo "failed" && exit 0
+    echo "All done"
+
+    echo "export $ENVV=$GCP_CRLS/${BUILD_LEVEL}$GCP_REPO:$TAG" >> $ROOT/gcp-images
+done
+
+echo "export IMAGE_UAA=ghcr.io/skolodzieski/uaa:74.29.0" >> $ROOT/gcp-images
+
+. $ROOT/gcp-images
