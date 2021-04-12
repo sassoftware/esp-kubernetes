@@ -12,11 +12,14 @@ show_usage() {
     echo ""
     echo "required: -p <GCP project> -t <tennant name>"
     echo "          -c <GKE cluster name>"
+    echo "optional: -d [delete tennant]"
     echo ""
     exit 1
 }
 
-while getopts "?c:t:p:" opt; do
+OFFBOARD=0
+
+while getopts "?c:t:p:d" opt; do
     case "$opt" in
         \?)
             show_usage
@@ -28,6 +31,8 @@ while getopts "?c:t:p:" opt; do
             ;;
         p)  GCP_PR=$OPTARG
             ;;
+	d)  OFFBOARD=1
+	    ;;
         *)
             echo "bad option <$opt>" && show_usage
     esac
@@ -40,9 +45,13 @@ done
 gcloud organizations list &> /dev/null ; [ 0 -ne $? ] && echo "not logged in to GCP" && exit 1
 
 
-echo "creating K8 namespace"
 kubectl get ns/$GCP_NS &> /dev/null
-[ 0 -ne $? ] && kubectl create ns $GCP_NS
+if [ 0 -eq $? ] ; then
+    [ 1 -eq $OFFBOARD ] && echo "deleting K8 namespace" && kubectl delete ns $GCP_NS
+else
+    [ 0 -eq $OFFBOARD ] && echo "creating K8 namespace" && kubectl create ns $GCP_NS
+fi
+    
 
 GCP_IP=$(kubectl -n ingress-nginx get svc/ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].ip)
 GCP_IP=$(eval echo $GCP_IP)
@@ -55,19 +64,27 @@ done
 GCP_DM=$(gcloud dns managed-zones describe ${GCP_CL}-zone | fgrep dnsName: | cut -f 2 -d ' ')
 GCP_DM=${GCP_DM%%.}
 
-# add zone to private DNS
 #
 gcloud dns --project=${GCP_PR} record-sets transaction start --zone=${GCP_CL}-zone
-gcloud dns --project=${GCP_PR} record-sets transaction add ${GCP_IP} --name=${GCP_NS}.${GCP_DM}. --ttl=300 --type=A --zone=${GCP_CL}-zone
+[ 0 -eq $OFFBOARD ] && gcloud dns --project=${GCP_PR} record-sets transaction add ${GCP_IP} --name=${GCP_NS}.${GCP_DM}. --ttl=300 --type=A --zone=${GCP_CL}-zone
+[ 1 -eq $OFFBOARD ] && gcloud dns --project=${GCP_PR} record-sets transaction remove ${GCP_IP} --name=${GCP_NS}.${GCP_DM}. --ttl=300 --type=A --zone=${GCP_CL}-zone
 gcloud dns --project=${GCP_PR} record-sets transaction execute --zone=${GCP_CL}-zone
+[ 0 -ne $? ] && gcloud dns record-sets transaction abort --project=${GCP_PR} --zone=${GCP_CL}-zone
 
-echo ""
-echo ""
-echo "Created kubernetes namespace, private DNS record"
-echo ""
-echo "You must add an alias record to DNS that points"
-echo ""
-echo "   ${GCP_NS}.${GCP_DM}  --> ${GCP_IP}"
-echo ""
-echo "cluster namespace: $GCP_NS"
-echo ""
+if [ 0 -eq $OFFBOARD ] ; then
+    echo ""
+    echo ""
+    echo "Created kubernetes namespace, private DNS record"
+    echo ""
+    echo "You must add an alias record to DNS that points"
+    echo ""
+    echo "   ${GCP_NS}.${GCP_DM}  --> ${GCP_IP}"
+    echo ""
+    echo "cluster namespace: $GCP_NS"
+    echo ""
+else
+    echo ""
+    echo ""
+    echo "Removed kubernetes namespace ($GCP_NS) and  private DNS record"
+    echo ""
+fi
