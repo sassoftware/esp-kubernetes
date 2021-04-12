@@ -132,7 +132,7 @@ When sourced (that is, run as: . ./bin/get-images), this script goes to a **SAS 
 ```
 
 ---
-### Full Creation of Google GKE Cluster, Onboard Tenant, and Install os ESP
+### Full Creation of Google GKE Cluster, Onboard Tenant, and Install of ESP
 
 ```
 $ ./bin/gcp-tennant -c sckolo-cl -p solorgasub1 -t sckolo
