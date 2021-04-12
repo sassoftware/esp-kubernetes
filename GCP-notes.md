@@ -135,75 +135,47 @@ When sourced (that is, run as: . ./bin/get-images), this script goes to a **SAS 
 ### Full Creation of Google GKE Cluster, Onboard Tenant, and Install os ESP
 
 ```
-$ ./bin/aws -cluster -c sckolo-cl -g us-east-2  -f ~/aws-sckolo-cl-k8.conf
-  .
-  .
-  .
-Completed build of EKS cluster:
-         EKS cluster:   sckolo-cl
-              domain:   ac55499e0028b4b4eae9026a8b8f9c48-781de1576c00671f.elb.us-east-2.amazonaws.com
-    KUBE CONFIG file:   /mnt/data/home/sckolo/AWS.yaml
-```
-
-```
-$ export KUBECONFIG=~/aws-sckolo-cl-k8.conf
-```
-
-```
-$ ./bin/aws-network -c sckolo-cl  -m 149.173.0.0/16 -g us-east-2
-nodegroup name is ng-188f74b1
-securitygroup tag name is eksctl-sckolo-cl-nodegroup-ng-188f74b1
-securitygroup ID is sg-0102d2ea94dea287d  .
-  .
-  .
-  .
-```
-
-```
-./bin/aws-tennant  -c sckolo-cl -t sckolo -g us-east-2
-  .
-  .
-  .
-Created kubernetes namespace, EFS access point, and
-   RXW persitent volume
+$ ./bin/gcp-tennant -c sckolo-cl -p solorgasub1 -t sckolo
+creating K8 namespace
+namespace/sckolo created
+   .
+   .
+   .
+Created kubernetes namespace, private DNS record
 
 You must add an alias record to DNS that points
 
-   sckolo.<your domain>  --> "ab627578fd4c14b59bb6f3b3097e740a-c27d8bc8a19ea39a.elb.us-east-2.amazonaws.com"
+   sckolo.gcp.unx.sas.com  --> 35.193.42.103
 
 cluster namespace: sckolo
 ```
-
-**At this point you must enter an alias into a DNS server. You must point \<tenant name\>.\<domain name\> --> ac55499e0028b4b4eae9026a8b8f9c48-781de1576c00671f.elb.us-east-2.amazonaws.com**
-
-**The \<tenant name\> is arbitrary, the \<domain name\> is governed by your DNS server. The \<tenant name\> and \<domain name\> are used later when deploying the SAS Event Stream Processing application to the Google GKE cluster.**
-
+**At this point you must enter an alias into a DNS server. You must point \<tenant name\>.\<domain name\> --> 35.193.42.103**
 ```
 $ . ./bin/get-images -S
-$ ./bin/aws-push -g us-east-2
+$ ./bin/gcp-push -p solorgasub1
   .
   .
   .
  This should push a full set of required docker images into your
- container repository. It will create ./bin/azure images with the
+ container repository. It will create ./bin/gcp-images with the
  list of images in exportable format.
 
 Use this command to set al the env variable images in your shell:
 
-$ ./bin/aws-get-images -g us-east-2 -p snapshot
-$ . ./bin/aws-images
+$ ./gcp-get-images -P snapshot -p solorgasub1
+$ . ./bin/gcp-images
 ```
 
 Change to the GitHub esp-kubernetes/esp-cloud project directory.
 
 ```
-$ ./bin/mkdeploy -l ../../LICENSE/setin90.sas -n <tennant name> -d <domain name> -r -C -M -W
+$ ./bin/mkdeploy -l ../../LICENSE/setin90.sas -n <tennant name> -d <domain name> -r -C -M -G
   .
   .
   .
-[esp-cloud]$ ./bin/dodeploy -n esp
+$ ./bin/dodeploy -n esp
 
-[esp-cloud]$ kubectl -n esp get pods
+$ kubectl -n esp get pods
 NAME                                                              READY   STATUS    RESTARTS   AGE
 espfb-deployment-57c5c4674f-d5x9v                                 1/1     Running   0          2m6s
 oauth2-proxy-54d4bff8d9-n9nmq                                     1/1     Running   0          2m1s
@@ -217,11 +189,7 @@ sas-event-stream-processing-studio-app-755c974645-vp8h7           1/1     Runnin
 uaa-deployment-94ddb9b48-k9vgp
 ```
 
-Add the client account:
-```
-    [esp-cloud]$ ./bin/uaatool -u esp.41533d7e0a234fdd8d99.eastus.aksapp.io -C uaaUSER:uaaPASS -c
-```
 Add a user account:
 ```
-    [esp-cloud]$ ./bin/uaatool -u esp.41533d7e0a234fdd8d99.eastus.aksapp.io -C uaaUSER:uaaPASS -a scott:Scott.Kolodzieski@sas.com:scottpw
+    $ ./bin/uaatool -u sckolo.gcp.unx.sas.com -C uaaUSER:uaaPASS -a sk:scott.kolodzieski@sas.com:sckoloPW1
 ```
