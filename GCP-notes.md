@@ -1,32 +1,32 @@
-## Installation Notes for GCP Kubernetes Service (Google GKE)
+## Installation Notes for Google Kubernetes Engine (GKE)
 This document describes the requirements to
-install a SAS Event Stream Processing eco-system in a simple Google Kubernetes Service (Amazon EKS) cluster.  It also provides a specific set of steps to create
-a simple Google GKE cluster.
+install a SAS Event Stream Processing eco-system in a simple Google Kubernetes Engine (GKE) cluster.  It also provides a specific set of steps to create
+a simple GKE cluster.
 
-For more detailed information about how to create an Google GKE cluster, please refer to the [documentation](https://cloud.google.com/kubernetes-engine/docs).
+For more detailed information about how to create an GKE cluster, please refer to the [documentation](https://cloud.google.com/kubernetes-engine/docs).
 
-**IMPORTANT** To use these notes, you _must_ have an extensive knowledge of Google GKE.
+**IMPORTANT** To use these notes, you _must_ have an extensive knowledge of Google Kubernetes Engine (GKE).
 
 ### Required Infrastructure
-* A Kubernetes service (Google GKE) 
+* A Kubernetes service (GKE) 
 * A **NGINX** Ingress controller
 * A private Domain Name System (DNS) for the Google GKE
-* An GOOGLE Virtual Private Cloud (VPC)
-* An Goggle Container Registry (GCR) to store SAS Event Stream Processing containers
-* The Google  command line tools (gcloud)
+* A Google Virtual Private Cloud (VPC)
+* An Google Container Registry (GCR) to store SAS Event Stream Processing containers
+* The Google command line tools (gcloud)
 
-To proceed, you must have GCP auth  credentials, be able to
-log in to Google Cloud Platform through the [GCP Management Console](https://cloud.google.com/docs/?hl=en_US), and know
-how to use the [Google command line tools](https://cloud.google.com/sdk#section-3). 
+To proceed, you must have gcp auth method credentials, be able to
+log in to Google Cloud Platform (GCP) through the [GCP Management Console](https://cloud.google.com/docs/?hl=en_US), and know
+how to use [Google command line tools](https://cloud.google.com/sdk#section-3). 
 
-### Installing SAS Event Stream Processing in a Google GKE Cluster
+### Installing SAS Event Stream Processing in a Google Kubernetes Engine (GKE) Cluster
 The following set of scripts are inluded to help create and
-manage Google GKE clusters with SAS Event Stream Processing.
+manage GKE clusters with SAS Event Stream Processing.
 
 ---
-#### bin/gcp-cluster -- Build a New Google GKE Cluster
+#### bin/gcp-cluster -- Build a New GKE Cluster
 
-This script creates a new Google GKE cluster. The cluster is created in
+This script creates a new GKE cluster. The cluster is created in
 the geographical location that you specify. An default NFS provider 
 is created and associated with the cluster in order to provide a Read Write Many
 persistent volume (PV) that you can use for testing.
@@ -57,7 +57,7 @@ Completed build of GKE cluster:""
 
 This script onboards a tenant to install SAS Event Stream Processing. Specifically, it does the following:
 
-- Creates a namespace in Google GKE with the tenant name
+- Creates a namespace in GKE with the tenant name
 - Creates a record of the form <namespace>.<domain> in the private DNS
 
 ```
@@ -81,7 +81,7 @@ cluster namespace: <namespace>
 ```
 
 ---
-#### bin/gcp-push -- Add Docker Images to Google GCR (Creates a Script Named "gcp-images")
+#### bin/gcp-push -- Add Docker Images to Google Container Registry (GCR) (Creates a Script Named "gcp-images")
 
 This script looks for the following environment variables:
 - IMAGE_ESPOAUTH2P
@@ -93,7 +93,7 @@ This script looks for the following environment variables:
 - IMAGE_METERBILL
 - IMAGE_ESPSRV
 
-Each environment variable needs to point to an accessible Docker image. The images are pulled, retagged, and pushed to the Amazon ECR. If the image contains **snapshot** or **release**, then **snapshot/** or **release/** is added to the repository name in the Google GCR.
+Each environment variable needs to point to an accessible Docker image. The images are pulled, retagged, and pushed to the GCR. If the image contains **snapshot** or **release**, then **snapshot/** or **release/** is added to the repository name in the GCR.
 
 ```
    [bin]$ ./gcp-push  -?
@@ -106,7 +106,7 @@ Each environment variable needs to point to an accessible Docker image. The imag
 ---
 #### bin/gcp-get-images -- Print Latest images:tags for Repository
 
-This script prints the most recent set of SAS Event Stream Processing images in an Google GKE container registry. The output is in a format that can be cut and pasted into a terminal window in order to set the IMAGE_XXX environment variables. 
+This script prints the most recent set of SAS Event Stream Processing images in a GCR. The output is in a format that can be cut and pasted into a terminal window in order to set the IMAGE_XXX environment variables. 
 
 ```
     [bin]$ ./aws-get-images  -?
@@ -132,7 +132,7 @@ When sourced (that is, run as: . ./bin/get-images), this script goes to a **SAS 
 ```
 
 ---
-### Full Creation of Google GKE Cluster, Onboard Tenant, and Install of ESP
+### Full Creation of GKE Cluster, Onboard Tenant, and Install of ESP
 
 ```
 $ ./bin/gcp-tennant -c sckolo-cl -p solorgasub1 -t sckolo
@@ -149,7 +149,7 @@ You must add an alias record to DNS that points
 
 cluster namespace: sckolo
 ```
-**At this point you must enter an alias into a DNS server. You must point \<tenant name\>.\<domain name\> --> 35.193.42.103**
+**At this point you must enter an alias into a DNS server. You must point \<tenant name\>.\<domain name\> to 35.193.42.103**
 ```
 $ . ./bin/get-images -S
 $ ./bin/gcp-push -p solorgasub1
