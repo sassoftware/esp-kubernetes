@@ -5,7 +5,7 @@ a simple Amazon EKS cluster.
 
 For more detailed information about how to create an Amazon EKS cluster, please refer to the [documentation](https://console.aws.amazon.com/eks/).
 
-**IMPORTANT** To use these notes, you _must_ have an extensive knowledge of Amazon EKS.
+**IMPORTANT** To use these notes, you _must_ have experience with Amazon EKS.
 
 ### Required Infrastructure
 * A Kubernetes service (Amazon EKS) 

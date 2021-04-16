@@ -5,7 +5,7 @@ install a SAS Event Stream Processing eco-system in a simple Azure Kubernetes Se
 a simple AKS cluster.
 For more detailed information about creating an AKS cluster, please refer to the [AKS documentation](https://docs.microsoft.com/en-us/azure/aks/).
 
-To use these notes, you _must_ have a working knowledge of Azure.
+To use these notes, you _must_ have experience with Azure.
 
 ### Required Infrastructure
 * A Kubernetes service (AKS) 

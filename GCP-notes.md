@@ -5,7 +5,7 @@ a simple GKE cluster.
 
 For more detailed information about how to create an GKE cluster, please refer to the [documentation](https://cloud.google.com/kubernetes-engine/docs).
 
-**IMPORTANT** To use these notes, you _must_ have an extensive knowledge of Google Kubernetes Engine (GKE).
+**IMPORTANT** To use these notes, you _must_ have experience with Google Kubernetes Engine (GKE).
 
 ### Required Infrastructure
 * A Kubernetes service (GKE) 
