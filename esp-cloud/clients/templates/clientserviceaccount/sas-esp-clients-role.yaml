@@ -27,6 +27,14 @@ rules:
   - get
 
 - apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  
+- apiGroups:
   - iot.sas.com
   resources:
   - espservers
