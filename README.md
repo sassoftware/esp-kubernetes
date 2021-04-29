@@ -11,6 +11,9 @@ If you are installing this package on Azure Kubernetes Service (AKS), then read 
 ## AWS Notes
 If you are installing this package on AWS - Elastic Kubernetes Service (EKS), then read the [AWS Notes](AWS-notes.md) before deploying SAS Event Stream Processing.
 
+## GCP Notes
+If you are installing this page on Google Kubernetes Engine (GKE), the read the [GCP Notes](GCP-notes.md) before deploying SAS Event Stream Processing.
+
 ## Introduction
 This project is a repository of scripts, YAML template files, and sample projects (XML files) that enable you to develop, deploy, and test an ESP server and SAS Event Stream Processing web-based clients in a Kubernetes cluster.  The resulting SAS Event Stream Processing cloud ecosystem runs independently of SAS Viya.
 
