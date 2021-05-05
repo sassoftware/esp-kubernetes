@@ -33,7 +33,7 @@ show_usage() {
     echo "          -M                          -- enable multiuser mode"
     echo "          -A                          -- decorate for AZURE"
     echo "          -W                          -- decorate deployment for AWS"
-    echo "   "      -G                          -- decorate deployment for Google Cloud"
+    echo "          -G                          -- decorate deployment for Google Cloud"
     echo ""
 
     exit 1
