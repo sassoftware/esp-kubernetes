@@ -213,4 +213,43 @@ spec:
                 limits:
                   memory: "2Gi"
                   cpu: "2"
-
+  routerTemplate:
+    deployment:
+      metadata:
+        name: ((ROUTER_NAME))
+        namespace: ((ROUTER_NAMESPACE))
+        labels:
+          app: ((ROUTER_NAME)) 
+          type: router 
+      spec:  
+        replicas: 1
+        selector:
+          matchLabels:
+            app: ((ROUTER_NAME)) 
+        template: # required
+          metadata:
+            annotations:
+            labels:
+              app: ((ROUTER_NAME)) 
+          spec: # required
+            containers:
+            - name: ((ROUTER_NAME))
+              image: TEMPLATE_ESP_SERVER_IMAGE
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 1001
+                runAsUser: 1001
+                runAsNonRoot: true                
+              env:
+              - name: ESP_LICENSE
+                value: "b64TEMPLATE_ESP_LICB64GZ"
+              resources:
+                requests:
+                  memory: "2Gi"
+                  cpu: "2"
+                limits:
+                  memory: "2Gi"
+                  cpu: "2"
+                  
