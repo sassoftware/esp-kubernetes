@@ -127,6 +127,9 @@ spec:
               env:
               - name: ESP_LICENSE
                 value: "b64TEMPLATE_ESP_LICB64GZ"
+              volumeMounts:
+              - name: tmpdir
+                mountPath: /tmp
               resources:
                 requests:
                   memory: "1Gi"
@@ -145,6 +148,9 @@ spec:
                   path: /internal/ready
                   port: 31415
                   scheme: HTTP
+            volumes:
+              - name: tmpdir
+                emptyDir: {}
   loadBalancerTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
     deployment:
       metadata:
