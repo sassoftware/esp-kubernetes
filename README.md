@@ -390,7 +390,7 @@ C  sas-event-stream-processing-studio-app-bf4f675f4-sfpjk            1/1     Run
 M  uaa-deployment-85d9fbf6bd-s8fwl                                   1/1     Running   0          25h
 ```
 
-The ESP operator, SAS Event Stream Processing Studio, SAS Event Stream Processing Streamviewer, PostgreSQL, oauth2_proxy, and Pivotal UAA are started by the YAML files that are supplied. After SAS Event Stream Processing Studio initializes, it creates a custom resource that causes the ESP operator to start a “client-config-server”, which is a small ESP server that runs a dummy project. SAS Event Stream Processing Studio uses that ESP server to obtain a list of available connectors, algorithms, and other metadata that it requires. 
+The ESP operator, SAS Event Stream Processing Studio, SAS Event Stream Processing Streamviewer, PostgreSQL, oauth2_proxy, and Pivotal UAA are started by the YAML files that are supplied. After SAS Event Stream Processing Studio initializes, it creates a custom resource that causes the ESP operator to start a client-configuration server, named `sas-event-stream-processing-client-config-server`. The client-configuration server is a small ESP server that runs a dummy project. For more information, see [Understanding and Managing the Client-Configuration Server](https://documentation.sas.com/?cdcId=espcdc&cdcVersion=default&docsetId=espex&docsetTarget=n154fz2uzumjwrn111xqzu36wy93.htm) in SAS Event Stream Processing Help Center.
 
 An Ingress for each component should also appear in the namespace. For example:
 
@@ -407,7 +407,7 @@ C  sas-event-stream-processing-studio-app             xxxxxx.sas.com            
 M  uaa                                                xxxxxx.sas.com             80, 443   25h
 ```
 
-**Note:** The client-config-server shows up last. The remaining pods show up as “running” almost instantaneously.  
+**Note:** The client-configuration server shows up last. The remaining pods show up as “running” almost instantaneously.  
 
 ## Accessing Projects and Servers 
 
