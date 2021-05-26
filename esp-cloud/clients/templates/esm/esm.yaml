@@ -79,10 +79,16 @@ spec:
           value: "true"
         - name: SAS_ESP_COMMON_KUBERNETES_NAMESPACE
           value: TEMPLATE_ESP_NAMESPACE
-        - name: SAS_ESP_COMMON_APP_AUTHZ_COOKIE
+        - name: SAS_ESP_COMMON_APP_AUTHZ_COOKIE_ENCRYPTED_ENABLED
           value: "true"
         - name: SAS_ESP_COMMON_APP_AUTHZ_COOKIE_NAME
-          value: "_oauth2_proxy"
+          value: "user"
+        - name: SAS_ESP_COMMON_USER-AUTH-FIELD_ID
+          value: "Name"
+        - name: SAS_ESP_COMMON_USER-AUTH-FIELD_NAME
+          value: "Email"
+        - name: SAS_ESP_COMMON_APP_AUTHZ_COOKIE_ENCRYPTED_KEY_SECRET
+          value: "sas-esp-oauth2-proxy"
         #
         # Below is the postgres configuration
         #
