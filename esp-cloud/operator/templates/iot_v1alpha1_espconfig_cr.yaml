@@ -127,6 +127,10 @@ spec:
               env:
               - name: ESP_LICENSE
                 value: "b64TEMPLATE_ESP_LICB64GZ"
+              - name: MAS_PYPATH
+                value: "/opt/rh/rh-python38/root/usr/bin/python3"
+              - name: MAS_M2PATH
+                value: "/opt/sas/viya/home/SASFoundation/misc/embscoreeng/mas2py.py"
               volumeMounts:
               - name: tmpdir
                 mountPath: /tmp
