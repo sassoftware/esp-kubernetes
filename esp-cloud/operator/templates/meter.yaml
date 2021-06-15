@@ -12,7 +12,7 @@ spec:
       targetPort: 8080
   type: ClusterIP
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: sas-event-stream-processing-metering-app
@@ -28,10 +28,13 @@ spec:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:
       paths:
-      - backend:
-          serviceName: sas-event-stream-processing-metering-app # the service to hit
-          servicePort: 80            # externally exposed port
-        path: /SASEventStreamProcessingMetering(/|$)(.*)
+        - path: /SASEventStreamProcessingMetering(/|$)(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: sas-event-stream-processing-metering-app # the service to hit
+              port:
+                number: 80            # externally exposed port
   tls:
   - hosts:
     - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN

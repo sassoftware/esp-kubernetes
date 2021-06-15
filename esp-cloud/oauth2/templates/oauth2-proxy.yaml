@@ -90,7 +90,7 @@ spec:
     k8s-app: oauth2-proxy
 
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
@@ -102,10 +102,13 @@ spec:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:
       paths:
-      - backend:
-          serviceName: oauth2-proxy
-          servicePort: 4180
-        path: /oauth2
+        - path: /oauth2
+          pathType: Prefix
+          backend:
+            service:
+              name: oauth2-proxy
+              port:
+                number: 4180
   tls:
   - hosts:
     - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN

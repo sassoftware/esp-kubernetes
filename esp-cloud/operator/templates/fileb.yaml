@@ -11,7 +11,7 @@ spec:
       port: 80                  # the port within the K8 cluster
   type: ClusterIP
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: espfb
@@ -27,13 +27,16 @@ spec:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:
       paths:
-      - backend:
-          serviceName: espfb-service # the service to hit
-          servicePort: 80            # externally exposed port
-        path: /files(/|$)(.*)          
+        - path: /files(/|$)(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: espfb-service # the service to hit
+              port:
+                number: 80            # externally exposed port
   tls:
   - hosts:
-    - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+    - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN      
     secretName: foo
 ---
 apiVersion: apps/v1 

@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: esp-clients-logout
@@ -11,24 +11,33 @@ spec:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:
       paths:
-      - backend:
-          serviceName: oauth2-proxy
-          servicePort: 4180
-        path: /SASEventStreamProcessingStudio/logout(/|$)(.*)
+        - path: /SASEventStreamProcessingStudio/logout(/|$)(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: oauth2-proxy
+              port:
+                number: 4180
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:
       paths:
-      - backend:
-          serviceName: oauth2-proxy
-          servicePort: 4180
-        path: /SASEventStreamManager/logout(/|$)(.*)
+        - path: /SASEventStreamManager/logout(/|$)(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: oauth2-proxy
+              port:
+                number: 4180
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:
       paths:
-      - backend:
-          serviceName: oauth2-proxy
-          servicePort: 4180
-        path: /SASEventStreamProcessingStreamviewer/logout(/|$)(.*)
+        - path: /SASEventStreamProcessingStreamviewer/logout(/|$)(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: oauth2-proxy
+              port:
+                number: 4180
   tls:
   - hosts:
     - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN

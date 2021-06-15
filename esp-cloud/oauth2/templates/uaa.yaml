@@ -257,7 +257,7 @@ data:
       appender.console.layout.pattern = [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
       #appender.file.type = File
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: uaa
@@ -269,10 +269,13 @@ spec:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:
       paths:
-      -  backend:
-          serviceName: uaa-service # the service to hit
-          servicePort: 80            # externally exposed port
-         path: /uaa
+        - path: /uaa
+          pathType: Prefix
+          backend:
+            service:
+              name: uaa-service # the service to hit
+              port:
+                number: 80            # externally exposed port
   tls:
   - hosts:
     - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
