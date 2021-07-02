@@ -128,9 +128,11 @@ spec:
               - name: ESP_LICENSE
                 value: "b64TEMPLATE_ESP_LICB64GZ"
               - name: MAS_PYPATH
-                value: "/opt/rh/rh-python38/root/usr/bin/python3"
+                value: "/usr/bin/python3"
               - name: MAS_M2PATH
                 value: "/opt/sas/viya/home/SASFoundation/misc/embscoreeng/mas2py.py"
+              - name: NVIDIA_DRIVER_CAPABILITIES
+                value: all
               volumeMounts:
               - name: tmpdir
                 mountPath: /tmp
