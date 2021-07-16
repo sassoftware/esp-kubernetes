@@ -133,11 +133,17 @@ spec:
                 value: "/opt/sas/viya/home/SASFoundation/misc/embscoreeng/mas2py.py"
               - name: NVIDIA_DRIVER_CAPABILITIES
                 value: all
+              - name: CUDA_VISIBLE_DEVICES
+                value: "0"
               - name: TKESSL_OPENSSL_LIB
                 value: "/usr/lib64/libssl.so.10"
               volumeMounts:
               - name: tmpdir
                 mountPath: /tmp
+              - name: cuda-lib
+                mountPath: /usr/local/nvidia/lib64
+              - name: nvidia-bin
+                mountPath: /usr/nvidia/bin                
               resources:
                 requests:
                   memory: "1Gi"
@@ -159,6 +165,12 @@ spec:
             volumes:
               - name: tmpdir
                 emptyDir: {}
+              - name: nvidia-bin
+                hostPath: 
+                  path: /usr/bin
+              - name: cuda-lib
+                hostPath: 
+                  path: /usr/local/nvidia/lib64                 
   loadBalancerTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
     deployment:
       metadata:
