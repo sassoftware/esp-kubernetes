@@ -134,6 +134,8 @@ spec:
                 value: "/opt/sas/viya/home/SASFoundation/misc/embscoreeng/mas2py.py"
               - name: NVIDIA_DRIVER_CAPABILITIES
                 value: all
+              - name: TKESSL_OPENSSL_LIB
+                value: "/usr/lib64/libssl.so.10"
               volumeMounts:
               - name: tmpdir
                 mountPath: /tmp
