@@ -11,6 +11,7 @@ rules:
   verbs:
   - list
   - watch
+  - get
 
 - apiGroups:
   - ""
@@ -50,4 +51,11 @@ rules:
   - secrets
   verbs:
   - get
+  - list
+  
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
   - list
