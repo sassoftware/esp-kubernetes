@@ -20,7 +20,8 @@ is named `<namespace>`, and your DNS domain is named `<domain>`, `<namespace>.<d
 resolve to the public IP of the `nginx` controller.
 * A properly configured DNS system. The fully qualified domain names <namespace>.<domain> must
 resolve both externally and within the Kubernetes cluster.
-
+* A docker repository must be available on the Kubernetes cluster and populated
+with the SAS Event stream processing docker images. 
 
 ## Azure Notes
 If you are installing this package on Azure Kubernetes Service (AKS), then read the [Azure Notes](AZURE-notes.md) before deploying SAS Event Stream Processing.
