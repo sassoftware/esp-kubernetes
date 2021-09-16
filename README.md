@@ -5,6 +5,23 @@
 ## Changes
 For changes between releases, peruse the [changelog](CHANGELOG.md).
 
+## Kubernetes Cluster requirements
+There are some basic requirements for a Kubernetes cluster in order to support a
+LightWeight SAS Event Stream processing deployment.
+
+### Requirements:
+* A ```RO``` persistent volume for use as the backing store for the Postgres Database.
+The deployment file that binds this PV is ```pvc-pg.yaml```.
+* A ```RW``` persisten volume for use as a read/write scratch area for input file(csv,json), output
+files(csv,json), and DL/ML models (aStore/ONNX/Pythn). The deployment file that binds this
+PV is ```pvc.yaml```.
+* A ```nginx``` ingress controller. This is the gateway into the K8 cluster. If your K8 namespace
+is named `<namespace>`, and your DNS domain is names <domain>, <namespace>.<domain> must
+resolve to the public IP of the ```nginx``` controller.
+* A properly configured DNS system. The fully qualified domain names <namespace>.<domain> must
+resolve both externally and within the Kubernetes cluster.
+
+
 ## Azure Notes
 If you are installing this package on Azure Kubernetes Service (AKS), then read the [Azure Notes](AZURE-notes.md) before deploying SAS Event Stream Processing.
 
