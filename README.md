@@ -5,33 +5,6 @@
 ## Changes
 For changes between releases, peruse the [changelog](CHANGELOG.md).
 
-## Kubernetes Cluster requirements
-There are some basic requirements for a Kubernetes cluster in order to support a
-LightWeight SAS Event Stream processing deployment.
-
-### Requirements:
-* A `RO` persistent volume for use as the backing store for the Postgres Database.
-The deployment file that binds this PV is `pvc-pg.yaml`.
-* A `RW` persisten volume for use as a read/write scratch area for input file(csv,json), output
-files(csv,json), and DL/ML models (aStore/ONNX/Pythn). The deployment file that binds this
-PV is `pvc.yaml`.
-* A `nginx` ingress controller. This is the gateway into the K8 cluster. If your K8 namespace
-is named `<namespace>`, and your DNS domain is named `<domain>`, `<namespace>.<domain>` must
-resolve to the public IP of the `nginx` controller.
-* A properly configured DNS system. The fully qualified domain names <namespace>.<domain> must
-resolve both externally and within the Kubernetes cluster.
-* A docker repository must be available on the Kubernetes cluster and populated
-with the SAS Event stream processing docker images. 
-
-## Azure Notes
-If you are installing this package on Azure Kubernetes Service (AKS), then read the [Azure Notes](AZURE-notes.md) before deploying SAS Event Stream Processing.
-
-## AWS Notes
-If you are installing this package on AWS - Elastic Kubernetes Service (EKS), then read the [AWS Notes](AWS-notes.md) before deploying SAS Event Stream Processing.
-
-## GCP Notes
-If you are installing this page on Google Kubernetes Engine (GKE), the read the [GCP Notes](GCP-notes.md) before deploying SAS Event Stream Processing.
-
 ## Introduction
 This project is a repository of scripts, YAML template files, and sample projects (XML files) that enable you to develop, deploy, and test an ESP server and SAS Event Stream Processing web-based clients in a Kubernetes cluster.  The resulting SAS Event Stream Processing cloud ecosystem runs independently of SAS Viya.
 
@@ -39,7 +12,38 @@ Use the tools in this repository for either of the following deployment approach
 * lightweight open, multi-user, multi-tenant deployment
 * lightweight open, single-user deployment
 
+**Important:** If you want to deploy SAS Event Stream Processing other SAS products, do not use the tools in this repository. Refer to the [SAS Viya Deployment Guide](https://go.documentation.sas.com/doc/en/itopscdc/default/dplyml0phy0dkr/titlepage.htm) for instructions.
+
 Before you proceed, decide which of these deployment approach you intend to take. Carefully read the associated prerequisites for your chosen approach before editing any file or running any script.
+
+## Before You Start
+Before you deploy SAS Event Stream Processing with the scripts and templates provided by this repository, you must fulfill the following prerequisites:
+
+* You must have a properly configured DNS system. The fully qualified domain names `<namespace>.<domain>` must
+resolve both externally and within the Kubernetes cluster.
+* You must set up an `Nginx` Ingress controller. This controller is the gateway into the Kubernetes cluster. For example, if your Kubernetes namespace
+is named `<namespace>`, and your DNS domain is named `<domain>`, `<namespace>.<domain>` must
+resolve to the public IP address of the `Nginx` controller.
+* You must have an `RO` persistent volume to use as the backing store for the PostgreSQL database.
+The YAML template file that binds this PV is `pvc-pg.yaml`. 
+* You must have an `RW` persistent volume to use as a read/write scratch area for input files (CSV,JSON), output
+files (CSV,JSON), and deep learning and machine learning models (ASTORE/ONNX/Python). The YAML template file that binds this
+PV is `pvc.yaml`.
+* A Docker repository must be available on the Kubernetes cluster and must be populated
+with the SAS Event Stream Processing Docker images. 
+
+For more information about YAML template files see [YAML Templates](#yaml-templates). For more information about the required PVs, see [Persistent Volume](#persistent-volume). For more information about the required Docker images, see [Getting Started](#getting-started).
+
+## Azure Notes
+If you are installing this package on Azure Kubernetes Service (AKS), then you must read the [Azure Notes](AZURE-notes.md) before you deploy SAS Event Stream Processing.
+
+## AWS Notes
+If you are installing this package on AWS - Elastic Kubernetes Service (EKS), then you must read the [AWS Notes](AWS-notes.md) before you deploy SAS Event Stream Processing.
+
+## GCP Notes
+If you are installing this page on Google Kubernetes Engine (GKE), then you must read the [GCP Notes](GCP-notes.md) before you deploy SAS Event Stream Processing.
+
+
 
 ## Components of the SAS Event Stream Processing Cloud Ecosystem
 ### YAML Templates 
