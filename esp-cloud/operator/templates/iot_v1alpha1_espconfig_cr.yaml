@@ -48,9 +48,12 @@ spec:
           http:
             paths:
             - backend:
-                serviceName: ((PROJECT_SERVICE_NAME))
-                servicePort: 80
+                service:
+                  name: ((PROJECT_SERVICE_NAME))
+                  port: 
+                    number: 80
               path: /SASEventStreamProcessingServer/((PROJECT_SERVICE_NAME))(/|$)(.*)
+              pathType: Prefix
         tls:
         - hosts:
           - ((PUBLIC_HOST_NAME))
