@@ -43,7 +43,7 @@ If you are installing this package on AWS - Elastic Kubernetes Service (EKS), th
 ## GCP Notes
 If you are installing this page on Google Kubernetes Engine (GKE), then you must read the [GCP Notes](GCP-notes.md) before you deploy SAS Event Stream Processing.
 
-
+**Note:** Deployment of this package on the OpenShift platform is not supported.
 
 ## Components of the SAS Event Stream Processing Cloud Ecosystem
 ### YAML Templates 
