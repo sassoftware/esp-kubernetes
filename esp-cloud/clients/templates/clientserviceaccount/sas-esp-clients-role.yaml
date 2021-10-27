@@ -39,6 +39,13 @@ rules:
 - apiGroups:
   - iot.sas.com
   resources:
+  - espconfigs
+  verbs:
+  - update
+
+- apiGroups:
+  - iot.sas.com
+  resources:
   - espservers
   verbs:
   - create
