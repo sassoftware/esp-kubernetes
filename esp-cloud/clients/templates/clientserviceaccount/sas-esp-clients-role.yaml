@@ -53,13 +53,6 @@ rules:
   - delete
 
 - apiGroups:
-  - iot.sas.com
-  resources:
-  - espconfigs
-  verbs:
-  - update
-  
-- apiGroups:
   - ""
   resources:
   - secrets
