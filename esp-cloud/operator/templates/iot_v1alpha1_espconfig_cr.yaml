@@ -138,8 +138,6 @@ spec:
                 value: all
               - name: CUDA_VISIBLE_DEVICES
                 value: "0"
-              - name: TKESSL_OPENSSL_LIB
-                value: "/usr/lib64/libssl.so.10"
               volumeMounts:
               - name: tmpdir
                 mountPath: /tmp
