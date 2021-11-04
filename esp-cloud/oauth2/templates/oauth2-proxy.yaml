@@ -98,6 +98,7 @@ metadata:
     kubernetes.io/ingress.allow-http: "false"
   name: oauth2-proxy
 spec:
+  ingressClassName: nginx  
   rules:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:

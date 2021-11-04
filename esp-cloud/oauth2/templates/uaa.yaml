@@ -265,6 +265,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     kubernetes.io/ingress.allow-http: "false"
 spec:
+  ingressClassName: nginx    
   rules:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:

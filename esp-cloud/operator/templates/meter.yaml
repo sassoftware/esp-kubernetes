@@ -24,6 +24,7 @@ metadata:
     nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
+  ingressClassName: nginx  
   rules:
   - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
     http:
