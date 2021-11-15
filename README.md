@@ -16,7 +16,7 @@ Use the tools in this repository for either of the following deployment approach
 * lightweight open, multi-user, multi-tenant deployment
 * lightweight open, single-user deployment
 
-**Important:** If you want to deploy SAS Event Stream Processing other SAS products, do not use the tools in this repository. Refer to the [SAS Viya Deployment Guide](https://go.documentation.sas.com/doc/en/itopscdc/default/dplyml0phy0dkr/titlepage.htm) for instructions.
+**Important:** If you want to deploy SAS Event Stream Processing with other SAS products, do *not* use the tools in this repository. 
 
 Before you proceed, decide which of these deployment approach you intend to take. Carefully read the associated prerequisites for your chosen approach before editing any file or running any script.
 
