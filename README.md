@@ -7,7 +7,7 @@ For changes between releases, peruse the [changelog](CHANGELOG.md).
 
 ## Introduction
 You can deploy SAS Event Stream Processing one of two ways:
-1) Deploy it with other SAS products, using the SAS Viya deployment process. For more information, see the [SAS Viya: Deployment Guide](https://go.documentation.sas.com/doc/en/dplyml0phy0dkr/default/titlepage.htm).
+1) Deploy it with other SAS products, using the SAS Viya deployment process. For more information, see the [SAS Viya: Deployment Guide](https://go.documentation.sas.com/doc/en/dplyml0phy0dkr/v_019/titlepage.htm).
 2) Deploy a lightweight version of the product.
 
 This project supports the deployment of a lightweight version of SAS Event Stream Processing. It is a repository of scripts, YAML template files, and sample projects (XML files) that enable you to develop, deploy, and test an ESP server and SAS Event Stream Processing web-based clients in a Kubernetes cluster.  The resulting SAS Event Stream Processing cloud ecosystem runs *independently of SAS Viya*.
