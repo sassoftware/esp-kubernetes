@@ -42,6 +42,7 @@ rules:
   - espconfigs
   verbs:
   - update
+  - patch
 
 - apiGroups:
   - iot.sas.com
