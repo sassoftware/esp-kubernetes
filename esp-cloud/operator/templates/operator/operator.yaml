@@ -13,7 +13,7 @@ spec:
         name: sas-esp-operator
     spec:
       TEMPLATE_ESP_AZUREimagePullSecrets:
-      TEMPLATE_ESP_AZURE  - name: acr-secret         
+      TEMPLATE_ESP_AZURE  - name: acr-secret
       serviceAccountName: sas-esp-operator
       containers:
         - name: sas-esp-operator
@@ -24,9 +24,9 @@ spec:
             readOnlyRootFilesystem: true
             runAsGroup: 1001
             runAsUser: 1001
-            runAsNonRoot: true             
-          command:
-              #- esp-operator
+            runAsNonRoot: true
+          command: []
+          #- esp-operator
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE

@@ -2,15 +2,15 @@
 # This is the esp-pv claim that esp component pods make use of.
 #
 apiVersion: v1
-kind: PersistentVolumeClaim 
+kind: PersistentVolumeClaim
 metadata:
-   name: esp-pv
+  name: esp-pv
 #   annotations:
 #     volume.beta.kubernetes.io/storage-class: "nfs-client
 spec:
-   storageClassName: nfs-client 
-   accessModes:
-     - ReadWriteMany # This volume is used for ESP projects input/output files
-   resources:
-     requests:
-       storage: 5Gi  # volume size requested
+  storageClassName: nfs-client
+  accessModes:
+    - ReadWriteMany # This volume is used for ESP projects input/output files
+  resources:
+    requests:
+      storage: 5Gi # volume size requested

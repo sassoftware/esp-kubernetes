@@ -7,39 +7,39 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/rewrite-target: "/oauth2/sign_out?rd=https%3A%2F%2F$host/uaa/logout.do?redirect=https%3A%2F%2F$host/uaa/login"
 spec:
-  ingressClassName: nginx  
+  ingressClassName: nginx
   rules:
-  - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
-    http:
-      paths:
-        - path: /SASEventStreamProcessingStudio/logout(/|$)(.*)
-          pathType: Prefix
-          backend:
-            service:
-              name: oauth2-proxy
-              port:
-                number: 4180
-  - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
-    http:
-      paths:
-        - path: /SASEventStreamManager/logout(/|$)(.*)
-          pathType: Prefix
-          backend:
-            service:
-              name: oauth2-proxy
-              port:
-                number: 4180
-  - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
-    http:
-      paths:
-        - path: /SASEventStreamProcessingStreamviewer/logout(/|$)(.*)
-          pathType: Prefix
-          backend:
-            service:
-              name: oauth2-proxy
-              port:
-                number: 4180
+    - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+      http:
+        paths:
+          - path: /SASEventStreamProcessingStudio/logout(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: oauth2-proxy
+                port:
+                  number: 4180
+    - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+      http:
+        paths:
+          - path: /SASEventStreamManager/logout(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: oauth2-proxy
+                port:
+                  number: 4180
+    - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+      http:
+        paths:
+          - path: /SASEventStreamProcessingStreamviewer/logout(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: oauth2-proxy
+                port:
+                  number: 4180
   tls:
-  - hosts:
-    - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
-    secretName: logout-clients-sas-com-tls
+    - hosts:
+        - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+      secretName: logout-clients-sas-com-tls

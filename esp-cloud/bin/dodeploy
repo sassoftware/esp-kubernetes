@@ -78,13 +78,20 @@ fi
 
 . $ROOT/bin/mksecrets
 
-# Apply _crd.yaml files -- these are not namespace scoped. 
 #
-LIST=`find ${DEPLOYMENT} -type f \( -iname "*_crd.y*ml" ! -iwholename "*project/*" ! -iwholename "*examples/*" \)`
-for i in ${LIST} ; do
-    echo "deploying: $i"
-    kubectl apply -f $i
-done
+# Apply K8s CRD resources.
+#
+while read -r -s i
+do
+    echo "Applying: '${i}'"
+    kubectl apply -f "${i}" --dry-run=server || {
+        # The dry run failed.
+        # Kubectl should have displayed an error.
+        echo >&2 $'\n'"Kubectl failed to apply the '${i}' custom resource definitions."
+        exit 1
+    }
+    kubectl apply -f "${i}"
+done < <(find "${DEPLOYMENT}/operator/crds/" -type f -iname '*.y?ml')
 
 # apply pcv.yaml
 if [ -f $DEPLOYMENT/pvc.yaml ] ; then
@@ -125,10 +132,11 @@ if [ -f $DEPLOYMENT/postgres.yaml ] ; then
     fi
 fi    
 
-# Apply non _crd.yaml files
 #
-LIST=`find ${DEPLOYMENT} -type f \( -iname "*.y*ml" ! -iwholename "*project/*" ! -iwholename "*examples/*" ! -iname "pvc.yaml" ! -iname "pvc-pg.yaml" ! -iname "postgres.yaml" ! -iname "*_crd.y*ml" \)`
-for i in ${LIST} ; do
+# Apply K8s non-CRD resources.
+#
+while read -r -s i
+do
     echo "deploying: $i"
     kubectl -n ${ESP_NS} apply -f $i
-done
+done < <(find "${DEPLOYMENT}" -wholename "${DEPLOYMENT}/operator/crds" -prune -o -type f \( -iname "*.y*ml" ! -iwholename "*project/*" ! -iwholename "*examples/*" ! -iname "pvc.yaml" ! -iname "pvc-pg.yaml" ! -iname "postgres.yaml" \))

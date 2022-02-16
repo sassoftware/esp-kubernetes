@@ -10,9 +10,9 @@ ROOT=`readlink -f $ROOT`
 show_usage() {
     echo "Usage: $0"
     echo ""
-    echo "required: -p <GCP project> -t <tennant name>"
+    echo "required: -p <GCP project> -t <tenant name>"
     echo "          -c <GKE cluster name>"
-    echo "optional: -d [delete tennant]"
+    echo "optional: -d [delete tenant]"
     echo ""
     exit 1
 }

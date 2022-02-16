@@ -1,4 +1,4 @@
-## Installation Notes for Azure Kubernetes Service (AKS)
+# Installation Notes for Azure Kubernetes Service (AKS)
 
 This document highlights the requirements to
 install a SAS Event Stream Processing eco-system in a simple Azure Kubernetes Service (AKS) cluster.  It provides a specific set of steps to create
@@ -7,15 +7,16 @@ For more detailed information about creating an AKS cluster, please refer to the
 
 To use these notes, you _must_ have experience with Azure.
 
-### Required Infrastructure
-* A Kubernetes service (AKS) 
+## Required Infrastructure
+
+* A Kubernetes service (AKS)
 * A **NGINX** ingress controller
 * A private (or public) DNS for the AKS
 * A virtual netwrk (AKS will create this for you)
 * A Microsoft Azure Container Registry to store SAS Event Stream Processing containers
 
+## Installing SAS Event Stream Processing in an AKS Cluster
 
-### Installing SAS Event Stream Processing in an AKS Cluster
 To proceed, you must have Azure credentials, be able to
 log in to Azure through the Microsoft Azure Portal, and know how to use the Azure
 command line tools.
@@ -24,29 +25,32 @@ A set of Azure specifics scripts are inluded that can help create and
 manage AKS clusters with SAS Event Stream processing.
 
 ---
-### bin/azure-cluster -- build an AKS cluster from scratch
+
+## bin/azure-cluster -- build an AKS cluster from scratch
 
 This command will create a new **AZURE Resource Group** contianing:
 
-- an AKS cluster
-- an Azure Container Registry
-- a Kubernetes config file for AKS access
+* an AKS cluster
+* an Azure Container Registry
+* a Kubernetes config file for AKS access
 
 The cluster is created in the specified geographical location.
 
-```
+```shell
     [bin]$ ./azure-cluster -?
     Usage: ./bin/azure-cluster
 
          required: -c <cluster name> -r <resource group>
                    -g <geographical location>
-		   -C <container registry>
+                   -C <container registry>
                    -f <file to write kubeconfig to>
          optional: -n <number of node, default: 5>
                    -s <vm size, default: Standard_F16s_v2>
 ```
+
 script will report when finished something like:
-```
+
+```text
 Completed build resource group: sckoloRG which contains:
          AKS cluster:   sckoloCL
               domain:   b95d519bbe6e4e4c9585.eastus.aksapp.io
@@ -55,34 +59,38 @@ Completed build resource group: sckoloRG which contains:
 ```
 
 ---
-### bin/azure-tennant  -- onboard tennant (create ns, and DNS entry)
 
-This script will onboard a tennant for ESP installation. What this translates to is:
+## bin/azure-tenant  -- onboard tenant (create ns, and DNS entry)
 
-- creates a namespace in AKS with the tennant name
-- adds a DNS record to AKS to access the tennant eco-system
+This script will onboard a tenant for ESP installation. What this translates to is:
 
-```
-  [esp-k8-azure]$ ./bin/azure-tennant -?
-  Usage: ./bin/azure-tennant
+* creates a namespace in AKS with the tenant name
+* adds a DNS record to AKS to access the tenant eco-system
+
+```shell
+  [esp-k8-azure]$ ./bin/azure-tenant -?
+  Usage: ./bin/azure-tenant
 
       required: -C <continer registry> -r <resource group (of cluster)>
-                -c <cluster name> -t <tennant name>
+                -c <cluster name> -t <tenant name>
 
       optional: -g <resource group (of container registry>)
 ```
+
 script will report when finished something like:
-```
+
+```text
 cluster host is:   foo.51ebd19c25e24f55b35e.eastus.aksapp.io
 cluster namespace: foo
 ```
 
 ---
-### bin/azure-startstop  -- start and stop AKS cluster to avoid charges
+
+## bin/azure-startstop  -- start and stop AKS cluster to avoid charges
 
 Start or Stop the AKS cluster. Stopping the cluster with this command avoids being charges by Microsoft. Starting/Stopping the cluster can take several minutes.
 
-```
+```shell
   [bin]$ ./azure-startstop -?
   Usage: ./azure-startstop
 
@@ -92,21 +100,23 @@ Start or Stop the AKS cluster. Stopping the cluster with this command avoids bei
 ```
 
 ---
-### bin/azure-push -- add docker images to azure container registry (creates script "asure-images")
+
+## bin/azure-push -- add docker images to azure container registry (creates script "asure-images")
 
 This script will look for the following env variables:
-- IMAGE_ESPOAUTH2P
-- IMAGE_ESPESM
-- IMAGE_ESPSTRMVWR
-- IMAGE_OPERATOR
-- IMAGE_LOADBAL
-- IMAGE_ESPSTUDIO
-- IMAGE_METERBILL
-- IMAGE_ESPSRV
+
+* IMAGE_ESPOAUTH2P
+* IMAGE_ESPESM
+* IMAGE_ESPSTRMVWR
+* IMAGE_OPERATOR
+* IMAGE_LOADBAL
+* IMAGE_ESPSTUDIO
+* IMAGE_METERBILL
+* IMAGE_ESPSRV
 
 each one should point to an accessable docker image. The images are pulled, retagged, and pushed to the specified Azure Container Registry. If the image contains **snapshot** or **release**, than **snapshot/** or **release/** is added to the repository name in Azure.
 
-```
+```shell
    [bin]$ ./azure-push  -?
    Usage: ./azure-push
 
@@ -115,11 +125,12 @@ each one should point to an accessable docker image. The images are pulled, reta
 ```
 
 ---
-### bin/azure-purge -- trim container registry to a fixed number of tags
 
-Purge a names container repository to a fixed number of images. 
+## bin/azure-purge -- trim container registry to a fixed number of tags
 
-```
+Purge a names container repository to a fixed number of images.
+
+```shell
     [bin]$ ./azure-purge -?
     Usage: ./azure-purge
 
@@ -128,11 +139,12 @@ Purge a names container repository to a fixed number of images.
 ```
 
 ---
-### bin/azure-get-images -- print latest images:tags for repository
 
-Print the most recent set of ESP images in an Azure container registry. The ouput is in a format the can be cur/pasted into a terminal window to set the IMAGE_XXX env variables. 
+## bin/azure-get-images -- print latest images:tags for repository
 
-```
+Print the most recent set of ESP images in an Azure container registry. The ouput is in a format the can be cur/pasted into a terminal window to set the IMAGE_XXX env variables.
+
+```shell
     [bin]$ ./azure-get-images  -?
     Usage: ./azure-get-images
 
@@ -141,11 +153,12 @@ Print the most recent set of ESP images in an Azure container registry. The oupu
 ```
 
 ---
-### (FOR SAS ONLY) bin/get-images -- populate IMAGE_XXX env vars from release/snapshot repulpmaster repo
 
-This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpmaster** reposiory and populate the IMAGE_XXX environment with the latest docker images. 
- 
-```
+## (FOR SAS ONLY) bin/get-images -- populate IMAGE_XXX env vars from release/snapshot repulpmaster repo
+
+This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpmaster** reposiory and populate the IMAGE_XXX environment with the latest docker images.
+
+```shell
     [bin]$ . ./get-images -?
     must be sourced, i.e. run as:
 
@@ -155,9 +168,9 @@ This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpm
         env variables will not be set!
 ```
 
-## Full creation of Azure cluster, onboard tennant, and install os ESP
+## Full creation of Azure cluster, onboard tenant, and install os ESP
 
-```
+```shell
 [esp-k8-azure]$ ./bin/azure-cluster -c sckoloCL -r sckoloRG -g eastus -C sckoloCR -f ~/sckoloCL-k8.conf
   .
   .
@@ -168,21 +181,25 @@ Completed build resource group: sckoloRG which contains:
    container registy:   sckoloCR
     KUBE CONFIG file:   /mnt/data/home/sckolo/sckoloCL-k8.conf
 ```
-```
+
+```shell
 [esp-k8-azure]$ export KUBECONFIG=~/sckoloCL-k8.conf
 ```
-```
-[esp-k8-azure]$ ./bin/azure-tennant -C sckoloCR -r sckoloRG -c sckoloCL -t esp
+
+```shell
+[esp-k8-azure]$ ./bin/azure-tenant -C sckoloCR -r sckoloRG -c sckoloCL -t esp
   .
   .
   .
 cluster host is:   esp.41533d7e0a234fdd8d99.eastus.aksapp.io
 cluster namespace: esp
 ```
-```
+
+```shell
 [esp-k8-azure]$ . ./bin/get-images -S
 ```
-```
+
+```shell
 [esp-k8-azure]$ ./bin/azure-push -c sckoloCR -r sckoloRG
   .
   .
@@ -195,8 +212,10 @@ Use this command to set al the env variable images in your shell:
 
 [esp-k8-azure]$ . ./bin/azure-images
 ```
+
 Now change to the github esp-kubernetes/esp-cloud project directory.
-```
+
+```shell
 [esp-cloud]$ ./bin/mkdeploy -l ../../LICENSE/setin90.sas -n esp -d 41533d7e0a234fdd8d99.eastus.aksapp.io -r -C -M -A
   .
   .
@@ -218,10 +237,13 @@ uaa-deployment-94ddb9b48-k9vgp
 ```
 
 Add the client account:
-```
+
+```shell
     [esp-cloud]$ ./bin/uaatool -u esp.41533d7e0a234fdd8d99.eastus.aksapp.io -C uaaUSER:uaaPASS -c
 ```
+
 Add a user account:
-```
+
+```shell
     [esp-cloud]$ ./bin/uaatool -u esp.41533d7e0a234fdd8d99.eastus.aksapp.io -C uaaUSER:uaaPASS -a scott:Scott.Kolodzieski@sas.com:scottpw
 ```

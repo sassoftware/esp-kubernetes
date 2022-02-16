@@ -4,66 +4,59 @@ metadata:
   creationTimestamp: null
   name: sas-esp-clients
 rules:
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  verbs:
-  - list
-  - watch
-  - get
-
-- apiGroups:
-  - ""
-  resources:
-  - pods/log
-  verbs:
-  - get
-
-- apiGroups:
-  - ""
-  resources:
-  - pods/exec
-  verbs:
-  - get
-
-- apiGroups:
-  - iot.sas.com
-  resources:
-  - espservers
-  - espconfigs
-  verbs:
-  - get
-  - list
-
-- apiGroups:
-  - iot.sas.com
-  resources:
-  - espconfigs
-  verbs:
-  - update
-  - patch
-
-- apiGroups:
-  - iot.sas.com
-  resources:
-  - espservers
-  verbs:
-  - create
-  - watch
-  - delete
-
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  verbs:
-  - get
-  - list
-  
-- apiGroups:
-  - ""
-  resources:
-  - events
-  verbs:
-  - list
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - list
+      - watch
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - pods/log
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - pods/exec
+    verbs:
+      - get
+  - apiGroups:
+      - iot.sas.com
+    resources:
+      - espservers
+      - espconfigs
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - iot.sas.com
+    resources:
+      - espconfigs
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - iot.sas.com
+    resources:
+      - espservers
+    verbs:
+      - create
+      - watch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - list

@@ -1,7 +1,7 @@
 apiVersion: iot.sas.com/v1alpha1
 kind: ESPConfig
 metadata:
-  name: espconfig # this is the name the operator will look for 
+  name: espconfig # this is the name the operator will look for
   namespace: TEMPLATE_ESP_NAMESPACE
 spec:
   # Add fields here
@@ -12,25 +12,27 @@ spec:
     meta.meteringport: "80"
     meta.meteringcontext: eventStreamProcessing/v1 # the API URL will be meteringhost:meteringport/meteringcontext/<endpoings>
     server.store-location: /mnt/data
-  operatorProperties: # the properties ESP operator use to configure projects
-    #"server.tls.issuer": "letsencrypt-staging"
+  operatorProperties: {} # the properties ESP operator use to configure projects
+  #"server.tls.issuer": "letsencrypt-staging"
   limits:
     maxReplicas: "5"
     maxMemory: "4Gi"
-    maxCpu: "2"   
-    maxStorageEphemeral: 
+    maxCpu: "2"
+    maxStorageEphemeral: ""
   projectTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
     autoscale:
       minReplicas: 1
-      maxReplicas: 10 
+      maxReplicas: 10
       metrics:
-      - type: Resource
-        resource:
-          name: cpu
-          target:
-            type: Utilization
-            averageUtilization: 50 
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 50
     ingress:
+      apiVersion: ""
+      kind: ESPTemplate
       metadata:
         annotations:
           kubernetes.io/ingress.class: nginx
@@ -44,43 +46,47 @@ spec:
         namespace: ((PROJECT_NAMESPACE))
       spec:
         rules:
-        - host: ((PUBLIC_HOST_NAME))
-          http:
-            paths:
-            - backend:
-                service:
-                  name: ((PROJECT_SERVICE_NAME))
-                  port: 
-                    number: 80
-              path: /SASEventStreamProcessingServer/((PROJECT_SERVICE_NAME))(/|$)(.*)
-              pathType: Prefix
+          - host: ((PUBLIC_HOST_NAME))
+            http:
+              paths:
+                - backend:
+                    service:
+                      name: ((PROJECT_SERVICE_NAME))
+                      port:
+                        number: 80
+                  path: /SASEventStreamProcessingServer/((PROJECT_SERVICE_NAME))(/|$)(.*)
+                  pathType: Prefix
         tls:
-        - hosts:
-          - ((PUBLIC_HOST_NAME))
-          secretName: foo # 
+          - hosts:
+              - ((PUBLIC_HOST_NAME))
+            secretName: foo
     httpService:
+      apiVersion: ""
+      kind: ESPTemplate
       metadata:
         annotations:
           "prometheus.io/scrape": "true"
-          "prometheus.io/port": "80" # service http port 
+          "prometheus.io/port": "80" # service http port
         labels:
           app: ((PROJECT_SERVICE_NAME))
           project: ((PROJECT_HASHED_NAME))
-          esp-component: project          
+          esp-component: project
           type: http
         name: ((PROJECT_SERVICE_NAME))
         namespace: ((PROJECT_NAMESPACE))
       spec:
         ports:
-        - name: http
-          port: 80 # 443 if https enabled
-          protocol: TCP
-          targetPort: http
+          - name: http
+            port: 80 # 443 if https enabled
+            protocol: TCP
+            targetPort: http
         selector:
           app: ((PROJECT_SERVICE_NAME))
     pubsubService:
+      apiVersion: ""
+      kind: ESPTemplate
       metadata:
-        annotations:
+        annotations: {}
         labels:
           app: ((PROJECT_SERVICE_NAME))
           project: ((PROJECT_HASHED_NAME))
@@ -90,17 +96,19 @@ spec:
       spec:
         clusterIP: None
         ports:
-        - name: pubsub
-          port: 31416
-          protocol: TCP
-          targetPort: pubsub
+          - name: pubsub
+            port: 31416
+            protocol: TCP
+            targetPort: pubsub
         selector:
           app: ((PROJECT_SERVICE_NAME))
     deployment:
+      apiVersion: ""
+      kind: ESPTemplate
       metadata:
         name: ((PROJECT_SERVICE_NAME))
         namespace: ((PROJECT_NAMESPACE))
-      spec:  # required for deployment spec
+      spec: # required for deployment spec
         replicas: 1
         selector:
           matchLabels:
@@ -108,175 +116,180 @@ spec:
             type: esp
         template: # required
           metadata:
-            annotations:
-              seccomp.security.alpha.kubernetes.io/pod: runtime/default
             labels:
               app: ((PROJECT_SERVICE_NAME))
               type: esp
           spec: # required
             TEMPLATE_ESP_AZUREimagePullSecrets:
-            TEMPLATE_ESP_AZURE  - name: acr-secret  
+            TEMPLATE_ESP_AZURE  - name: acr-secret
+            securityContext:
+              seccompProfile:
+                type: RuntimeDefault
             serviceAccountName: "sas-esp-project"
             containers:
-            - name: ((PROJECT_SERVICE_NAME)) # DONT CHANGE THE NAME
-              image: TEMPLATE_ESP_SERVER_IMAGE
-              imagePullPolicy: IfNotPresent
-              securityContext:
-                allowPrivilegeEscalation: false
-                readOnlyRootFilesystem: true
-                runAsGroup: 1001
-                runAsUser: 1001
-                runAsNonRoot: true                
-              env:
-              - name: ESP_LICENSE
-                value: "b64TEMPLATE_ESP_LICB64GZ"
-              - name: MAS_PYPATH
-                value: "/usr/bin/python3"
-              - name: MAS_M2PATH
-                value: "/opt/sas/viya/home/SASFoundation/misc/embscoreeng/mas2py.py"
-              - name: NVIDIA_DRIVER_CAPABILITIES
-                value: all
-              - name: CUDA_VISIBLE_DEVICES
-                value: "0"
-              volumeMounts:
-              - name: tmpdir
-                mountPath: /tmp
-              - name: cuda-lib
-                mountPath: /usr/local/nvidia/lib64
-              - name: nvidia-bin
-                mountPath: /usr/nvidia/bin                
-              resources:
-                requests:
-                  memory: "1Gi"
-                  cpu: "1"
-                limits:
-                  memory: "2Gi"
-                  cpu: "2"
-              ports:
-              - name: http
-                containerPort:  31415
-              - name: pubsub
-                containerPort:  31416
-              readinessProbe:
-                failureThreshold: 3
-                httpGet:
-                  path: /internal/ready
-                  port: 31415
-                  scheme: HTTP
+              - name: ((PROJECT_SERVICE_NAME)) # DONT CHANGE THE NAME
+                image: TEMPLATE_ESP_SERVER_IMAGE
+                imagePullPolicy: IfNotPresent
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  readOnlyRootFilesystem: true
+                  runAsGroup: 1001
+                  runAsUser: 1001
+                  runAsNonRoot: true
+                env:
+                  - name: ESP_LICENSE
+                    value: "b64TEMPLATE_ESP_LICB64GZ"
+                  - name: MAS_PYPATH
+                    value: "/usr/bin/python3"
+                  - name: MAS_M2PATH
+                    value: "/opt/sas/viya/home/SASFoundation/misc/embscoreeng/mas2py.py"
+                  - name: NVIDIA_DRIVER_CAPABILITIES
+                    value: all
+                  - name: CUDA_VISIBLE_DEVICES
+                    value: "0"
+                volumeMounts:
+                  - name: tmpdir
+                    mountPath: /tmp
+                  - name: cuda-lib
+                    mountPath: /usr/local/nvidia/lib64
+                  - name: nvidia-bin
+                    mountPath: /usr/nvidia/bin
+                resources:
+                  requests:
+                    memory: "1Gi"
+                    cpu: "1"
+                  limits:
+                    memory: "2Gi"
+                    cpu: "2"
+                ports:
+                  - name: http
+                    containerPort: 31415
+                  - name: pubsub
+                    containerPort: 31416
+                readinessProbe:
+                  failureThreshold: 3
+                  httpGet:
+                    path: /internal/ready
+                    port: 31415
+                    scheme: HTTP
             volumes:
               - name: tmpdir
                 emptyDir: {}
               - name: nvidia-bin
-                hostPath: 
+                hostPath:
                   path: /usr/bin
               - name: cuda-lib
-                hostPath: 
-                  path: /usr/local/nvidia/lib64                 
+                hostPath:
+                  path: /usr/local/nvidia/lib64
   loadBalancerTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
     deployment:
+      apiVersion: ""
+      kind: ESPTemplate
       metadata:
         name: ((PROJECT_LB_SERVICE_NAME))
         namespace: ((PROJECT_NAMESPACE))
-      spec:  # required for deployment spec
-        replicas: 1        
+      spec: # required for deployment spec
+        replicas: 1
         selector:
           matchLabels:
             app: ((PROJECT_LB_SERVICE_NAME))
         template: # required
           metadata:
-            annotations:
-              seccomp.security.alpha.kubernetes.io/pod: runtime/default
             labels:
               app: ((PROJECT_LB_SERVICE_NAME))
           spec: # required
             TEMPLATE_ESP_AZUREimagePullSecrets:
-            TEMPLATE_ESP_AZURE  - name: acr-secret         
+            TEMPLATE_ESP_AZURE  - name: acr-secret
+            securityContext:
+              seccompProfile:
+                type: RuntimeDefault
             serviceAccountName: "sas-esp-project"
             containers:
-            - name: ((PROJECT_SERVICE_NAME)) 
-              image: TEMPLATE_ESP_SERVER_IMAGE
-              imagePullPolicy: IfNotPresent
-              securityContext:
-                allowPrivilegeEscalation: false
-                readOnlyRootFilesystem: true
-                runAsGroup: 1001
-                runAsUser: 1001
-                runAsNonRoot: true                
-              env:
-              - name: ESP_LICENSE
-                value: "b64TEMPLATE_ESP_LICB64GZ"
-              resources:
-                requests:
-                  memory: "1Gi"
-                  cpu: "1"
-                limits:
-                  memory: "2Gi"
-                  cpu: "2"
-              readinessProbe:
-                failureThreshold: 3
-                httpGet:
-                  path: /internal/ready
-                  port: 31415
-                  scheme: HTTP
-            - name: ((PROJECT_LB_SERVICE_NAME)) 
-              image: TEMPLATE_ESP_LB_IMAGE
-              env:
-              - name: ESPLB_HTTP
-                value: "31415"
-              - name: ESPLB_PUBSUB
-                value: "31416"
-              - name: WATCH_NAMESPACE
-                value: "((PROJECT_NAMESPACE))"
-              - name: ESPLB_PROJECT
-                value: "((PROJECT_SERVICE_NAME))"
-              - name: POD_NAME
-                valueFrom: 
-                  fieldRef:
-                    fieldPath: "metadata.name"
-              resources:
-                requests:
-                  memory: "1Gi"
-                  cpu: "1"
-                limits:
-                  memory: "2Gi"
-                  cpu: "2"
+              - name: ((PROJECT_SERVICE_NAME))
+                image: TEMPLATE_ESP_SERVER_IMAGE
+                imagePullPolicy: IfNotPresent
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  readOnlyRootFilesystem: true
+                  runAsGroup: 1001
+                  runAsUser: 1001
+                  runAsNonRoot: true
+                env:
+                  - name: ESP_LICENSE
+                    value: "b64TEMPLATE_ESP_LICB64GZ"
+                resources:
+                  requests:
+                    memory: "1Gi"
+                    cpu: "1"
+                  limits:
+                    memory: "2Gi"
+                    cpu: "2"
+                readinessProbe:
+                  failureThreshold: 3
+                  httpGet:
+                    path: /internal/ready
+                    port: 31415
+                    scheme: HTTP
+              - name: ((PROJECT_LB_SERVICE_NAME))
+                image: TEMPLATE_ESP_LB_IMAGE
+                env:
+                  - name: ESPLB_HTTP
+                    value: "31415"
+                  - name: ESPLB_PUBSUB
+                    value: "31416"
+                  - name: WATCH_NAMESPACE
+                    value: "((PROJECT_NAMESPACE))"
+                  - name: ESPLB_PROJECT
+                    value: "((PROJECT_SERVICE_NAME))"
+                  - name: POD_NAME
+                    valueFrom:
+                      fieldRef:
+                        fieldPath: "metadata.name"
+                resources:
+                  requests:
+                    memory: "1Gi"
+                    cpu: "1"
+                  limits:
+                    memory: "2Gi"
+                    cpu: "2"
   routerTemplate:
     deployment:
+      apiVersion: ""
+      kind: ESPTemplate
       metadata:
         name: ((ROUTER_NAME))
         namespace: ((ROUTER_NAMESPACE))
         labels:
-          app: ((ROUTER_NAME)) 
-          type: router 
-      spec:  
+          app: ((ROUTER_NAME))
+          type: router
+      spec:
         replicas: 1
         selector:
           matchLabels:
-            app: ((ROUTER_NAME)) 
+            app: ((ROUTER_NAME))
         template: # required
           metadata:
-            annotations:
+            annotations: {}
             labels:
-              app: ((ROUTER_NAME)) 
+              app: ((ROUTER_NAME))
           spec: # required
             containers:
-            - name: ((ROUTER_NAME))
-              image: TEMPLATE_ESP_SERVER_IMAGE
-              imagePullPolicy: IfNotPresent
-              securityContext:
-                allowPrivilegeEscalation: false
-                readOnlyRootFilesystem: true
-                runAsGroup: 1001
-                runAsUser: 1001
-                runAsNonRoot: true                
-              env:
-              - name: ESP_LICENSE
-                value: "b64TEMPLATE_ESP_LICB64GZ"
-              resources:
-                requests:
-                  memory: "2Gi"
-                  cpu: "2"
-                limits:
-                  memory: "2Gi"
-                  cpu: "2"
-                  
+              - name: ((ROUTER_NAME))
+                image: TEMPLATE_ESP_SERVER_IMAGE
+                imagePullPolicy: IfNotPresent
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  readOnlyRootFilesystem: true
+                  runAsGroup: 1001
+                  runAsUser: 1001
+                  runAsNonRoot: true
+                env:
+                  - name: ESP_LICENSE
+                    value: "b64TEMPLATE_ESP_LICB64GZ"
+                resources:
+                  requests:
+                    memory: "2Gi"
+                    cpu: "2"
+                  limits:
+                    memory: "2Gi"
+                    cpu: "2"

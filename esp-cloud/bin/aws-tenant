@@ -10,7 +10,7 @@ ROOT=`readlink -f $ROOT`
 show_usage() {
     echo "Usage: $0"
     echo ""
-    echo "required: -c <cluster name> -t <tennant name>"
+    echo "required: -c <cluster name> -t <tenant name>"
     echo "          -g <geographical location>"
     echo ""
     exit 1
@@ -51,7 +51,7 @@ if [[ "$USE_EKS" == "yes" ]] ; then
     AWS_FS=$(aws efs describe-file-systems --query "FileSystems[?Name == \`${AWS_CL}-efs\`].FileSystemId" | jq .[0])
     AWS_FS=$(eval echo ${AWS_FS})
 
-    # Now we create an access-point in EFS for the tennant.
+    # Now we create an access-point in EFS for the tenant.
     #
     echo "creating EFS access point"
     aws efs create-access-point --client-token ${AWS_NS} \

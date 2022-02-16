@@ -2,60 +2,64 @@ apiVersion: iot.sas.com/v1alpha1
 kind: ESPServer
 metadata:
   name: TEMPLATE_ESP_SRVCNAME # give the service used to access the running project a name
-                              #     ingress is <name>.<namespace>.$ESP_DOMAIN
+  #     ingress is <name>.<namespace>.$ESP_DOMAIN
   namespace: TEMPLATE_ESP_NAMESPACE
 spec:
   # Add fields here
-    loadBalancePolicy: "default" # in the future, we could add cluster-manager hash/round-robin...
-    # if model has prefix "b64", treat it as based64 encoded 
-    espProperties:
-      server.xml: "b64TEMPLATE_ESP_MODELB64"
-    projectTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
-      autoscale:
-        minReplicas: 1
-        maxReplicas: 1
-        metrics:
+  loadBalancePolicy: "default" # in the future, we could add cluster-manager hash/round-robin...
+  # if model has prefix "b64", treat it as based64 encoded 
+  espProperties:
+    server.xml: "b64TEMPLATE_ESP_MODELB64"
+  projectTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
+    autoscale:
+      minReplicas: 1
+      maxReplicas: 1
+      metrics:
         - type: Resource
           resource:
             name: cpu
             target:
               type: Utilization
               averageUtilization: 50
-      deployment:
-        spec:
-          selector:
-            matchLabels:
-          template: # required
-            spec: # required
-               volumes:
-               - name: data
-                 persistentVolumeClaim:
-                   claimName: esp-pv
-               containers:
-               - name: ((PROJECT_SERVICE_NAME)) # DONT CHANGE THE NAME
-                 resources:
-                   requests:
-                     memory: "1Gi"
-                     cpu: "1"
-                   limits:
-                     memory: "2Gi"
-                     cpu: "2"
-                 volumeMounts:
-                 - mountPath: /mnt/data  # path persistent volume gets mounted to
-                   name: data            # the volume specified below
-#                   subPath: TEMPLATE_ESP_NAMESPACE
-    loadBalancerTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
-      deployment:
-        spec:  # required for deployment spec
-          template: # required
-            spec: # required
-              containers:
-              - name: ((PROJECT_SERVICE_NAME)) 
+    deployment:
+      apiVersion: ""
+      kind: ESPTemplate
+      spec:
+        selector:
+          matchLabels:
+        template: # required
+          spec: # required
+            volumes:
+              - name: data
+                persistentVolumeClaim:
+                  claimName: esp-pv
+            containers:
+              - name: ((PROJECT_SERVICE_NAME)) # DONT CHANGE THE NAME
+                resources:
+                  requests:
+                    memory: "1Gi"
+                    cpu: "1"
+                  limits:
+                    memory: "2Gi"
+                    cpu: "2"
+                volumeMounts:
+                  - mountPath: /mnt/data # path persistent volume gets mounted to
+                    name: data # the volume specified below
+                    #                   subPath: TEMPLATE_ESP_NAMESPACE
+  loadBalancerTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
+    deployment:
+      apiVersion: ""
+      kind: ESPTemplate
+      spec: # required for deployment spec
+        template: # required
+          spec: # required
+            containers:
+              - name: ((PROJECT_SERVICE_NAME))
 access:
   #
   # operator will update these after the server is deployed
   #
-  state: "Pending" 
-  internalHostName:  foo
-  internalHttpPort:  0
+  state: "Pending"
+  internalHostName: foo
+  internalHttpPort: 0
   externalURL: foo

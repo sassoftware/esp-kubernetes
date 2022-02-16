@@ -1,0 +1,116 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  creationTimestamp: null
+  name: esprouters.iot.sas.com
+spec:
+  group: iot.sas.com
+  names:
+    kind: ESPRouter
+    listKind: ESPRouterList
+    plural: esprouters
+    singular: esprouter
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: ESPRouter is the Schema for the esprouters API
+          properties:
+            apiVersion:
+              description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+              type: string
+            kind:
+              description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: ESPRouterSpec defines the desired state of ESPRouter
+              properties:
+                deployment:
+                  description: "ESPTemplate defines an unstructured object that is used as a template to create other Kubernetes resources. \n Since the template is unstructured, any object may be defined in the template and will be accepted by the Kubernetes API since there are no API schema validations defined on the template. This means that Kubernetes resource this template represents will be validated when the Kubernetes resource is created. It is recommended that the template structure is verfied as a valid Kubernetes resource beforehand to avoid runtime errors. See https://kubernetes.io/docs/reference/kubernetes-api/ for a list of Kubernetes resources. \n Fields in the template may contain placeholders that are replaced with values when the Kubernetes resource is created. This has the implication that there may be field validation errors at runtime."
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                destinations:
+                  items:
+                    description: ESPDestination defines the desination of ESPRoutes
+                    properties:
+                      name:
+                        type: string
+                      opcode:
+                        type: string
+                      projectFunc:
+                        type: string
+                      queryFunc:
+                        type: string
+                      windowFunc:
+                        type: string
+                    required:
+                      - name
+                      - opcode
+                      - projectFunc
+                      - queryFunc
+                      - windowFunc
+                    type: object
+                  type: array
+                espProperties:
+                  additionalProperties:
+                    type: string
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                routes:
+                  items:
+                    description: ESPRoute defines the mapping between ESPSource and ESPDestination
+                    properties:
+                      from:
+                        type: string
+                      to:
+                        type: string
+                    required:
+                      - from
+                      - to
+                    type: object
+                  type: array
+                sources:
+                  items:
+                    description: ESPSource defines the sources of ESPRoutes
+                    properties:
+                      name:
+                        type: string
+                      projectExpr:
+                        type: string
+                      queryExpr:
+                        type: string
+                      windowExpr:
+                        type: string
+                    required:
+                      - name
+                      - projectExpr
+                      - queryExpr
+                      - windowExpr
+                    type: object
+                  type: array
+              required:
+                - destinations
+                - espProperties
+                - routes
+                - sources
+              type: object
+            status:
+              description: ESPRouterStatus defines the observed state of ESPRouter
+              type: object
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

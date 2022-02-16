@@ -2,16 +2,16 @@
 # This is the esp-pv claim that esp component pods make use of.
 #
 apiVersion: v1
-kind: PersistentVolumeClaim 
+kind: PersistentVolumeClaim
 metadata:
-   name: esp-pv-pg
+  name: esp-pv-pg
 spec:
-   TEMPLATE_ESP_NFSstorageClassName: nfs-client 
-   TEMPLATE_ESP_AZUREstorageClassName: default
-   TEMPLATE_ESP_AWSstorageClassName: gp2
-   TEMPLATE_ESP_GCPstorageClassName: standard
-   accessModes:
-     - ReadWriteOnce # This volume is used for Postgres storage
-   resources:
-     requests:
-       storage: 10Gi  # volume size requested
+  TEMPLATE_ESP_NFSstorageClassName: nfs-client
+  TEMPLATE_ESP_AZUREstorageClassName: default
+  TEMPLATE_ESP_AWSstorageClassName: gp2
+  TEMPLATE_ESP_GCPstorageClassName: standard
+  accessModes:
+    - ReadWriteOnce # This volume is used for Postgres storage
+  resources:
+    requests:
+      storage: 10Gi # volume size requested

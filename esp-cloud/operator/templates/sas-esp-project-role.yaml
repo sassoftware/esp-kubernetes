@@ -4,41 +4,41 @@ metadata:
   name: sas-esp-project
   namespace: TEMPLATE_ESP_NAMESPACE
 rules:
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  - pods/log
-  - services
-  - endpoints
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - deployments
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - configmaps
-  verbs:
-  - get
-  - create
-- apiGroups:
-  - iot.sas.com
-  resources:
-  - '*'
-  - espupdates
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - update
-  - delete
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/log
+      - services
+      - endpoints
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - create
+  - apiGroups:
+      - iot.sas.com
+    resources:
+      - '*'
+      - espupdates
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete

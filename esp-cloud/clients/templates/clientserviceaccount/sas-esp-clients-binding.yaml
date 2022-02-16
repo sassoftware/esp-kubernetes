@@ -3,8 +3,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: sas-esp-clients
 subjects:
-- kind: ServiceAccount
-  name: sas-esp-clients
+  - kind: ServiceAccount
+    name: sas-esp-clients
 roleRef:
   kind: Role
   name: sas-esp-clients

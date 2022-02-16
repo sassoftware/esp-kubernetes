@@ -1,8 +1,20 @@
+#!/usr/bin/env sh
+
 #  Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
 #  SPDX-License-Identifier: Apache-2.0
 
 getTag3() {
-    curl -X GET -s -k https://repulpmaster.unx.sas.com/v2/${1}/${2}/tags/list | jq '.tags' | tr -d '", ' | tr -d ',' | head -n -1 | tail -n +1 | sort -t '-' -k 2 | tail -1
+    if test -z "${1:-}"; then
+        echo >&2 'Missing container image repository.'
+        return 1
+    fi
+    if test -z "${2:-}"; then
+        echo >&2 'Missing container image name.'
+        return 1
+    fi
+    _url="https://repulpmaster.unx.sas.com/v2/${1}/${2}/tags/list"
+    curl -s -k "${_url}" | jq -r '[.tags[] | [gsub("[-]";".") | split(".")[] | ("0"*(8-(.|length)))[0:8]+.] | join(".")] | sort | reverse | .[0] | [split(".")[] | tonumber] | join(".")' | sed -e 's/\./-/3'
+    unset _url
 }
 
 getImages() {
@@ -51,7 +63,7 @@ show_usage() {
 }   
 
 
-BUILD_LEVEL=""
+BUILD_LEVEL="snapshot"
 [ "$1" == "-R" ] && BUILD_LEVEL=release
 [ "$1" == "-S" ] && BUILD_LEVEL=snapshot
 

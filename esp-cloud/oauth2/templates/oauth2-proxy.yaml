@@ -11,68 +11,69 @@ spec:
       k8s-app: oauth2-proxy
   template:
     metadata:
-      annotations:
-        seccomp.security.alpha.kubernetes.io/pod: runtime/default
       labels:
         k8s-app: oauth2-proxy
     spec:
       TEMPLATE_ESP_AZUREimagePullSecrets:
       TEMPLATE_ESP_AZURE  - name: acr-secret
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: "sas-esp-oproxy"
       containers:
-      - args:
-        - --provider=uaa
-        # this is sent to browser, therefore esp-uaa.sas.com is an external url
-        - --login-url=https://TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN/uaa/oauth/authorize
-        # this is used by oauth_proxy to redeem code, it uses the service uaa
-        - --redeem-url=http://uaa-service/uaa/oauth/token
-        - --validate-url=http://uaa-service/uaa/userinfo
-        - --token-introspect-url=http://uaa-service/uaa/introspect
-        - --whitelist-domain=TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
-        - --passthrough-path=projects
-        - --email-domain=*
-        - --upstream=file:///dev/null
-        - --http-address=0.0.0.0:4180
-        - --cookie-name=esp_oauth2_proxy
-        - --cookie-expire=12h0m0s
-        - --cookie-secure=true
-        - --cookie-domain=TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
-        - --cookie-samesite=lax
-        # Register a new application
-        # https://github.com/settings/applications/new
-        env:
-        - name: OAUTH2_PROXY_CLIENT_ID
-          value: sv_client
-        - name: OAUTH2_PROXY_CLIENT_SECRET
-          value: secret
-        # docker run -ti --rm python:3-alpine python -c 'import secrets,base64; print(base64.b64encode(base64.b64encode(secrets.token_bytes(16))));'
-        - name: OAUTH2_PROXY_COOKIE_SECRET
-          value: bXJnNSt4SDliTklzZ1IzRWpyOWtIUT09
-        - name: MYPOD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: MYDEPLOY_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
-        - name: MYDEPLOY_UID
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.uid
-        #image: quay.io/pusher/oauth2_proxy:latest
-        image: TEMPLATE_ESP_OAUTH2P_IMAGE
-        imagePullPolicy: Always
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          runAsGroup: 1001
-          runAsUser: 1001
-          runAsNonRoot: true        
-        name: oauth2-proxy
-        ports:
-        - containerPort: 4180
-          protocol: TCP
+        - args:
+            - --provider=uaa
+            # this is sent to browser, therefore esp-uaa.sas.com is an external url
+            - --login-url=https://TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN/uaa/oauth/authorize
+            # this is used by oauth_proxy to redeem code, it uses the service uaa
+            - --redeem-url=http://uaa-service/uaa/oauth/token
+            - --validate-url=http://uaa-service/uaa/userinfo
+            - --token-introspect-url=http://uaa-service/uaa/introspect
+            - --whitelist-domain=TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+            - --passthrough-path=projects
+            - --email-domain=*
+            - --upstream=file:///dev/null
+            - --http-address=0.0.0.0:4180
+            - --cookie-name=esp_oauth2_proxy
+            - --cookie-expire=12h0m0s
+            - --cookie-secure=true
+            - --cookie-domain=TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+            - --cookie-samesite=lax
+          # Register a new application
+          # https://github.com/settings/applications/new
+          env:
+            - name: OAUTH2_PROXY_CLIENT_ID
+              value: sv_client
+            - name: OAUTH2_PROXY_CLIENT_SECRET
+              value: secret
+            # docker run -ti --rm python:3-alpine python -c 'import secrets,base64; print(base64.b64encode(base64.b64encode(secrets.token_bytes(16))));'
+            - name: OAUTH2_PROXY_COOKIE_SECRET
+              value: bXJnNSt4SDliTklzZ1IzRWpyOWtIUT09
+            - name: MYPOD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: MYDEPLOY_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MYDEPLOY_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+          #image: quay.io/pusher/oauth2_proxy:latest
+          image: TEMPLATE_ESP_OAUTH2P_IMAGE
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsUser: 1001
+            runAsNonRoot: true
+          name: oauth2-proxy
+          ports:
+            - containerPort: 4180
+              protocol: TCP
 ---
 apiVersion: v1
 kind: Service
@@ -82,13 +83,12 @@ metadata:
   name: oauth2-proxy
 spec:
   ports:
-  - name: http
-    port: 4180
-    protocol: TCP
-    targetPort: 4180
+    - name: http
+      port: 4180
+      protocol: TCP
+      targetPort: 4180
   selector:
     k8s-app: oauth2-proxy
-
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -98,19 +98,19 @@ metadata:
     kubernetes.io/ingress.allow-http: "false"
   name: oauth2-proxy
 spec:
-  ingressClassName: nginx  
+  ingressClassName: nginx
   rules:
-  - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
-    http:
-      paths:
-        - path: /oauth2
-          pathType: Prefix
-          backend:
-            service:
-              name: oauth2-proxy
-              port:
-                number: 4180
+    - host: TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+      http:
+        paths:
+          - path: /oauth2
+            pathType: Prefix
+            backend:
+              service:
+                name: oauth2-proxy
+                port:
+                  number: 4180
   tls:
-  - hosts:
-    - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
-    secretName: foo
+    - hosts:
+        - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
+      secretName: foo

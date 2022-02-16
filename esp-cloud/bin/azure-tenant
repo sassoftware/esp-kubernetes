@@ -13,7 +13,7 @@ show_usage() {
     echo "Usage: $0"
     echo ""
     echo "required: -C <continer registry> -r <resource group (of cluster)>"
-    echo "          -c <cluster name> -t <tennant name>"
+    echo "          -c <cluster name> -t <tenant name>"
     echo ""
     echo "optional: -g <resource group (of container registry>)"
     exit 1
@@ -91,7 +91,7 @@ while [[ -z $AZ_PIP ]]; do
 done
 
 #
-# add in our DNS record for our default tennant.
+# add in our DNS record for our default tenant.
 #
 AZ_LRG=$( az aks show --resource-group $AZ_RG --name $AZ_CL --query nodeResourceGroup -o tsv)
 az network dns record-set a delete     -g $AZ_LRG -z $AZ_DM -n $AZ_NS --yes

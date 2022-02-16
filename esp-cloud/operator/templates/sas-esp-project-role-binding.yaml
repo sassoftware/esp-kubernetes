@@ -4,8 +4,8 @@ metadata:
   name: sas-esp-project
   namespace: TEMPLATE_ESP_NAMESPACE
 subjects:
-- kind: ServiceAccount
-  name: sas-esp-project
+  - kind: ServiceAccount
+    name: sas-esp-project
 roleRef:
   kind: Role
   name: sas-esp-project
