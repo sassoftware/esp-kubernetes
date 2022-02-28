@@ -8,7 +8,7 @@
 show_usage() {
     echo "Usage: $0"
     echo "          -x <project XML>           -- xml version of project"
-    echo "          -s <service name>          -- ingress servicce name"
+    echo "          -s <service name>          -- ingress service name"
     echo "          -o <output file>           -- file to write project CR yaml to"
     exit 1
 }
