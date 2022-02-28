@@ -49,15 +49,15 @@ spec:
             # docker run -ti --rm python:3-alpine python -c 'import secrets,base64; print(base64.b64encode(base64.b64encode(secrets.token_bytes(16))));'
             - name: OAUTH2_PROXY_COOKIE_SECRET
               value: bXJnNSt4SDliTklzZ1IzRWpyOWtIUT09
-            - name: MYPOD_NAMESPACE
+            - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            - name: MYDEPLOY_NAME
+            - name: POD_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            - name: MYDEPLOY_UID
+            - name: POD_UID
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.uid
