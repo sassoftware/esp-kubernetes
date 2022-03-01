@@ -5,10 +5,11 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: esp-pv
-#   annotations:
-#     volume.beta.kubernetes.io/storage-class: "nfs-client
 spec:
-  storageClassName: nfs-client
+  TEMPLATE_ESP_NFSstorageClassName: nfs-client
+  TEMPLATE_ESP_AZUREstorageClassName: azurefile
+  TEMPLATE_ESP_AWSstorageClassName: gp2
+  TEMPLATE_ESP_GCPstorageClassName: standard
   accessModes:
     - ReadWriteMany # This volume is used for ESP projects input/output files
   resources:
