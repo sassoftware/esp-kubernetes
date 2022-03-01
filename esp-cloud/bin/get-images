@@ -39,16 +39,15 @@ getImages() {
     STR=`getTag3 $REPO1 $STRI`
     STU=`getTag3 $REPO1 $STUI`
 
-
-    export IMAGE_OPERATOR=repulpmaster.unx.sas.com/$REPO1/$OPI:$OP
-    export IMAGE_ESPSRV=repulpmaster.unx.sas.com/$REPO1/$SRI:$SR
-    export IMAGE_METERBILL=repulpmaster.unx.sas.com/$REPO1/$MTI:$MT
-    export IMAGE_LOADBAL=repulpmaster.unx.sas.com/$REPO1/$LBI:$LB
-    export IMAGE_ESPSTUDIO=repulpmaster.unx.sas.com/$REPO1/$STUI:$STU
-    export IMAGE_ESPSTRMVWR=repulpmaster.unx.sas.com/$REPO1/$STRI:$STR
-    export IMAGE_ESPESM=repulpmaster.unx.sas.com/$REPO1/$ESMI:$ESM
-    
-    export IMAGE_ESPOAUTH2P=repulpmaster.unx.sas.com/$REPO1/$O2PI:$O2P
+    IMAGE_REGISTRY="${IMAGE_REGISTRY:-repulpmaster.unx.sas.com}"
+    export IMAGE_OPERATOR="${IMAGE_REGISTRY}/$REPO1/$OPI:$OP"
+    export IMAGE_ESPSRV="${IMAGE_REGISTRY}/$REPO1/$SRI:$SR"
+    export IMAGE_METERBILL="${IMAGE_REGISTRY}/$REPO1/$MTI:$MT"
+    export IMAGE_LOADBAL="${IMAGE_REGISTRY}/$REPO1/$LBI:$LB"
+    export IMAGE_ESPSTUDIO="${IMAGE_REGISTRY}/$REPO1/$STUI:$STU"
+    export IMAGE_ESPSTRMVWR="${IMAGE_REGISTRY}/$REPO1/$STRI:$STR"
+    export IMAGE_ESPESM="${IMAGE_REGISTRY}/$REPO1/$ESMI:$ESM"
+    export IMAGE_ESPOAUTH2P="${IMAGE_REGISTRY}/$REPO1/$O2PI:$O2P"
     export IMAGE_UAA=ghcr.io/skolodzieski/uaa:74.29.0
 }
 
