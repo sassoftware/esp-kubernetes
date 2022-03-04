@@ -60,3 +60,9 @@ rules:
       - events
     verbs:
       - list
+  - apiGroups:
+    - autoscaling
+    resources:
+    - horizontalpodautoscalers
+    verbs:
+    - get
