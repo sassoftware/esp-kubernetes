@@ -13,7 +13,7 @@ getTag3() {
         return 1
     fi
     _url="https://repulpmaster.unx.sas.com/v2/${1}/${2}/tags/list"
-    curl -s -k "${_url}" | jq -r '[.tags[] | [gsub("[-]";".") | split(".")[] | ("0"*(8-(.|length)))[0:8]+.] | join(".")] | sort | reverse | .[0] | [split(".")[] | tonumber] | join(".")' | sed -e 's/\./-/3'
+    curl -s -k "${_url}" | jq -r '.tags[]' | sed -e 's/-/./g' | sort -n -r -t . -k '1,1' -k '2,2' -k '3,3' -k '4,4' -k '5,5' | head -1 | sed -e 's/\./-/3'
     unset _url
 }
 
