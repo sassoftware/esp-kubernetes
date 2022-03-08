@@ -30,8 +30,9 @@ az account show &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to azure" && e
 
 # defaults
 #
-AZ_NODE_NUM=5
+AZ_NODE_NUM=2
 AZ_NODE_SIZE=Standard_F16s_v2
+K8_VER=1.22.4
 
 # Standard_F16s_v2	16 cores	32 GB ram
 #
@@ -55,8 +56,9 @@ show_usage() {
     echo "          -C <container registry>"
     echo "          -f <file to write kubeconfig to>"
     echo ""
-    echo "optional: -n <number of node, default: 5>"
+    echo "optional: -n <number of node, default: 2>"
     echo "          -s <vm size, default: Standard_F16s_v2>"
+    echo "          -v <k8 version, defaults to 1.22.4>"
     echo ""
     echo "This command creates a new <resource group>. The <resource group>"
     echo "   will contain a <container registry> that docker images can"
@@ -67,7 +69,7 @@ show_usage() {
     exit 1
 }   
 
-while getopts "?C:c:r:g:t:f:n:s:" opt; do
+while getopts "?C:c:r:g:t:f:n:s:v:" opt; do
     case "$opt" in
         \?)
             show_usage
@@ -86,6 +88,8 @@ while getopts "?C:c:r:g:t:f:n:s:" opt; do
 	n)  AZ_NODE_NUM=$OPTARG
 	    ;;
 	s)  AZ_NODE_SIZE=$OPTARG
+	    ;;
+	v)  K8_VER=$OPTARG
 	    ;;
         *)
             echo "bad option <$opt>" && show_usage
@@ -133,7 +137,8 @@ az acr update -n $AZ_CR --admin-enabled true
 az aks create --resource-group $AZ_RG --name $AZ_CL \
               --node-count $AZ_NODE_NUM --node-vm-size $AZ_NODE_SIZE \
               --enable-addons monitoring --generate-ssh-keys \
-	      --enable-addons http_application_routing
+	      --enable-addons http_application_routing \
+	      --kubernetes-version $K8_VER
 [ 0 -ne $? ] && echo "could not AKS cluster" && exit 1
 az aks wait --created  --resource-group $AZ_RG --name $AZ_CL 
 
@@ -155,12 +160,11 @@ kubectl -n nginx-basic apply -f $ROOT/../share/nginx-cm.yaml
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx &> /dev/null
 [ 0 -ne $? ] && echo "could not add the ingress-nginx helm repository" && exit 1
 
-
-helm install nginx-ingress ingress-nginx/ingress-nginx \
-             --namespace nginx-basic --set controller.replicaCount=2 \
-	     --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
-	     --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
-	     --set controller.admissionWebhooks.patch.nodeSelector."beta\.kubernetes\.io/os"=linux
+helm install nginx-ingress ingress-nginx/ingress-nginx --version 4.0.18 \
+     --namespace nginx-basic --set controller.replicaCount=2 \
+     --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+     --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
+     --set controller.admissionWebhooks.patch.nodeSelector."beta\.kubernetes\.io/os"=linux
 
 #
 # get DNS created by http_application_routing
