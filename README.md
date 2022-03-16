@@ -16,6 +16,7 @@ Table of Contents
   * [Prerequisites](#prerequisites)
     * [Persistent Volume](#persistent-volume)
     * [Additional Prerequisites for a Multi-user Deployment](#additional-prerequisites-for-a-multi-user-deployment)
+    * [Kubernetes Metrics Server](#kubernetes-metrics-server)
   * [Getting Started](#getting-started)
     * [Retreive Required Files](#retreive-required-files)
     * [Set the Environment Variables](#set-the-environment-variables)
@@ -162,6 +163,13 @@ Both of these containers are supplied in the publically available repository:
 ghcr.io/skolodzieski/uaac            3.2.0      265MB
 ghcr.io/skolodzieski/uaa             74.29.0    1.09GB
 ```
+
+### Kubernetes Metrics Server
+
+The Kubernetes Metrics Server is required for SAS Event Stream Processing clients to access Kubernetes metrics.
+To install this component, see <https://github.com/kubernetes-sigs/metrics-server>.
+
+If the Kubernetes Metrics Server is not installed, when you use SAS Event Stream Manager to deploy a project in a deployment whose type is "Cluster", the **Kubernetes Metrics** tab does not display information about current CPU utilization.
 
 ## Getting Started
 
