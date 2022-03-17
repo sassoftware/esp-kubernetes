@@ -13,7 +13,7 @@ ESP_UAA=$IMAGE_UAA
 ESP_STD=$IMAGE_ESPSTUDIO
 ESP_SVR=$IMAGE_ESPSTRMVWR
 ESP_ESM=$IMAGE_ESPESM
-    
+
 # usage -- all args are required.
 #
 show_usage() {
@@ -66,29 +66,29 @@ while getopts "?c:l:n:o:s:d:m:b:e:t:v:a:ryCMAWG" opt; do
             show_usage
             return 1
             ;;
-	r)  RMDEPLOY="y"
-	    ;;
-	y)  ASKUSER="n"
-	    ;;
+        r)  RMDEPLOY="y"
+            ;;
+        y)  ASKUSER="n"
+            ;;
         n)  ESP_NS=$OPTARG
             ;;
-	C)  CLIENTS=yes
-	    SUBDIRS="$SUBDIRS clients"
-	    ;;
-	M)  MULTI=yes
-	    SUBDIRS="$SUBDIRS oauth2"	    
-	    ESP_MULTI_COMMENT=""
-	    ESP_OPEN_COMMENT="#"
-	    ;;
-	A)  ESP_AZURE_COMMENT=""
-	    ESP_NFS_COMMENT="#"
-	    ;;
-	W)  ESP_AWS_COMMENT=""
-	    ESP_NFS_COMMENT="#"
-	    ;;
-	G)  ESP_GCP_COMMENT=""
-	    ESP_NFS_COMMENT="#"
-	    ;;
+        C)  CLIENTS=yes
+            SUBDIRS="$SUBDIRS clients"
+            ;;
+        M)  MULTI=yes
+            SUBDIRS="$SUBDIRS oauth2"
+            ESP_MULTI_COMMENT=""
+            ESP_OPEN_COMMENT="#"
+            ;;
+        A)  ESP_AZURE_COMMENT=""
+            ESP_NFS_COMMENT="#"
+            ;;
+        W)  ESP_AWS_COMMENT=""
+            ESP_NFS_COMMENT="#"
+            ;;
+        G)  ESP_GCP_COMMENT=""
+            ESP_NFS_COMMENT="#"
+            ;;
         o)  ESP_OP=$OPTARG
             ;;
         s)  ESP_SR=$OPTARG
@@ -107,10 +107,12 @@ while getopts "?c:l:n:o:s:d:m:b:e:t:v:a:ryCMAWG" opt; do
             ;;
         a)  ESP_O2P=$OPTARG
             ;;
-	l)  ESP_LF=$OPTARG
+        l)  ESP_LF=$OPTARG
             ;;
         *)
-            echo "bad option <$opt>" && show_usage
+            echo "bad option <$opt>"
+            show_usage
+            ;;
     esac
 done
 
@@ -135,9 +137,9 @@ fi
 
 # multiuser?
 #
-if [[ "yes" = "$MULTI" ]] ; then 
+if [[ "yes" = "$MULTI" ]] ; then
     [ -z $ESP_O2P ] && echo "oauth2 proxy image not specified" && show_usage
-    [ -z $ESP_UAA ] && echo "UAA image not specified" && show_usage    
+    [ -z $ESP_UAA ] && echo "UAA image not specified" && show_usage
 
     # We use the following env vars to create the postgres/uaa secrets
     #    for the deployment.
@@ -149,14 +151,10 @@ if [[ "yes" = "$MULTI" ]] ; then
 
     TEMPLATE_UAA_ADMIN=$uaaUsername
     TEMPLATE_UAA_CREDENTIALS=$uaaCredentials
-
-    
 fi
-
 
 [ ! -f $ESP_LF ] && echo "License file <$ESP_LF> was not found, aborting." && exit 1
 LICB64GZ=`cat $ESP_LF | gzip - | base64 -w 0`
-
 
 ROOT=`readlink -f $ROOT`
 ROOT=`dirname $ROOT`
@@ -167,11 +165,11 @@ DEPLOYMENT=$ROOT/deploy
 
 echo "ROOT = <$ROOT>"
 
-if [[ "$ASKUSER" = "y" ]] ; then 
+if [[ "$ASKUSER" = "y" ]] ; then
     echo
     echo "The following susbstitution will be made across all manifest"
     echo "   yaml files"
-    echo 
+    echo
     echo "TEMPLATE_ESP_NAMESPACE      <-- $ESP_NS"
     echo "TEMPLATE_ESP_DOMAIN         <-- $ESP_DM"
     echo "TEMPLATE_ESP_LICENSE        <-- $ESP_LF"
@@ -180,37 +178,36 @@ if [[ "$ASKUSER" = "y" ]] ; then
     echo "TEMPLATE_ESP_SERVER_IMAGE   <-- $ESP_SR"
     echo "TEMPLATE_ESP_METER_IMAGE    <-- $ESP_MB"
     echo "TEMPLATE_ESP_LB_IMAGE       <-- $ESP_LB"
-    
-    if [[ "yes" = "$CLIENTS" ]] ; then 
-	echo "TEMPLATE_ESM_IMAGE          <-- $ESP_ESM"
-	echo "TEMPLATE_ESPSTUDIO_IMAGE    <-- $ESP_STD"
-	echo "TEMPLATE_STREAMVIEWER_IMAGE <-- $ESP_SVR"
+
+    if [[ "yes" = "$CLIENTS" ]] ; then
+        echo "TEMPLATE_ESM_IMAGE          <-- $ESP_ESM"
+        echo "TEMPLATE_ESPSTUDIO_IMAGE    <-- $ESP_STD"
+        echo "TEMPLATE_STREAMVIEWER_IMAGE <-- $ESP_SVR"
     fi
 
-    if [[ "yes" = "$MULTI" ]] ; then 
-	echo "TEMPLATE_ESP_OAUTH2P_IMAGE  <-- $ESP_O2P"
+    if [[ "yes" = "$MULTI" ]] ; then
+        echo "TEMPLATE_ESP_OAUTH2P_IMAGE  <-- $ESP_O2P"
     fi
-    
+
     [ "y" = "$RMDEPLOY" ] && echo && echo "directory $DEPLOYMENT will be removed and recreated."
     echo ""
     read -p "would you like to proceed (y/n)? " ANS
     if [[ "$ANS" != "y" ]]; then
-	echo "  script aborted"
-	exit 1
+        echo "  script aborted"
+        exit 1
     fi
 fi
 
 [ "y" = "$RMDEPLOY" ] && rm -rf $DEPLOYMENT
 mkdir -p ${DEPLOYMENT}
 
-
 for i in ${SUBDIRS} ; do
-    
+
     TEMPLATES=${i}/templates
     if [[ ! -d "$TEMPLATES" ]]; then
-	echo "templates/ directory could not be found as: $TEMPLATES"
-	echo "script aborting."
-	exit 1
+        echo "templates/ directory could not be found as: $TEMPLATES"
+        echo "script aborting."
+        exit 1
     fi
 
     # copy files from TEMPLATES to DEPLOYMENT
@@ -218,11 +215,11 @@ for i in ${SUBDIRS} ; do
 
 done
 
-for i in  `find ${DEPLOYMENT} -name "*.xml"` ; do 
+for i in  `find ${DEPLOYMENT} -name "*.xml"` ; do
     sed -i 's|TEMPLATE_ESP_NAMESPACE|'$ESP_NS'|g' $i
 done
 
-for i in `find ${DEPLOYMENT} -name "*.y*ml"` ; do 
+for i in `find ${DEPLOYMENT} -name "*.y*ml"` ; do
     echo "working on $i"
     sed -i -f - $i << EOF
 s|TEMPLATE_ESP_LICB64GZ|$LICB64GZ|g
@@ -240,17 +237,13 @@ EOF
     sed -i 's|TEMPLATE_STREAMVIEWER_IMAGE|'$ESP_SVR'|g' $i
     sed -i 's|TEMPLATE_ESP_OAUTH2P_IMAGE|'$ESP_O2P'|g' $i
 
-    sed -i 's|TEMPLATE_ESP_OPEN|'$ESP_OPEN_COMMENT'|g' $i    
+    sed -i 's|TEMPLATE_ESP_OPEN|'$ESP_OPEN_COMMENT'|g' $i
     sed -i 's|TEMPLATE_ESP_MULTI|'$ESP_MULTI_COMMENT'|g' $i
-    sed -i 's|TEMPLATE_ESP_AZURE|'$ESP_AZURE_COMMENT'|g' $i    
-    sed -i 's|TEMPLATE_ESP_AWS|'$ESP_AWS_COMMENT'|g' $i    
-    sed -i 's|TEMPLATE_ESP_GCP|'$ESP_GCP_COMMENT'|g' $i    
+    sed -i 's|TEMPLATE_ESP_AZURE|'$ESP_AZURE_COMMENT'|g' $i
+    sed -i 's|TEMPLATE_ESP_AWS|'$ESP_AWS_COMMENT'|g' $i
+    sed -i 's|TEMPLATE_ESP_GCP|'$ESP_GCP_COMMENT'|g' $i
     sed -i 's|TEMPLATE_ESP_NFS|'$ESP_NFS_COMMENT'|g' $i
     sed -i 's|TEMPLATE_UAA_IMAGE|'$ESP_UAA'|g' $i
     sed -i 's|TEMPLATE_UAA_ADMIN|'$uaaUsername'|g' $i
-    sed -i 's|TEMPLATE_UAA_CREDENTIALS|'$uaaCredentials'|g' $i    
+    sed -i 's|TEMPLATE_UAA_CREDENTIALS|'$uaaCredentials'|g' $i
 done
-
-
-
-
