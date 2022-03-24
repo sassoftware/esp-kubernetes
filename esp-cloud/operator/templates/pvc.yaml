@@ -1,17 +1,11 @@
-#
-# This is the esp-pv claim that esp component pods make use of.
-#
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: esp-pv
 spec:
-  TEMPLATE_ESP_NFSstorageClassName: nfs-client
-  TEMPLATE_ESP_AZUREstorageClassName: azurefile
-  TEMPLATE_ESP_AWSstorageClassName: gp2
-  TEMPLATE_ESP_GCPstorageClassName: standard
+  storageClassName: nfs-client
   accessModes:
-    - ReadWriteMany # This volume is used for ESP projects input/output files
+    - ReadWriteMany
   resources:
     requests:
-      storage: 5Gi # volume size requested
+      storage: 5Gi
