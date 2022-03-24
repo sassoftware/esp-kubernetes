@@ -397,21 +397,17 @@ This *PersistentVolumeClaim* is made by the PostgreSQL database. Ensure that the
 A second YAML template file named deploy/pvc.yaml specifies a *PersistentVolumeClaim* as the read/write location for running ESP projects. For example:
 
 ```yaml
-#
-# This is the esp-pv claim that esp component pods use.
-#
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: esp-pv
-annotations:
-  volume.beta.kubernetes.io/storage-class: "nfs-client"
 spec:
+  storageClassName: nfs-client
   accessModes:
-    - ReadWriteMany # This volume is used for ESP projects input/output files
+    - ReadWriteMany
   resources:
     requests:
-      storage: 20Gi  # volume size requested
+      storage: 5Gi
 ```
 
 In general, the processes associated with the ESP server run user:**sas**, group:**sas**. Typically,
