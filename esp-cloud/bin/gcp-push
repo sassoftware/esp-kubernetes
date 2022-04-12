@@ -79,6 +79,6 @@ for i in `env| fgrep IMAGE_ | fgrep repulp`; do
     echo "export $ENVV=$GCP_CRLS/${BUILD_LEVEL}$GCP_REPO:$TAG" >> $ROOT/gcp-images
 done
 
-echo "export IMAGE_UAA=ghcr.io/skolodzieski/uaa:74.29.0" >> $ROOT/gcp-images
+echo "export IMAGE_UAA=ghcr.io/skolodzieski/uaa:75.18.0" >> $ROOT/gcp-images
 
 . $ROOT/gcp-images

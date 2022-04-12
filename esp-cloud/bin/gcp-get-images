@@ -57,4 +57,4 @@ get_image IMAGE_LOADBAL ${BUILD_LEVEL}sas-esp-load-balancer
 get_image IMAGE_ESPSTUDIO ${BUILD_LEVEL}sas-event-stream-processing-studio-app
 get_image IMAGE_METERBILL ${BUILD_LEVEL}sas-event-stream-processing-metering-app
 get_image IMAGE_ESPSRV ${BUILD_LEVEL}sas-event-stream-processing-server-app
-echo "export IMAGE_UAA=ghcr.io/skolodzieski/uaa:74.29.0"
+echo "export IMAGE_UAA=ghcr.io/skolodzieski/uaa:75.18.0"

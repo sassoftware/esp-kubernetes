@@ -84,6 +84,6 @@ for i in `env| fgrep IMAGE_ | fgrep repulp`; do
     echo "export $ENVV=$AZ_CRLS/${BUILD_LEVEL}$AZURE_REPO:$TAG" >> $ROOT/azure-images
 done
 
-echo "export IMAGE_UAA=ghcr.io/skolodzieski/uaa:74.29.0" >> $ROOT/azure-images
+echo "export IMAGE_UAA=ghcr.io/skolodzieski/uaa:75.18.0" >> $ROOT/azure-images
 
 . $ROOT/azure-images

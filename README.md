@@ -161,7 +161,7 @@ Both of these containers are supplied in the publically available repository:
 
 ```text
 ghcr.io/skolodzieski/uaac            3.2.0      265MB
-ghcr.io/skolodzieski/uaa             74.29.0    1.09GB
+ghcr.io/skolodzieski/uaa             75.18.0    1.09GB
 ```
 
 ### Kubernetes Metrics Server

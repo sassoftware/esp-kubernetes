@@ -48,7 +48,7 @@ getImages() {
     export IMAGE_ESPSTRMVWR="${IMAGE_REGISTRY}/$REPO1/$STRI:$STR"
     export IMAGE_ESPESM="${IMAGE_REGISTRY}/$REPO1/$ESMI:$ESM"
     export IMAGE_ESPOAUTH2P="${IMAGE_REGISTRY}/$REPO1/$O2PI:$O2P"
-    export IMAGE_UAA=ghcr.io/skolodzieski/uaa:74.29.0
+    export IMAGE_UAA=ghcr.io/skolodzieski/uaa:75.18.0
 }
 
 show_usage() {

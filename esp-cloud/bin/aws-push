@@ -89,6 +89,6 @@ for i in `env| fgrep IMAGE_ | fgrep repulp`; do
     echo "export $ENVV=$AWS_CRLS/${BUILD_LEVEL}$AWS_REPO:$TAG" >> $ROOT/aws-images
 done
 
-echo "export IMAGE_UAA=ghcr.io/skolodzieski/uaa:74.29.0" >> $ROOT/aws-images
+echo "export IMAGE_UAA=ghcr.io/skolodzieski/uaa:75.18.0" >> $ROOT/aws-images
 
 . $ROOT/aws-images
