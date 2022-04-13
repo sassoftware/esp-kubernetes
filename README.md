@@ -1,8 +1,8 @@
-# SAS ESP Lightweight Kubernetes
+# SAS Event Stream Processing Lightweight Kubernetes
 
 Table of Contents
 
-* [SAS ESP Lightweight Kubernetes](#sas-esp-lightweight-kubernetes)
+* [SAS Event Stream Processing Lightweight Kubernetes](#sas-esp-lightweight-kubernetes)
   * [Overview](#overview)
   * [Changes](#changes)
   * [Introduction](#introduction)

@@ -28,7 +28,7 @@ manage AKS clusters with SAS Event Stream processing.
 
 ## bin/azure-cluster -- build an AKS cluster from scratch
 
-This command will create a new **AZURE Resource Group** contianing:
+This command creates a new **AZURE Resource Group** that contains:
 
 * an AKS cluster
 * an Azure Container Registry
@@ -88,7 +88,7 @@ cluster namespace: foo
 
 ## bin/azure-startstop  -- start and stop AKS cluster to avoid charges
 
-Start or Stop the AKS cluster. Stopping the cluster with this command avoids being charges by Microsoft. Starting/Stopping the cluster can take several minutes.
+Start or Stop the AKS cluster. Stopping the cluster with this command avoids being charged by Microsoft. Starting/Stopping the cluster can take several minutes.
 
 ```shell
   [bin]$ ./azure-startstop -?
@@ -114,7 +114,7 @@ This script will look for the following env variables:
 * IMAGE_METERBILL
 * IMAGE_ESPSRV
 
-each one should point to an accessable docker image. The images are pulled, retagged, and pushed to the specified Azure Container Registry. If the image contains **snapshot** or **release**, than **snapshot/** or **release/** is added to the repository name in Azure.
+each one should point to an accessable docker image. The images are pulled, retagged, and pushed to the specified Azure Container Registry. If the image contains **snapshot** or **release**, then **snapshot/** or **release/** is added to the repository name in Azure.
 
 ```shell
    [bin]$ ./azure-push  -?
@@ -142,7 +142,7 @@ Purge a names container repository to a fixed number of images.
 
 ## bin/azure-get-images -- print latest images:tags for repository
 
-Print the most recent set of ESP images in an Azure container registry. The ouput is in a format the can be cur/pasted into a terminal window to set the IMAGE_XXX env variables.
+Print the most recent set of ESP images in an Azure container registry. The output is in a format that can be cut and pasted into a terminal window to set the IMAGE_XXX env variables.
 
 ```shell
     [bin]$ ./azure-get-images  -?
@@ -156,7 +156,7 @@ Print the most recent set of ESP images in an Azure container registry. The oupu
 
 ## (FOR SAS ONLY) bin/get-images -- populate IMAGE_XXX env vars from release/snapshot repulpmaster repo
 
-This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpmaster** reposiory and populate the IMAGE_XXX environment with the latest docker images.
+This script when sourced (run as: . ./bin/get-images) will go to a **SAS repulpmaster** repository and populate the IMAGE_XXX environment with the latest docker images.
 
 ```shell
     [bin]$ . ./get-images -?

@@ -23,7 +23,7 @@ how to use the [Amazon EKS command line tools](https://docs.aws.amazon.com/eks/l
 
 ## Installing SAS Event Stream Processing in an Amazon EKS Cluster
 
-The following set of scripts are inluded to help create and
+The following set of scripts are included to help create and
 manage Amazon EKS clusters with SAS Event Stream Processing.
 
 ---
