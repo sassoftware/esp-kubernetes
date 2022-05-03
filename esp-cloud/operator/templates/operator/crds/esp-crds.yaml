@@ -1,0 +1,2515 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  name: espconfigs.iot.sas.com
+spec:
+  conversion:
+    strategy: None
+  group: iot.sas.com
+  names:
+    kind: ESPConfig
+    listKind: ESPConfigList
+    plural: espconfigs
+    singular: espconfig
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: ESPConfig defines ESP Kubernetes operator configuration.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ESPConfigSpec defines the ESP Kubernetes operator configuration desired state.
+            properties:
+              espProperties:
+                additionalProperties:
+                  type: string
+                type: object
+              limits:
+                additionalProperties:
+                  type: string
+                type: object
+              loadBalancerTemplate:
+                description: ESPLoadBalancerTemplate defines an ESP server load balancer template.
+                properties:
+                  deployment:
+                    description: Deployment is a ESP template that represents a Kubernetes Deployment. Placeholders in fields are replaced with values before the Kubernetes Deployment is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
+              operatorProperties:
+                additionalProperties:
+                  type: string
+                type: object
+              projectTemplate:
+                description: ESPProjectTemplate defines an ESP server project template.
+                properties:
+                  autoscale:
+                    description: ESPautoscaler defines ESP server Kubernetes pod autoscaling configuration.
+                    properties:
+                      maxReplicas:
+                        format: int32
+                        type: integer
+                      metrics:
+                        items:
+                          description: MetricSpec specifies how to scale based on a single metric (only `type` and one other matching field should be set at once).
+                          properties:
+                            containerResource:
+                              description: container resource refers to a resource metric (such as those specified in requests and limits) known to Kubernetes describing a single container in each pod of the current scale target (e.g. CPU or memory). Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source. This is an alpha feature and can be enabled by the HPAContainerMetrics feature flag.
+                              properties:
+                                container:
+                                  description: container is the name of the container in the pods of the scaling target
+                                  type: string
+                                name:
+                                  description: name is the name of the resource in question.
+                                  type: string
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - container
+                              - name
+                              - target
+                              type: object
+                            external:
+                              description: external refers to a global metric that is not associated with any Kubernetes object. It allows autoscaling based on information coming from components running outside of cluster (for example length of queue in cloud messaging service, or QPS from loadbalancer running outside of cluster).
+                              properties:
+                                metric:
+                                  description: metric identifies the target metric by name and selector
+                                  properties:
+                                    name:
+                                      description: name is the name of the given metric
+                                      type: string
+                                    selector:
+                                      description: selector is the string-encoded form of a standard kubernetes label selector for the given metric When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping. When unset, just the metricName will be used to gather metrics.
+                                      properties:
+                                        matchExpressions:
+                                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                                          items:
+                                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                                            properties:
+                                              key:
+                                                description: key is the label key that the selector applies to.
+                                                type: string
+                                              operator:
+                                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                                type: string
+                                              values:
+                                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                                items:
+                                                  type: string
+                                                type: array
+                                            required:
+                                            - key
+                                            - operator
+                                            type: object
+                                          type: array
+                                        matchLabels:
+                                          additionalProperties:
+                                            type: string
+                                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                          type: object
+                                      type: object
+                                  required:
+                                  - name
+                                  type: object
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - metric
+                              - target
+                              type: object
+                            object:
+                              description: object refers to a metric describing a single kubernetes object (for example, hits-per-second on an Ingress object).
+                              properties:
+                                describedObject:
+                                  description: CrossVersionObjectReference contains enough information to let you identify the referred resource.
+                                  properties:
+                                    apiVersion:
+                                      description: API version of the referent
+                                      type: string
+                                    kind:
+                                      description: 'Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"'
+                                      type: string
+                                    name:
+                                      description: 'Name of the referent; More info: http://kubernetes.io/docs/user-guide/identifiers#names'
+                                      type: string
+                                  required:
+                                  - kind
+                                  - name
+                                  type: object
+                                metric:
+                                  description: metric identifies the target metric by name and selector
+                                  properties:
+                                    name:
+                                      description: name is the name of the given metric
+                                      type: string
+                                    selector:
+                                      description: selector is the string-encoded form of a standard kubernetes label selector for the given metric When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping. When unset, just the metricName will be used to gather metrics.
+                                      properties:
+                                        matchExpressions:
+                                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                                          items:
+                                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                                            properties:
+                                              key:
+                                                description: key is the label key that the selector applies to.
+                                                type: string
+                                              operator:
+                                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                                type: string
+                                              values:
+                                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                                items:
+                                                  type: string
+                                                type: array
+                                            required:
+                                            - key
+                                            - operator
+                                            type: object
+                                          type: array
+                                        matchLabels:
+                                          additionalProperties:
+                                            type: string
+                                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                          type: object
+                                      type: object
+                                  required:
+                                  - name
+                                  type: object
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - describedObject
+                              - metric
+                              - target
+                              type: object
+                            pods:
+                              description: pods refers to a metric describing each pod in the current scale target (for example, transactions-processed-per-second).  The values will be averaged together before being compared to the target value.
+                              properties:
+                                metric:
+                                  description: metric identifies the target metric by name and selector
+                                  properties:
+                                    name:
+                                      description: name is the name of the given metric
+                                      type: string
+                                    selector:
+                                      description: selector is the string-encoded form of a standard kubernetes label selector for the given metric When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping. When unset, just the metricName will be used to gather metrics.
+                                      properties:
+                                        matchExpressions:
+                                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                                          items:
+                                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                                            properties:
+                                              key:
+                                                description: key is the label key that the selector applies to.
+                                                type: string
+                                              operator:
+                                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                                type: string
+                                              values:
+                                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                                items:
+                                                  type: string
+                                                type: array
+                                            required:
+                                            - key
+                                            - operator
+                                            type: object
+                                          type: array
+                                        matchLabels:
+                                          additionalProperties:
+                                            type: string
+                                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                          type: object
+                                      type: object
+                                  required:
+                                  - name
+                                  type: object
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - metric
+                              - target
+                              type: object
+                            resource:
+                              description: resource refers to a resource metric (such as those specified in requests and limits) known to Kubernetes describing each pod in the current scale target (e.g. CPU or memory). Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source.
+                              properties:
+                                name:
+                                  description: name is the name of the resource in question.
+                                  type: string
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - name
+                              - target
+                              type: object
+                            type:
+                              description: 'type is the type of metric source.  It should be one of "ContainerResource", "External", "Object", "Pods" or "Resource", each mapping to a matching field in the object. Note: "ContainerResource" type is available on when the feature-gate HPAContainerMetrics is enabled'
+                              type: string
+                          required:
+                          - type
+                          type: object
+                        type: array
+                      minReplicas:
+                        format: int32
+                        type: integer
+                    required:
+                    - maxReplicas
+                    - metrics
+                    - minReplicas
+                    type: object
+                  deployment:
+                    description: Deployment is a ESP template that represents a Kubernetes Deployment. Placeholders in fields are replaced with values before the Kubernetes Deployment is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  httpProxy:
+                    description: Proxy is a ESP template that represents a Kubernetes Contour HTTPProxy. Placeholders in fields are replaced with values before the Kubernetes Contour HTTPProxy is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  httpService:
+                    description: HTTPService is a ESP template that represents a Kubernetes Service. Placeholders in fields are replaced with values before the Kubernetes Service is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  ingress:
+                    description: Ingress is a ESP template that represents a Kubernetes Ingress. Placeholders in fields are replaced with values before the Kubernetes Ingress is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  pubsubService:
+                    description: PubsubService is a ESP template that represents a Kubernetes Service. Placeholders in fields are replaced with values before the Kubernetes Service is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  route:
+                    description: Route is a ESP template that represents a Kubernetes OpenShift Route. Placeholders in fields are replaced with values before the Kubernetes OpenShift Route is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
+              routerTemplate:
+                description: ESPRouterTemplate defines an ESP server router template.
+                properties:
+                  deployment:
+                    description: Deployment is a ESP template that represents a Kubernetes Deployment. Placeholders in fields are replaced with values before the Kubernetes Deployment is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
+            required:
+            - espProperties
+            - operatorProperties
+            type: object
+          status:
+            description: ESPConfigStatus provides the ESP Kubernetes operator configuration observed state.
+            properties:
+              conditions:
+                description: Conditions is a list of conditional states of the ESP Kubernetes operator.
+                items:
+                  description: ESPConfigCondition contains details for the current condition of this ESP configuration.
+                  properties:
+                    lastTransitionTime:
+                      description: TransitionTime is the time the ESP configuration condition transitioned from another condition to this condition.
+                      format: date-time
+                      type: string
+                    message:
+                      description: Message is a human-readable message providing details about the condition transition.
+                      type: string
+                    reason:
+                      description: Reason is a short camel-cased reason about why the ESP configuration transitioned from another condition to this condition.
+                      type: string
+                    status:
+                      description: 'Status is the status of the condition. Valid values are: True, False, Unknown.'
+                      type: string
+                    type:
+                      description: Type is the type of the condition.
+                      type: string
+                  required:
+                  - status
+                  - type
+                  type: object
+                type: array
+              message:
+                description: Message is a human-readable message providing details about why the ESP configuration is in the current state.
+                type: string
+              phase:
+                description: 'Phase is the current lifecycle phase. Valid values are: Accepted (the ESP configuration is valid and will be used by the ESP Kubernetes operator), Failed (the ESP configuration is invalid and will not be used by the ESP Kubernetes operator).'
+                type: string
+              reason:
+                description: Reason is a short camel-cased reason about why the ESP configuration is in the current state.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ESPConfig defines ESP Kubernetes operator configuration.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ESPConfigSpec defines the ESP Kubernetes operator configuration desired state.
+            properties:
+              espProperties:
+                additionalProperties:
+                  type: string
+                type: object
+              limits:
+                additionalProperties:
+                  type: string
+                type: object
+              loadBalancerTemplate:
+                description: ESPLoadBalancerTemplate defines an ESP server load balancer template.
+                properties:
+                  deployment:
+                    description: Deployment is a ESP template that represents a Kubernetes Deployment. Placeholders in fields are replaced with values before the Kubernetes Deployment is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
+              operatorProperties:
+                additionalProperties:
+                  type: string
+                type: object
+              projectTemplate:
+                description: ESPProjectTemplate defines an ESP server project template.
+                properties:
+                  autoscale:
+                    description: ESPautoscaler defines ESP server Kubernetes pod autoscaling configuration.
+                    properties:
+                      maxReplicas:
+                        format: int32
+                        type: integer
+                      metrics:
+                        items:
+                          description: MetricSpec specifies how to scale based on a single metric (only `type` and one other matching field should be set at once).
+                          properties:
+                            containerResource:
+                              description: container resource refers to a resource metric (such as those specified in requests and limits) known to Kubernetes describing a single container in each pod of the current scale target (e.g. CPU or memory). Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source. This is an alpha feature and can be enabled by the HPAContainerMetrics feature flag.
+                              properties:
+                                container:
+                                  description: container is the name of the container in the pods of the scaling target
+                                  type: string
+                                name:
+                                  description: name is the name of the resource in question.
+                                  type: string
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - container
+                              - name
+                              - target
+                              type: object
+                            external:
+                              description: external refers to a global metric that is not associated with any Kubernetes object. It allows autoscaling based on information coming from components running outside of cluster (for example length of queue in cloud messaging service, or QPS from loadbalancer running outside of cluster).
+                              properties:
+                                metric:
+                                  description: metric identifies the target metric by name and selector
+                                  properties:
+                                    name:
+                                      description: name is the name of the given metric
+                                      type: string
+                                    selector:
+                                      description: selector is the string-encoded form of a standard kubernetes label selector for the given metric When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping. When unset, just the metricName will be used to gather metrics.
+                                      properties:
+                                        matchExpressions:
+                                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                                          items:
+                                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                                            properties:
+                                              key:
+                                                description: key is the label key that the selector applies to.
+                                                type: string
+                                              operator:
+                                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                                type: string
+                                              values:
+                                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                                items:
+                                                  type: string
+                                                type: array
+                                            required:
+                                            - key
+                                            - operator
+                                            type: object
+                                          type: array
+                                        matchLabels:
+                                          additionalProperties:
+                                            type: string
+                                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                          type: object
+                                      type: object
+                                  required:
+                                  - name
+                                  type: object
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - metric
+                              - target
+                              type: object
+                            object:
+                              description: object refers to a metric describing a single kubernetes object (for example, hits-per-second on an Ingress object).
+                              properties:
+                                describedObject:
+                                  description: CrossVersionObjectReference contains enough information to let you identify the referred resource.
+                                  properties:
+                                    apiVersion:
+                                      description: API version of the referent
+                                      type: string
+                                    kind:
+                                      description: 'Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"'
+                                      type: string
+                                    name:
+                                      description: 'Name of the referent; More info: http://kubernetes.io/docs/user-guide/identifiers#names'
+                                      type: string
+                                  required:
+                                  - kind
+                                  - name
+                                  type: object
+                                metric:
+                                  description: metric identifies the target metric by name and selector
+                                  properties:
+                                    name:
+                                      description: name is the name of the given metric
+                                      type: string
+                                    selector:
+                                      description: selector is the string-encoded form of a standard kubernetes label selector for the given metric When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping. When unset, just the metricName will be used to gather metrics.
+                                      properties:
+                                        matchExpressions:
+                                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                                          items:
+                                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                                            properties:
+                                              key:
+                                                description: key is the label key that the selector applies to.
+                                                type: string
+                                              operator:
+                                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                                type: string
+                                              values:
+                                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                                items:
+                                                  type: string
+                                                type: array
+                                            required:
+                                            - key
+                                            - operator
+                                            type: object
+                                          type: array
+                                        matchLabels:
+                                          additionalProperties:
+                                            type: string
+                                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                          type: object
+                                      type: object
+                                  required:
+                                  - name
+                                  type: object
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - describedObject
+                              - metric
+                              - target
+                              type: object
+                            pods:
+                              description: pods refers to a metric describing each pod in the current scale target (for example, transactions-processed-per-second).  The values will be averaged together before being compared to the target value.
+                              properties:
+                                metric:
+                                  description: metric identifies the target metric by name and selector
+                                  properties:
+                                    name:
+                                      description: name is the name of the given metric
+                                      type: string
+                                    selector:
+                                      description: selector is the string-encoded form of a standard kubernetes label selector for the given metric When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping. When unset, just the metricName will be used to gather metrics.
+                                      properties:
+                                        matchExpressions:
+                                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                                          items:
+                                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                                            properties:
+                                              key:
+                                                description: key is the label key that the selector applies to.
+                                                type: string
+                                              operator:
+                                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                                type: string
+                                              values:
+                                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                                items:
+                                                  type: string
+                                                type: array
+                                            required:
+                                            - key
+                                            - operator
+                                            type: object
+                                          type: array
+                                        matchLabels:
+                                          additionalProperties:
+                                            type: string
+                                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                          type: object
+                                      type: object
+                                  required:
+                                  - name
+                                  type: object
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - metric
+                              - target
+                              type: object
+                            resource:
+                              description: resource refers to a resource metric (such as those specified in requests and limits) known to Kubernetes describing each pod in the current scale target (e.g. CPU or memory). Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source.
+                              properties:
+                                name:
+                                  description: name is the name of the resource in question.
+                                  type: string
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - name
+                              - target
+                              type: object
+                            type:
+                              description: 'type is the type of metric source.  It should be one of "ContainerResource", "External", "Object", "Pods" or "Resource", each mapping to a matching field in the object. Note: "ContainerResource" type is available on when the feature-gate HPAContainerMetrics is enabled'
+                              type: string
+                          required:
+                          - type
+                          type: object
+                        type: array
+                      minReplicas:
+                        format: int32
+                        type: integer
+                    required:
+                    - maxReplicas
+                    - metrics
+                    - minReplicas
+                    type: object
+                  deployment:
+                    description: Deployment is a ESP template that represents a Kubernetes Deployment. Placeholders in fields are replaced with values before the Kubernetes Deployment is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  httpProxy:
+                    description: Proxy is a ESP template that represents a Kubernetes Contour HTTPProxy. Placeholders in fields are replaced with values before the Kubernetes Contour HTTPProxy is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  httpService:
+                    description: HTTPService is a ESP template that represents a Kubernetes Service. Placeholders in fields are replaced with values before the Kubernetes Service is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  ingress:
+                    description: Ingress is a ESP template that represents a Kubernetes Ingress. Placeholders in fields are replaced with values before the Kubernetes Ingress is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  pubsubService:
+                    description: PubsubService is a ESP template that represents a Kubernetes Service. Placeholders in fields are replaced with values before the Kubernetes Service is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  route:
+                    description: Route is a ESP template that represents a Kubernetes OpenShift Route. Placeholders in fields are replaced with values before the Kubernetes OpenShift Route is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
+              routerTemplate:
+                description: ESPRouterTemplate defines an ESP server router template.
+                properties:
+                  deployment:
+                    description: Deployment is a ESP template that represents a Kubernetes Deployment. Placeholders in fields are replaced with values before the Kubernetes Deployment is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
+            required:
+            - espProperties
+            - operatorProperties
+            type: object
+          status:
+            description: ESPConfigStatus provides the ESP Kubernetes operator configuration observed state.
+            properties:
+              conditions:
+                description: Conditions is a list of conditional states of the ESP Kubernetes operator.
+                items:
+                  description: ESPConfigCondition contains details for the current condition of this ESP configuration.
+                  properties:
+                    lastTransitionTime:
+                      description: TransitionTime is the time the ESP configuration condition transitioned from another condition to this condition.
+                      format: date-time
+                      type: string
+                    message:
+                      description: Message is a human-readable message providing details about the condition transition.
+                      type: string
+                    reason:
+                      description: Reason is a short camel-cased reason about why the ESP configuration transitioned from another condition to this condition.
+                      type: string
+                    status:
+                      description: 'Status is the status of the condition. Valid values are: True, False, Unknown.'
+                      type: string
+                    type:
+                      description: Type is the type of the condition.
+                      type: string
+                  required:
+                  - status
+                  - type
+                  type: object
+                type: array
+              message:
+                description: Message is a human-readable message providing details about why the ESP configuration is in the current state.
+                type: string
+              phase:
+                description: 'Phase is the current lifecycle phase. Valid values are: Accepted (the ESP configuration is valid and will be used by the ESP Kubernetes operator), Failed (the ESP configuration is invalid and will not be used by the ESP Kubernetes operator).'
+                type: string
+              reason:
+                description: Reason is a short camel-cased reason about why the ESP configuration is in the current state.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: false
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  name: esploadbalancers.iot.sas.com
+spec:
+  conversion:
+    strategy: None
+  group: iot.sas.com
+  names:
+    kind: ESPLoadBalancer
+    listKind: ESPLoadBalancerList
+    plural: esploadbalancers
+    singular: esploadbalancer
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: ESPLoadBalancer defines the ESP load balancer.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ESPLoadBalancerSpec defines the ESP load balancer desired state.
+            properties:
+              httpPort:
+                format: int32
+                type: integer
+              targets:
+                items:
+                  description: ESPLoadBlancerTarget defines the ESP load balancer stream targets.
+                  properties:
+                    connectors:
+                      items:
+                        description: ESPConnector defines the ESP load balancer stream sources.
+                        properties:
+                          class:
+                            type: string
+                          properties:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          type:
+                            type: string
+                        required:
+                        - class
+                        - properties
+                        - type
+                        type: object
+                      type: array
+                    hashFields:
+                      items:
+                        type: string
+                      type: array
+                    projectName:
+                      type: string
+                    queryName:
+                      type: string
+                    routingPolicy:
+                      type: string
+                    schema:
+                      description: ESPSchema defines the ESP stream window.
+                      properties:
+                        fields:
+                          items:
+                            description: ESPField defines the ESP stream window fields.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                              type:
+                                type: string
+                            required:
+                            - name
+                            - type
+                            type: object
+                          type: array
+                      type: object
+                    schemaString:
+                      type: string
+                    type:
+                      type: string
+                    windowName:
+                      type: string
+                  required:
+                  - projectName
+                  - queryName
+                  - routingPolicy
+                  - type
+                  - windowName
+                  type: object
+                type: array
+            required:
+            - httpPort
+            - targets
+            type: object
+          status:
+            description: ESPLoadBalancerStatus defines the ESP load balancer observed state.
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ESPLoadBalancer defines the ESP load balancer.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ESPLoadBalancerSpec defines the ESP load balancer desired state.
+            properties:
+              httpPort:
+                format: int32
+                type: integer
+              targets:
+                items:
+                  description: ESPLoadBlancerTarget defines the ESP load balancer stream targets.
+                  properties:
+                    connectors:
+                      items:
+                        description: ESPConnector defines the ESP load balancer stream sources.
+                        properties:
+                          class:
+                            type: string
+                          properties:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          type:
+                            type: string
+                        required:
+                        - class
+                        - properties
+                        - type
+                        type: object
+                      type: array
+                    hashFields:
+                      items:
+                        type: string
+                      type: array
+                    projectName:
+                      type: string
+                    queryName:
+                      type: string
+                    routingPolicy:
+                      type: string
+                    schema:
+                      description: ESPSchema defines the ESP stream window.
+                      properties:
+                        fields:
+                          items:
+                            description: ESPField defines the ESP stream window fields.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                              type:
+                                type: string
+                            required:
+                            - name
+                            - type
+                            type: object
+                          type: array
+                      type: object
+                    schemaString:
+                      type: string
+                    type:
+                      type: string
+                    windowName:
+                      type: string
+                  required:
+                  - projectName
+                  - queryName
+                  - routingPolicy
+                  - type
+                  - windowName
+                  type: object
+                type: array
+            required:
+            - httpPort
+            - targets
+            type: object
+          status:
+            description: ESPLoadBalancerStatus defines the ESP load balancer observed state.
+            type: object
+        type: object
+    served: true
+    storage: false
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  name: esprouters.iot.sas.com
+spec:
+  conversion:
+    strategy: None
+  group: iot.sas.com
+  names:
+    kind: ESPRouter
+    listKind: ESPRouterList
+    plural: esprouters
+    singular: esprouter
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: ESPRouter defines an ESP router to define routes between ESP route sources and ESP route destinations.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ESPRouterSpec defines the ESP router desired state.
+            properties:
+              deployment:
+                description: Deployment is a ESP template that represents a Kubernetes Deployment. Placeholders in fields are replaced with values before the Kubernetes Deployment is created.
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              destinations:
+                items:
+                  description: ESPDestination defines an ESP route destination.
+                  properties:
+                    name:
+                      type: string
+                    opcode:
+                      type: string
+                    projectFunc:
+                      type: string
+                    queryFunc:
+                      type: string
+                    windowFunc:
+                      type: string
+                  required:
+                  - name
+                  - opcode
+                  - projectFunc
+                  - queryFunc
+                  - windowFunc
+                  type: object
+                type: array
+              espProperties:
+                additionalProperties:
+                  type: string
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              routes:
+                items:
+                  description: ESPRoute defines an ESP route between an ESP route source and an ESP route destination.
+                  properties:
+                    from:
+                      type: string
+                    to:
+                      type: string
+                  required:
+                  - from
+                  - to
+                  type: object
+                type: array
+              sources:
+                items:
+                  description: ESPSource defines an ESP router source.
+                  properties:
+                    name:
+                      type: string
+                    projectExpr:
+                      type: string
+                    queryExpr:
+                      type: string
+                    windowExpr:
+                      type: string
+                  required:
+                  - name
+                  - projectExpr
+                  - queryExpr
+                  - windowExpr
+                  type: object
+                type: array
+            required:
+            - destinations
+            - espProperties
+            - routes
+            - sources
+            type: object
+          status:
+            description: ESPRouterStatus defines the ESP router observed state.
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ESPRouter defines an ESP router to define routes between ESP route sources and ESP route destinations.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ESPRouterSpec defines the ESP router desired state.
+            properties:
+              deployment:
+                description: Deployment is a ESP template that represents a Kubernetes Deployment. Placeholders in fields are replaced with values before the Kubernetes Deployment is created.
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              destinations:
+                items:
+                  description: ESPDestination defines an ESP route destination.
+                  properties:
+                    name:
+                      type: string
+                    opcode:
+                      type: string
+                    projectFunc:
+                      type: string
+                    queryFunc:
+                      type: string
+                    windowFunc:
+                      type: string
+                  required:
+                  - name
+                  - opcode
+                  - projectFunc
+                  - queryFunc
+                  - windowFunc
+                  type: object
+                type: array
+              espProperties:
+                additionalProperties:
+                  type: string
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              routes:
+                items:
+                  description: ESPRoute defines an ESP route between an ESP route source and an ESP route destination.
+                  properties:
+                    from:
+                      type: string
+                    to:
+                      type: string
+                  required:
+                  - from
+                  - to
+                  type: object
+                type: array
+              sources:
+                items:
+                  description: ESPSource defines an ESP router source.
+                  properties:
+                    name:
+                      type: string
+                    projectExpr:
+                      type: string
+                    queryExpr:
+                      type: string
+                    windowExpr:
+                      type: string
+                  required:
+                  - name
+                  - projectExpr
+                  - queryExpr
+                  - windowExpr
+                  type: object
+                type: array
+            required:
+            - destinations
+            - espProperties
+            - routes
+            - sources
+            type: object
+          status:
+            description: ESPRouterStatus defines the ESP router observed state.
+            type: object
+        type: object
+    served: true
+    storage: false
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  name: espservers.iot.sas.com
+spec:
+  conversion:
+    strategy: None
+  group: iot.sas.com
+  names:
+    kind: ESPServer
+    listKind: ESPServerList
+    plural: espservers
+    singular: espserver
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: ESPServer defines an ESP server.
+        properties:
+          access:
+            description: ESPServerAccess defines ESP server access configuration.
+            properties:
+              externalURL:
+                type: string
+              internalHostName:
+                type: string
+              internalHttpPort:
+                type: integer
+              state:
+                type: string
+            required:
+            - externalURL
+            - internalHostName
+            - internalHttpPort
+            - state
+            type: object
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ESPServerSpec defines the ESP server desired state.
+            properties:
+              espProperties:
+                additionalProperties:
+                  type: string
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              failover:
+                type: boolean
+              loadBalancePolicy:
+                description: 'LoadBalancePolicy is the load balancing policy used to distribute events across active ESP Server replicas for a project. Valid values are: "default" use the default load balancing policy; "lb-consistent-hash" deterministic hash-based load balancing; "lb-hash" hash-based load balancing; "lb-multicast" events are sent to all replicas; "lb-round-robin" events are sent to replicas using round robin.'
+                enum:
+                - default
+                - lb-consistent-hash
+                - lb-hash
+                - lb-multicast
+                - lb-round-robin
+                type: string
+              loadBalancer:
+                description: ESPLoadBalancerTargets defines ESP server load balancer targets.
+                properties:
+                  targets:
+                    items:
+                      description: ESPTarget defines a ESP server stream target.
+                      properties:
+                        connectors:
+                          items:
+                            description: ESPConnector defines the ESP load balancer stream sources.
+                            properties:
+                              class:
+                                type: string
+                              properties:
+                                additionalProperties:
+                                  type: string
+                                type: object
+                              type:
+                                type: string
+                            required:
+                            - class
+                            - properties
+                            - type
+                            type: object
+                          type: array
+                        hashFields:
+                          items:
+                            type: string
+                          type: array
+                        projectName:
+                          description: targets define where traffic stream to/from
+                          type: string
+                        queryName:
+                          type: string
+                        schema:
+                          description: ESPSchema defines the ESP stream window.
+                          properties:
+                            fields:
+                              items:
+                                description: ESPField defines the ESP stream window fields.
+                                properties:
+                                  key:
+                                    type: string
+                                  name:
+                                    type: string
+                                  type:
+                                    type: string
+                                required:
+                                - name
+                                - type
+                                type: object
+                              type: array
+                          type: object
+                        schemaString:
+                          type: string
+                        type:
+                          type: string
+                        windowName:
+                          type: string
+                      required:
+                      - connectors
+                      - projectName
+                      - queryName
+                      - type
+                      - windowName
+                      type: object
+                    type: array
+                required:
+                - targets
+                type: object
+              loadBalancerTemplate:
+                description: ESPLoadBalancerTemplate defines an ESP server load balancer template.
+                properties:
+                  deployment:
+                    description: Deployment is a ESP template that represents a Kubernetes Deployment. Placeholders in fields are replaced with values before the Kubernetes Deployment is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
+              model:
+                description: 'Model is the ESP server project XML model. Valid values may be: (1) A project XML value (e.g., "<project ...>...</project>"). (2) A base64-encoded project XML value (with an optional "b64" prefix). (3) A base64-encoded, GZip''ed project XML value (with an optional "b64" prefix). If the value exceeds 98304 bytes (96KiB), warnings will be logged. The value must not exceed 8388608 bytes (8MiB). If you have a large project XML, consider using the "espProperties/server.model" configuration instead and set it to a file URL (e.g., "file:///absolute/path/to/project/xml").'
+                type: string
+              name:
+                type: string
+              projectTemplate:
+                description: ESPProjectTemplate defines an ESP server project template.
+                properties:
+                  autoscale:
+                    description: ESPautoscaler defines ESP server Kubernetes pod autoscaling configuration.
+                    properties:
+                      maxReplicas:
+                        format: int32
+                        type: integer
+                      metrics:
+                        items:
+                          description: MetricSpec specifies how to scale based on a single metric (only `type` and one other matching field should be set at once).
+                          properties:
+                            containerResource:
+                              description: container resource refers to a resource metric (such as those specified in requests and limits) known to Kubernetes describing a single container in each pod of the current scale target (e.g. CPU or memory). Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source. This is an alpha feature and can be enabled by the HPAContainerMetrics feature flag.
+                              properties:
+                                container:
+                                  description: container is the name of the container in the pods of the scaling target
+                                  type: string
+                                name:
+                                  description: name is the name of the resource in question.
+                                  type: string
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - container
+                              - name
+                              - target
+                              type: object
+                            external:
+                              description: external refers to a global metric that is not associated with any Kubernetes object. It allows autoscaling based on information coming from components running outside of cluster (for example length of queue in cloud messaging service, or QPS from loadbalancer running outside of cluster).
+                              properties:
+                                metric:
+                                  description: metric identifies the target metric by name and selector
+                                  properties:
+                                    name:
+                                      description: name is the name of the given metric
+                                      type: string
+                                    selector:
+                                      description: selector is the string-encoded form of a standard kubernetes label selector for the given metric When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping. When unset, just the metricName will be used to gather metrics.
+                                      properties:
+                                        matchExpressions:
+                                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                                          items:
+                                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                                            properties:
+                                              key:
+                                                description: key is the label key that the selector applies to.
+                                                type: string
+                                              operator:
+                                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                                type: string
+                                              values:
+                                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                                items:
+                                                  type: string
+                                                type: array
+                                            required:
+                                            - key
+                                            - operator
+                                            type: object
+                                          type: array
+                                        matchLabels:
+                                          additionalProperties:
+                                            type: string
+                                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                          type: object
+                                      type: object
+                                  required:
+                                  - name
+                                  type: object
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - metric
+                              - target
+                              type: object
+                            object:
+                              description: object refers to a metric describing a single kubernetes object (for example, hits-per-second on an Ingress object).
+                              properties:
+                                describedObject:
+                                  description: CrossVersionObjectReference contains enough information to let you identify the referred resource.
+                                  properties:
+                                    apiVersion:
+                                      description: API version of the referent
+                                      type: string
+                                    kind:
+                                      description: 'Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"'
+                                      type: string
+                                    name:
+                                      description: 'Name of the referent; More info: http://kubernetes.io/docs/user-guide/identifiers#names'
+                                      type: string
+                                  required:
+                                  - kind
+                                  - name
+                                  type: object
+                                metric:
+                                  description: metric identifies the target metric by name and selector
+                                  properties:
+                                    name:
+                                      description: name is the name of the given metric
+                                      type: string
+                                    selector:
+                                      description: selector is the string-encoded form of a standard kubernetes label selector for the given metric When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping. When unset, just the metricName will be used to gather metrics.
+                                      properties:
+                                        matchExpressions:
+                                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                                          items:
+                                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                                            properties:
+                                              key:
+                                                description: key is the label key that the selector applies to.
+                                                type: string
+                                              operator:
+                                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                                type: string
+                                              values:
+                                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                                items:
+                                                  type: string
+                                                type: array
+                                            required:
+                                            - key
+                                            - operator
+                                            type: object
+                                          type: array
+                                        matchLabels:
+                                          additionalProperties:
+                                            type: string
+                                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                          type: object
+                                      type: object
+                                  required:
+                                  - name
+                                  type: object
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - describedObject
+                              - metric
+                              - target
+                              type: object
+                            pods:
+                              description: pods refers to a metric describing each pod in the current scale target (for example, transactions-processed-per-second).  The values will be averaged together before being compared to the target value.
+                              properties:
+                                metric:
+                                  description: metric identifies the target metric by name and selector
+                                  properties:
+                                    name:
+                                      description: name is the name of the given metric
+                                      type: string
+                                    selector:
+                                      description: selector is the string-encoded form of a standard kubernetes label selector for the given metric When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping. When unset, just the metricName will be used to gather metrics.
+                                      properties:
+                                        matchExpressions:
+                                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                                          items:
+                                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                                            properties:
+                                              key:
+                                                description: key is the label key that the selector applies to.
+                                                type: string
+                                              operator:
+                                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                                type: string
+                                              values:
+                                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                                items:
+                                                  type: string
+                                                type: array
+                                            required:
+                                            - key
+                                            - operator
+                                            type: object
+                                          type: array
+                                        matchLabels:
+                                          additionalProperties:
+                                            type: string
+                                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                          type: object
+                                      type: object
+                                  required:
+                                  - name
+                                  type: object
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - metric
+                              - target
+                              type: object
+                            resource:
+                              description: resource refers to a resource metric (such as those specified in requests and limits) known to Kubernetes describing each pod in the current scale target (e.g. CPU or memory). Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source.
+                              properties:
+                                name:
+                                  description: name is the name of the resource in question.
+                                  type: string
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - name
+                              - target
+                              type: object
+                            type:
+                              description: 'type is the type of metric source.  It should be one of "ContainerResource", "External", "Object", "Pods" or "Resource", each mapping to a matching field in the object. Note: "ContainerResource" type is available on when the feature-gate HPAContainerMetrics is enabled'
+                              type: string
+                          required:
+                          - type
+                          type: object
+                        type: array
+                      minReplicas:
+                        format: int32
+                        type: integer
+                    required:
+                    - maxReplicas
+                    - metrics
+                    - minReplicas
+                    type: object
+                  deployment:
+                    description: Deployment is a ESP template that represents a Kubernetes Deployment. Placeholders in fields are replaced with values before the Kubernetes Deployment is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  httpProxy:
+                    description: Proxy is a ESP template that represents a Kubernetes Contour HTTPProxy. Placeholders in fields are replaced with values before the Kubernetes Contour HTTPProxy is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  httpService:
+                    description: HTTPService is a ESP template that represents a Kubernetes Service. Placeholders in fields are replaced with values before the Kubernetes Service is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  ingress:
+                    description: Ingress is a ESP template that represents a Kubernetes Ingress. Placeholders in fields are replaced with values before the Kubernetes Ingress is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  pubsubService:
+                    description: PubsubService is a ESP template that represents a Kubernetes Service. Placeholders in fields are replaced with values before the Kubernetes Service is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  route:
+                    description: Route is a ESP template that represents a Kubernetes OpenShift Route. Placeholders in fields are replaced with values before the Kubernetes OpenShift Route is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
+            required:
+            - espProperties
+            - failover
+            - loadBalancePolicy
+            - model
+            - name
+            type: object
+        type: object
+    served: true
+    storage: true
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ESPServer defines an ESP server.
+        properties:
+          access:
+            description: ESPServerAccess defines ESP server access configuration.
+            properties:
+              externalURL:
+                type: string
+              internalHostName:
+                type: string
+              internalHttpPort:
+                type: integer
+              state:
+                type: string
+            required:
+            - externalURL
+            - internalHostName
+            - internalHttpPort
+            - state
+            type: object
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ESPServerSpec defines the ESP server desired state.
+            properties:
+              espProperties:
+                additionalProperties:
+                  type: string
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              failover:
+                type: boolean
+              loadBalancePolicy:
+                description: 'LoadBalancePolicy is the load balancing policy used to distribute events across active ESP Server replicas for a project. Valid values are: "default" use the default load balancing policy; "lb-consistent-hash" deterministic hash-based load balancing; "lb-hash" hash-based load balancing; "lb-multicast" events are sent to all replicas; "lb-round-robin" events are sent to replicas using round robin.'
+                enum:
+                - default
+                - lb-consistent-hash
+                - lb-hash
+                - lb-multicast
+                - lb-round-robin
+                type: string
+              loadBalancer:
+                description: ESPLoadBalancerTargets defines ESP server load balancer targets.
+                properties:
+                  targets:
+                    items:
+                      description: ESPTarget defines a ESP server stream target.
+                      properties:
+                        connectors:
+                          items:
+                            description: ESPConnector defines the ESP load balancer stream sources.
+                            properties:
+                              class:
+                                type: string
+                              properties:
+                                additionalProperties:
+                                  type: string
+                                type: object
+                              type:
+                                type: string
+                            required:
+                            - class
+                            - properties
+                            - type
+                            type: object
+                          type: array
+                        hashFields:
+                          items:
+                            type: string
+                          type: array
+                        projectName:
+                          description: targets define where traffic stream to/from
+                          type: string
+                        queryName:
+                          type: string
+                        schema:
+                          description: ESPSchema defines the ESP stream window.
+                          properties:
+                            fields:
+                              items:
+                                description: ESPField defines the ESP stream window fields.
+                                properties:
+                                  key:
+                                    type: string
+                                  name:
+                                    type: string
+                                  type:
+                                    type: string
+                                required:
+                                - name
+                                - type
+                                type: object
+                              type: array
+                          type: object
+                        schemaString:
+                          type: string
+                        type:
+                          type: string
+                        windowName:
+                          type: string
+                      required:
+                      - connectors
+                      - projectName
+                      - queryName
+                      - type
+                      - windowName
+                      type: object
+                    type: array
+                required:
+                - targets
+                type: object
+              loadBalancerTemplate:
+                description: ESPLoadBalancerTemplate defines an ESP server load balancer template.
+                properties:
+                  deployment:
+                    description: Deployment is a ESP template that represents a Kubernetes Deployment. Placeholders in fields are replaced with values before the Kubernetes Deployment is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
+              model:
+                description: 'Model is the ESP server project XML model. Valid values may be: (1) A project XML value (e.g., "<project ...>...</project>"). (2) A base64-encoded project XML value (with an optional "b64" prefix). (3) A base64-encoded, GZip''ed project XML value (with an optional "b64" prefix). If the value exceeds 98304 bytes (96KiB), warnings will be logged. The value must not exceed 8388608 bytes (8MiB). If you have a large project XML, consider using the "espProperties/server.model" configuration instead and set it to a file URL (e.g., "file:///absolute/path/to/project/xml").'
+                type: string
+              name:
+                type: string
+              projectTemplate:
+                description: ESPProjectTemplate defines an ESP server project template.
+                properties:
+                  autoscale:
+                    description: ESPautoscaler defines ESP server Kubernetes pod autoscaling configuration.
+                    properties:
+                      maxReplicas:
+                        format: int32
+                        type: integer
+                      metrics:
+                        items:
+                          description: MetricSpec specifies how to scale based on a single metric (only `type` and one other matching field should be set at once).
+                          properties:
+                            containerResource:
+                              description: container resource refers to a resource metric (such as those specified in requests and limits) known to Kubernetes describing a single container in each pod of the current scale target (e.g. CPU or memory). Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source. This is an alpha feature and can be enabled by the HPAContainerMetrics feature flag.
+                              properties:
+                                container:
+                                  description: container is the name of the container in the pods of the scaling target
+                                  type: string
+                                name:
+                                  description: name is the name of the resource in question.
+                                  type: string
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - container
+                              - name
+                              - target
+                              type: object
+                            external:
+                              description: external refers to a global metric that is not associated with any Kubernetes object. It allows autoscaling based on information coming from components running outside of cluster (for example length of queue in cloud messaging service, or QPS from loadbalancer running outside of cluster).
+                              properties:
+                                metric:
+                                  description: metric identifies the target metric by name and selector
+                                  properties:
+                                    name:
+                                      description: name is the name of the given metric
+                                      type: string
+                                    selector:
+                                      description: selector is the string-encoded form of a standard kubernetes label selector for the given metric When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping. When unset, just the metricName will be used to gather metrics.
+                                      properties:
+                                        matchExpressions:
+                                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                                          items:
+                                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                                            properties:
+                                              key:
+                                                description: key is the label key that the selector applies to.
+                                                type: string
+                                              operator:
+                                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                                type: string
+                                              values:
+                                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                                items:
+                                                  type: string
+                                                type: array
+                                            required:
+                                            - key
+                                            - operator
+                                            type: object
+                                          type: array
+                                        matchLabels:
+                                          additionalProperties:
+                                            type: string
+                                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                          type: object
+                                      type: object
+                                  required:
+                                  - name
+                                  type: object
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - metric
+                              - target
+                              type: object
+                            object:
+                              description: object refers to a metric describing a single kubernetes object (for example, hits-per-second on an Ingress object).
+                              properties:
+                                describedObject:
+                                  description: CrossVersionObjectReference contains enough information to let you identify the referred resource.
+                                  properties:
+                                    apiVersion:
+                                      description: API version of the referent
+                                      type: string
+                                    kind:
+                                      description: 'Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"'
+                                      type: string
+                                    name:
+                                      description: 'Name of the referent; More info: http://kubernetes.io/docs/user-guide/identifiers#names'
+                                      type: string
+                                  required:
+                                  - kind
+                                  - name
+                                  type: object
+                                metric:
+                                  description: metric identifies the target metric by name and selector
+                                  properties:
+                                    name:
+                                      description: name is the name of the given metric
+                                      type: string
+                                    selector:
+                                      description: selector is the string-encoded form of a standard kubernetes label selector for the given metric When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping. When unset, just the metricName will be used to gather metrics.
+                                      properties:
+                                        matchExpressions:
+                                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                                          items:
+                                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                                            properties:
+                                              key:
+                                                description: key is the label key that the selector applies to.
+                                                type: string
+                                              operator:
+                                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                                type: string
+                                              values:
+                                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                                items:
+                                                  type: string
+                                                type: array
+                                            required:
+                                            - key
+                                            - operator
+                                            type: object
+                                          type: array
+                                        matchLabels:
+                                          additionalProperties:
+                                            type: string
+                                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                          type: object
+                                      type: object
+                                  required:
+                                  - name
+                                  type: object
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - describedObject
+                              - metric
+                              - target
+                              type: object
+                            pods:
+                              description: pods refers to a metric describing each pod in the current scale target (for example, transactions-processed-per-second).  The values will be averaged together before being compared to the target value.
+                              properties:
+                                metric:
+                                  description: metric identifies the target metric by name and selector
+                                  properties:
+                                    name:
+                                      description: name is the name of the given metric
+                                      type: string
+                                    selector:
+                                      description: selector is the string-encoded form of a standard kubernetes label selector for the given metric When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping. When unset, just the metricName will be used to gather metrics.
+                                      properties:
+                                        matchExpressions:
+                                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                                          items:
+                                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                                            properties:
+                                              key:
+                                                description: key is the label key that the selector applies to.
+                                                type: string
+                                              operator:
+                                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                                type: string
+                                              values:
+                                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                                items:
+                                                  type: string
+                                                type: array
+                                            required:
+                                            - key
+                                            - operator
+                                            type: object
+                                          type: array
+                                        matchLabels:
+                                          additionalProperties:
+                                            type: string
+                                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                          type: object
+                                      type: object
+                                  required:
+                                  - name
+                                  type: object
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - metric
+                              - target
+                              type: object
+                            resource:
+                              description: resource refers to a resource metric (such as those specified in requests and limits) known to Kubernetes describing each pod in the current scale target (e.g. CPU or memory). Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source.
+                              properties:
+                                name:
+                                  description: name is the name of the resource in question.
+                                  type: string
+                                target:
+                                  description: target specifies the target value for the given metric
+                                  properties:
+                                    averageUtilization:
+                                      description: averageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods. Currently only valid for Resource metric source type
+                                      format: int32
+                                      type: integer
+                                    averageValue:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: averageValue is the target value of the average of the metric across all relevant pods (as a quantity)
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    type:
+                                      description: type represents whether the metric type is Utilization, Value, or AverageValue
+                                      type: string
+                                    value:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: value is the target value of the metric (as a quantity).
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - type
+                                  type: object
+                              required:
+                              - name
+                              - target
+                              type: object
+                            type:
+                              description: 'type is the type of metric source.  It should be one of "ContainerResource", "External", "Object", "Pods" or "Resource", each mapping to a matching field in the object. Note: "ContainerResource" type is available on when the feature-gate HPAContainerMetrics is enabled'
+                              type: string
+                          required:
+                          - type
+                          type: object
+                        type: array
+                      minReplicas:
+                        format: int32
+                        type: integer
+                    required:
+                    - maxReplicas
+                    - metrics
+                    - minReplicas
+                    type: object
+                  deployment:
+                    description: Deployment is a ESP template that represents a Kubernetes Deployment. Placeholders in fields are replaced with values before the Kubernetes Deployment is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  httpProxy:
+                    description: Proxy is a ESP template that represents a Kubernetes Contour HTTPProxy. Placeholders in fields are replaced with values before the Kubernetes Contour HTTPProxy is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  httpService:
+                    description: HTTPService is a ESP template that represents a Kubernetes Service. Placeholders in fields are replaced with values before the Kubernetes Service is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  ingress:
+                    description: Ingress is a ESP template that represents a Kubernetes Ingress. Placeholders in fields are replaced with values before the Kubernetes Ingress is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  pubsubService:
+                    description: PubsubService is a ESP template that represents a Kubernetes Service. Placeholders in fields are replaced with values before the Kubernetes Service is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  route:
+                    description: Route is a ESP template that represents a Kubernetes OpenShift Route. Placeholders in fields are replaced with values before the Kubernetes OpenShift Route is created.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
+            required:
+            - espProperties
+            - failover
+            - loadBalancePolicy
+            - model
+            - name
+            type: object
+        type: object
+    served: true
+    storage: false
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  name: espupdates.iot.sas.com
+spec:
+  conversion:
+    strategy: None
+  group: iot.sas.com
+  names:
+    kind: ESPUpdate
+    listKind: ESPUpdateList
+    plural: espupdates
+    singular: espupdate
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: ESPUpdate defines the ESP update operation.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          response:
+            description: ESPUpdateResponse defines the ESP update operation response.
+            properties:
+              reason:
+                type: string
+              succeeded:
+                type: boolean
+            type: object
+          spec:
+            description: ESPUpdateSpec defines the ESP update operation desired state.
+            properties:
+              gracePeriod:
+                type: string
+              policy:
+                type: string
+              selector:
+                type: string
+            required:
+            - policy
+            type: object
+          status:
+            description: ESPUpdateStatus defines the ESP update operation observed state.
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ESPUpdate defines the ESP update operation.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          response:
+            description: ESPUpdateResponse defines the ESP update operation response.
+            properties:
+              reason:
+                type: string
+              succeeded:
+                type: boolean
+            type: object
+          spec:
+            description: ESPUpdateSpec defines the ESP update operation desired state.
+            properties:
+              gracePeriod:
+                type: string
+              policy:
+                type: string
+              selector:
+                type: string
+            required:
+            - policy
+            type: object
+          status:
+            description: ESPUpdateStatus defines the ESP update operation observed state.
+            type: object
+        type: object
+    served: true
+    storage: false
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
