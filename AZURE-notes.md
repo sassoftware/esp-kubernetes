@@ -21,7 +21,7 @@ To proceed, you must have Azure credentials, be able to
 log in to Azure through the Microsoft Azure Portal, and know how to use the Azure
 command line tools.
 
-A set of Azure specifics scripts are inluded that can help create and
+A set of Azure specific scripts are included that can help create and
 manage AKS clusters with SAS Event Stream processing.
 
 ---
@@ -65,7 +65,7 @@ Completed build resource group: sckoloRG which contains:
 This script will onboard a tenant for ESP installation. What this translates to is:
 
 * creates a namespace in AKS with the tenant name
-* adds a DNS record to AKS to access the tenant eco-system
+* adds a DNS record to AKS to access the tenant ecosystem
 
 ```shell
   [esp-k8-azure]$ ./bin/azure-tenant -?
@@ -216,7 +216,7 @@ Use this command to set al the env variable images in your shell:
 Now change to the github esp-kubernetes/esp-cloud project directory.
 
 ```shell
-[esp-cloud]$ ./bin/mkdeploy -l ../../LICENSE/setin90.sas -n esp -d 41533d7e0a234fdd8d99.eastus.aksapp.io -r -C -M -A
+[esp-cloud]$ ./bin/mkdeploy -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt -n esp -d 41533d7e0a234fdd8d99.eastus.aksapp.io -r -C -M -A
   .
   .
   .

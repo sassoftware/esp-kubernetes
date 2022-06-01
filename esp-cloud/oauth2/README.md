@@ -10,7 +10,7 @@ A multi-user deployment deploys the following pods:
 
 ### User Accounts
 
-In order to configure a multi-user deployment, you must have access to the Cloud Foundry `uaac` command line tool. This is automated using a docker image of this tool and the supplied script *uaatool*. **Note:** This script runs a pre-built docker image containing the **uaac** command line tool. In order to function properly, the docker image needs to be able to access the **UAA** server via the ```https://<namespace>.<domain>``` url. If the hostname ```<namespace>.<domain>``` is not publically resolvable via DNS, the following environment variable should be set to set the ```<namespace>.<domain>``` to ```ip-address``` binding in the docker image. 
+In order to configure a multi-user deployment, you must have access to the Cloud Foundry `uaac` command line tool. This is automated using a Docker image of this tool and the supplied script *uaatool*. **Note:** This script runs a pre-built Docker image containing the **uaac** command line tool. In order to function properly, the Docker image needs to be able to access the **UAA** server via the ```https://<namespace>.<domain>``` url. If the hostname ```<namespace>.<domain>``` is not publicly resolvable via DNS, the following environment variable should be set to set the ```<namespace>.<domain>``` to ```ip-address``` binding in the Docker image. 
 
 
 ```export DOCKER_ARGS="--add-host=<namespace>.<domain>:<ipv4-address>"```
@@ -45,7 +45,7 @@ The ```./bin/uaatool``` can also delete an existing user, and list all existing 
 
 The UAA server persists data to the running PostgreSQL database so that it is
 durable with respect to cluster-wide restarts, provided that the same
-persitent volume is used.
+persistent volume is used.
 
 
 You need an access token in order to access the metering server or a running ESP server through the curl command. You can query the uaa server for the access token. For example:

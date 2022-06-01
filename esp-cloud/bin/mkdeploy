@@ -24,7 +24,7 @@ show_usage() {
     echo "          -r                          -- remove existing deploy/"
     echo "                                          before creating"
     echo "          -y                          -- no prompt, just execute"
-    echo "          -n <namespace>              -- specify K8 namespace" 
+    echo "          -n <namespace>              -- specify K8s namespace"
     echo "          -d <ingress domain root>    -- project domain root,"
     echo "                                          ns.<domain root>/<path> is ingress"
     echo "          -l <esp license file>       -- SAS ESP license"
@@ -167,7 +167,7 @@ echo "ROOT = <$ROOT>"
 
 if [[ "$ASKUSER" = "y" ]] ; then
     echo
-    echo "The following susbstitution will be made across all manifest"
+    echo "The following substitutions will be made across all manifest"
     echo "   yaml files"
     echo
     echo "TEMPLATE_ESP_NAMESPACE      <-- $ESP_NS"

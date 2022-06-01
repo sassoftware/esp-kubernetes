@@ -62,7 +62,7 @@ show_usage() {
     echo ""
     echo "This command creates a new <resource group>. The <resource group>"
     echo "   will contain a <container registry> that docker images can"
-    echo "   be pushed to. It also will contain a full a full AKS cluster"
+    echo "   be pushed to. It also contains a full AKS cluster"
     echo "   named <cluster name>."
     echo "The KUBE CONFIG file used to access the cluster will be"
     echo "   written to <file to write kubeconfig to>."
@@ -98,24 +98,24 @@ done
 
 [ -z $AZ_RG ]       && echo "resource group must be specified" && show_usage
 [ -z $AZ_CL ]       && echo "cluster name must be specified" && show_usage
-[ -z $AZ_LO ]       && echo "geographical location  must be specified" && show_usage
-[ -z $KUBE_CRED_FILE ]  && echo "file to write kubeconfig to must be specifed" && show_usage
+[ -z $AZ_LO ]       && echo "geographical location must be specified" && show_usage
+[ -z $KUBE_CRED_FILE ]  && echo "file to write kubeconfig to must be specified" && show_usage
 
 #
 # helm much be on your path!
 #
 which helm &>/dev/null      ; [ 0 -ne $? ] && echo "helm not found on path" && exit 1
 
-echo "We are going to build an Azure K8 cluster with the following parameters"
+echo "We are going to build an AKS cluster with the following parameters"
 echo "  (all will be created, and should not already exist):"
 echo
 echo "  resource group:     $AZ_RG"
 echo "  cluster name:       $AZ_CL"
 echo "  cluster location:   $AZ_LO"
 echo "  container registry: $AZ_CR"
-echo "     # of nodes:  $AZ_NODE_NUM"
-echo "     node type:   $AZ_NODE_SIZE"
-echo "  K8 config file: $KUBE_CRED_FILE"
+echo "     # of nodes:   $AZ_NODE_NUM"
+echo "     node type:    $AZ_NODE_SIZE"
+echo "  K8s config file: $KUBE_CRED_FILE"
 echo
 read -p "Continue (yes/[no])? " ANS
 [ "$ANS" = "yes" ] || exit 1
@@ -139,11 +139,11 @@ az aks create --resource-group $AZ_RG --name $AZ_CL \
               --enable-addons monitoring --generate-ssh-keys \
 	      --enable-addons http_application_routing \
 	      --kubernetes-version $K8_VER
-[ 0 -ne $? ] && echo "could not AKS cluster" && exit 1
+[ 0 -ne $? ] && echo "could not create AKS cluster" && exit 1
 az aks wait --created  --resource-group $AZ_RG --name $AZ_CL 
 
 #
-# get the K8 credentials for the new cluster into our kubeconfig
+# get the K8s credentials for the new cluster into our kubeconfig
 #
 rm -rf $KUBE_CRED_FILE
 az aks get-credentials --resource-group $AZ_RG  --name $AZ_CL --file $KUBE_CRED_FILE --overwrite-existing
@@ -179,8 +179,8 @@ helm install nfs-server stable/nfs-server-provisioner -f $ROOT/../share/nfs-conf
 
 echo ""
 echo "Completed build resource group: $AZ_RG which contains:"
-echo "         AKS cluster:   $AZ_CL" 
-echo "              domain:   $AZ_DM"
-echo "   container registy:   $AZ_CR"
-echo "    KUBE CONFIG file:   $KUBE_CRED_FILE"
+echo "          AKS cluster:   $AZ_CL"
+echo "               domain:   $AZ_DM"
+echo "   container registry:   $AZ_CR"
+echo "     KUBE CONFIG file:   $KUBE_CRED_FILE"
 echo ""

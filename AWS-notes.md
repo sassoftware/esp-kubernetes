@@ -100,8 +100,8 @@ This script onboards a tenant to install SAS Event Stream Processing. Specifical
 When it completes, the script reports something like this:
 
 ```text
-Created kubernetes namespace, EFS access point, and
-   RXW persitent volume
+Created Kubernetes namespace, EFS access point, and
+   RXW persistent volume
 
 You must add an alias record to DNS that points
 
@@ -199,7 +199,7 @@ securitygroup ID is sg-0102d2ea94dea287d  .
   .
   .
   .
-Created kubernetes namespace, EFS access point, and
+Created Kubernetes namespace, EFS access point, and
    RXW persitent volume
 
 You must add an alias record to DNS that points
@@ -233,7 +233,7 @@ $ . ./bin/aws-images
 Change to the GitHub esp-kubernetes/esp-cloud project directory.
 
 ```shell
-$ ./bin/mkdeploy -l ../../LICENSE/setin90.sas -n <tenant name> -d <domain name> -r -C -M -W
+$ ./bin/mkdeploy -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt -n <tenant name> -d <domain name> -r -C -M -W
   .
   .
   .

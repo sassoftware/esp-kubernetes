@@ -28,7 +28,7 @@ which helm &>/dev/null      ; [ 0 -ne $? ] && echo "helm not found on path" && e
 #
 #   5. AWS_NODE_SIZE the type of VM to use.
 #
-#   6. AWS_ZONES a comma seperate list of redundancy zones
+#   6. AWS_ZONES a comma separated list of redundancy zones
 #
 
 # defaults
@@ -57,7 +57,7 @@ show_usage() {
     echo ""
     echo "optional: -n <number of node, default: 5>"
     echo "          -s <vm size, default: Standard_F16s_v2>"
-    echo "          -z <comma seperate list of redundance zones>"
+    echo "          -z <comma seperated list of redundancy zones>"
     echo ""
     echo "This command creates a <container registry> that docker images"
     echo "    can be pushed to. It also creates a full EKS cluster"
@@ -92,7 +92,7 @@ done
 
 [ -z $AWS_CL ]       && echo "cluster name must be specified" && show_usage
 [ -z $AWS_LO ]       && echo "region EKS cluster resides in must be specified" && show_usage
-[ -z $KUBE_CRED_FILE ]  && echo "file to write kubeconfig to must be specifed" && show_usage
+[ -z $KUBE_CRED_FILE ]  && echo "file to write kubeconfig to must be specified" && show_usage
 
 if [ -n $AWS_ZONE ] ; then
     AWS_ARGS="--zones=$AWS_ZONES"

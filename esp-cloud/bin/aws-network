@@ -14,8 +14,8 @@ show_usage() {
     echo "          -g <geographical location>"
     echo ""
     echo "This command modifies the network security group for"
-    echo "    for an EKS cluster. It allows trafic to flow from"
-    echo "    the specifies CIDR to the clusters ingress."
+    echo "    for an EKS cluster. It allows traffic to flow from"
+    echo "    the specified CIDR to the clusters ingress."
     echo ""
     exit 1
 }

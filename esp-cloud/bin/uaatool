@@ -41,7 +41,7 @@ check_required() {
 }
 
 check_and_execute_command() {
-    [ -z $CMD ] && echo "no command specfied, must specify -c, -l, -a or -d" && echo && show_usage
+    [ -z $CMD ] && echo "no command specified, must specify -c, -l, -a or -d" && echo && show_usage
     case "$CMD" in
         client_create)
 	    echo "create client account sv_client"

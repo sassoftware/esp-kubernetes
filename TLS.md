@@ -4,7 +4,7 @@ To provide TLS to ESP projects and web clients, we can use [cert-manager](https:
 
 The following is an example how to deploy [Kuard](https://github.com/kubernetes-up-and-running/kuard), a demo app for Kubernetes Up and Running book.
 
-Note that the original documentation can be confusing, so I summerize the steps here. The goal is configure ingress to provide TLS support for Kuard -- when an HTTPS
+The steps are summarized here to supplement the Kuard documentation. The goal is to configure ingress to provide TLS support for Kuard -- when an HTTPS
 request is submitted to Kuard, the ingress will automatically request the certificate from a configured issuer and Kuard knows nothing about this.
 
 ## Install cert-manager
@@ -30,7 +30,7 @@ Cert-manager uses 2 CRDs to configure and control its operation: [Issuers (or Cl
 ## Deploy an issuer
 
 This demo uses [ACME](https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment) protocol and [letsencrypt](https://letsencrypt.org/how-it-works/) as the issuer. Other issuers can also be configured.
-Note that letsencrypt has a very strict rate limit for producation certificates, so for test purpose we use a [staging issuer](https://gitlab.sas.com/shhuan/esp-k8s-operator/blob/master/oauth2/cert-manager/staging-issuer.yaml) and once everything works we will switch to
+Note that letsencrypt has a very strict rate limit for production certificates, so for test purpose we use a [staging issuer](https://gitlab.sas.com/shhuan/esp-k8s-operator/blob/master/oauth2/cert-manager/staging-issuer.yaml) and after everything works, we switch to
 [production issuer](https://gitlab.sas.com/shhuan/esp-k8s-operator/blob/master/oauth2/cert-manager/production-issuer.yaml).
 
 ```shell
@@ -55,7 +55,7 @@ kubectl apply -f kuard.yaml -n shhuan
 
 The interesting part of [kuard.yaml](https://gitlab.sas.com/shhuan/esp-k8s-operator/blob/master/oauth2/cert-manager/kuard.yaml) is in the Ingress.
 
-First, the annontations:
+First, the annotations:
 
 ```yaml
   annotations:
@@ -104,5 +104,5 @@ data:
 ...
 ```
 
-Now in your browser enter [https://esp-foo.sas.com](https://esp-foo.sas.com), the broswer should warn you about the certificate because it's temporary, but you can
+In your browser, enter [https://esp-foo.sas.com](https://esp-foo.sas.com), the browser should warn you about the certificate because it is temporary. Nonetheless, you can 
 proceed and see Kuard is running.

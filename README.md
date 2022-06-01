@@ -60,7 +60,7 @@ Use the tools in this repository for either of the following deployment approach
 
 **Important:** If you want to deploy SAS ESP with other SAS products, do *not* use the tools in this repository.
 
-Before you proceed, decide which of these deployment approach you intend to take.
+Before you proceed, decide which of these deployment approaches you intend to take.
 Carefully read the associated prerequisites for your chosen approach before editing any file or running any script.
 
 ## Before You Start
@@ -157,7 +157,7 @@ For a multi-user deployment, here are the additional prerequisites:
 * access to a Pivotal UAA server in a container
 * access to the **cf-uaac** Pivotal UAA command-line client to configure the UAA server
 
-Both of these containers are supplied in the publically available repository:
+Both of these containers are supplied in the publicly available repository:
 
 ```text
 ghcr.io/skolodzieski/uaac            3.2.0      265MB
@@ -175,7 +175,7 @@ If the Kubernetes Metrics Server is not installed, when you use SAS Event Stream
 
 The instructions in this section should be executed on a workstation that has Docker installed.
 
-### Retreive Required Files
+### Retrieve Required Files
 
 To prepare for deployment, follow these steps:
 
@@ -229,7 +229,7 @@ To prepare for deployment, follow these steps:
 1. Use SAS Mirror Manager to download asset tags:
 
     ```shell
-    ./mirrormgr list remote docker tags --deployment-data SASViyaV4-order-ID_certs.zip --cadence cadence –latest
+    ./mirrormgr list remote docker tags --deployment-data SASViyaV4-order-ID_certs.zip --cadence cadence --latest
     ```
 
 1. Record this list of available tags for later use.
@@ -268,7 +268,7 @@ To prepare for deployment, follow these steps:
 
 ### Set the Environment Variables
 
-Set the following environment variables before you use the deployment scripts. Refer to the names of the docker images in your mirror registry and to the names of the docker images that you pulled for the OAuth2 proxy and the Pivotal UAA server.
+Set the following environment variables before you use the deployment scripts. Refer to the names of the Docker images in your mirror registry and to the names of the Docker images that you pulled for the OAuth2 proxy and the Pivotal UAA server.
 
 ```shell
 IMAGE_ESPSRV      = "name of image for SAS Event Stream Processing Server"
@@ -306,11 +306,11 @@ ghcr.io/skolodzieski/filebrowser   latest
 ghcr.io/skolodzieski/postgres      12.5 
 ```
 
-The two files: ```esp-cloud/operator/templates/fileb.yaml```  and ```esp-cloud/operator/templates/postgres.yaml``` reference these docker images and do not need to be modified as long as do not want to replace these third party images.
+The two files: ```esp-cloud/operator/templates/fileb.yaml``` and ```esp-cloud/operator/templates/postgres.yaml``` reference these Docker images and do not need to be modified as long as you do not want to replace these third party images.
 
 ### Define PostgreSQL/UAA Secrets
 
-The following four enviroment variables control the secrets (created at deployment time) for the Postgres Database and the Pivitol UAA server.
+The following four environment variables control the secrets (created at deployment time) for the Postgres Database and the Pivitol UAA server.
 
 ```text
        uaaUsername             --   Username for the UAA server, defaults to uaaUSER (only used in multiuser deployment)
@@ -332,7 +332,7 @@ Usage: ./bin/mkdeploy
        -r                          -- remove existing deploy/
                                        before creating
        -y                          -- no prompt, just execute
-       -n <namespace>              -- specify K8 namespace
+       -n <namespace>              -- specify K8s namespace
        -d <ingress domain root>    -- project domain root,
                                        ns.<domain root>/<path> is Ingress
        -l <esp license file>       -- SAS ESP license

@@ -23,7 +23,7 @@ how to use [Google command line tools](https://cloud.google.com/sdk#section-3).
 
 ## Installing SAS Event Stream Processing in a Google Kubernetes Engine (GKE) Cluster
 
-The following set of scripts are inluded to help create and
+The following set of scripts are included to help create and
 manage GKE clusters with SAS Event Stream Processing.
 
 ---
@@ -31,7 +31,7 @@ manage GKE clusters with SAS Event Stream Processing.
 ### bin/gcp-cluster -- Build a New GKE Cluster
 
 This script creates a new GKE cluster. The cluster is created in
-the geographical location that you specify. An default NFS provider
+the geographical location that you specify. A default NFS provider
 is created and associated with the cluster in order to provide a Read Write Many
 persistent volume (PV) that you can use for testing.
 
@@ -79,7 +79,7 @@ This script onboards a tenant to install SAS Event Stream Processing. Specifical
 When it completes, the script reports something like this:
 
 ```text
-Created kubernetes namespace, private DNS record
+Created Kubernetes namespace, private DNS record
 
 
 You must add an alias record to DNS that points
@@ -104,7 +104,7 @@ This script looks for the following environment variables:
 * IMAGE_METERBILL
 * IMAGE_ESPSRV
 
-Each environment variable needs to point to an accessible Docker image. The images are pulled, retagged, and pushed to the GCR. If the image contains **snapshot** or **release**, then **snapshot/** or **release/** is added to the repository name in the GCR.
+Each environment variable needs to point to an accessible Docker image. The images are pulled, re-tagged, and pushed to the GCR. If the image contains **snapshot** or **release**, then **snapshot/** or **release/** is added to the repository name in the GCR.
 
 ```shell
    [bin]$ ./gcp-push  -?
@@ -150,12 +150,12 @@ When sourced (that is, run as: . ./bin/get-images), this script goes to a **SAS 
 
 ```shell
 $ ./bin/gcp-tenant -c sckolo-cl -p solorgasub1 -t sckolo
-creating K8 namespace
+creating K8s namespace
 namespace/sckolo created
    .
    .
    .
-Created kubernetes namespace, private DNS record
+Created Kubernetes namespace, private DNS record
 
 You must add an alias record to DNS that points
 
@@ -186,7 +186,7 @@ $ . ./bin/gcp-images
 Change to the GitHub esp-kubernetes/esp-cloud project directory.
 
 ```shell
-$ ./bin/mkdeploy -l ../../LICENSE/setin90.sas -n <tenant name> -d <domain name> -r -C -M -G
+$ ./bin/mkdeploy -l ../../LICENSE/SASViyaV0400_09QTFR_70180938_Linux_x86-64.jwt -n <tenant name> -d <domain name> -r -C -M -G
   .
   .
   .

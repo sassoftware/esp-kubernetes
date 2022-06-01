@@ -7,7 +7,7 @@
 ## ESP 7.1
 
 * an opensource postgres DB is used for client storage needs: Studio, Streamviewer, ESM and ESP Metering. A persitent volume is required for the storage needs of the postgres DB.
-* the filebrowser and individual ESP projects only require a persisten volume if testing with csv files.
+* the filebrowser and individual ESP projects require only a persistent volume if testing with csv files.
 * each service and project no longer get a unique host via ingress for access. A single host of the form: `<tenant>.<domain>` is used to access all `<tenant>` services.
 
 path based ingress:

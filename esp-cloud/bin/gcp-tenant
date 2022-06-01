@@ -38,18 +38,18 @@ while getopts "?c:t:p:d" opt; do
     esac
 done
 
-[ -z $GCP_CL ]       && echo "cluster name must be specified" && show_usage
-[ -z $GCP_NS ]       && echo "K8 namespace must be specified" && show_usage
-[ -z $GCP_PR ]       && echo "GCP project must be specified"  && show_usage
+[ -z $GCP_CL ]       && echo "cluster name must be specified"  && show_usage
+[ -z $GCP_NS ]       && echo "K8s namespace must be specified" && show_usage
+[ -z $GCP_PR ]       && echo "GCP project must be specified"   && show_usage
 
 gcloud organizations list &> /dev/null ; [ 0 -ne $? ] && echo "not logged in to GCP" && exit 1
 
 
 kubectl get ns/$GCP_NS &> /dev/null
 if [ 0 -eq $? ] ; then
-    [ 1 -eq $OFFBOARD ] && echo "deleting K8 namespace" && kubectl delete ns $GCP_NS
+    [ 1 -eq $OFFBOARD ] && echo "deleting K8s namespace" && kubectl delete ns $GCP_NS
 else
-    [ 0 -eq $OFFBOARD ] && echo "creating K8 namespace" && kubectl create ns $GCP_NS
+    [ 0 -eq $OFFBOARD ] && echo "creating K8s namespace" && kubectl create ns $GCP_NS
 fi
     
 
@@ -74,7 +74,7 @@ gcloud dns --project=${GCP_PR} record-sets transaction execute --zone=${GCP_CL}-
 if [ 0 -eq $OFFBOARD ] ; then
     echo ""
     echo ""
-    echo "Created kubernetes namespace, private DNS record"
+    echo "Created Kubernetes namespace, private DNS record"
     echo ""
     echo "You must add an alias record to DNS that points"
     echo ""
@@ -85,6 +85,6 @@ if [ 0 -eq $OFFBOARD ] ; then
 else
     echo ""
     echo ""
-    echo "Removed kubernetes namespace ($GCP_NS) and  private DNS record"
+    echo "Removed Kubernetes namespace ($GCP_NS) and private DNS record"
     echo ""
 fi

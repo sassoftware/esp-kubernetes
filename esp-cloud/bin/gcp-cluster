@@ -13,10 +13,10 @@ which helm &>/dev/null      ; [ 0 -ne $? ] && echo "helm not found on path" && e
 #    nginx ingress controller.
 #
 
-# To build a basic GKE K8 cluster, the following variables need
+# To build a basic GKE K8s cluster, the following variables need
 #    to be passed into the script via command line options.
 #
-#   1. GCP_CL -- the K8 cluster name
+#   1. GCP_CL -- the K8s cluster name
 #
 #   2. GCP_RG -- geographical region of CLUSTER
 #
@@ -95,13 +95,13 @@ done
 [ -z $GCP_CL ]       && echo "cluster name must be specified" && show_usage
 [ -z $GCP_LO ]       && echo "region GKE cluster resides in must be specified" && show_usage
 [ -z $GCP_DM ]       && echo "Domain name for private DNS must be specified" && show_usage
-[ -z $KUBE_CRED_FILE ]  && echo "file to write kubeconfig to must be specifed" && show_usage
+[ -z $KUBE_CRED_FILE ]  && echo "file to write kubeconfig to must be specified" && show_usage
 
 GCP_ZN="${GCP_LO}-b"
 
 gcloud organizations list &> /dev/null ; [ 0 -ne $? ] && echo "not logged in to GCP" && exit 1
 
-echo "We are going to build an GCP GKE K8 cluster with the following"
+echo "We are going to build an GCP GKE K8s cluster with the following"
 echo "  parameters (all will be created, and should not already exist):"
 echo
 echo " GCP project:  $GCP_PR"
@@ -109,9 +109,9 @@ echo ""
 echo "  cluster name:       $GCP_CL"
 echo "  cluster region:     $GCP_LO"
 echo "  cluster zone:       $GCP_ZN"
-echo "     # of nodes:  $GCP_NODE_NUM"
-echo "     node type:   $GCP_NODE_SIZE"
-echo "  K8 config file: $KUBE_CRED_FILE"
+echo "     # of nodes:   $GCP_NODE_NUM"
+echo "     node type:    $GCP_NODE_SIZE"
+echo "  K8s config file: $KUBE_CRED_FILE"
 echo
 read -p "Continue (yes/[no])? " ANS
 [ "$ANS" = "yes" ] || exit 1
@@ -119,7 +119,7 @@ read -p "Continue (yes/[no])? " ANS
 #
 # create a basic 5 node cluster
 #
-# get the K8 credentials for the new cluster into our kubeconfig
+# get the K8s credentials for the new cluster into our kubeconfig
 #
 gcloud beta container --project ${GCP_PR} \
        clusters create ${GCP_CL} --zone ${GCP_ZN} \
@@ -179,7 +179,7 @@ gcloud beta dns --project=${GCP_PR} managed-zones create ${GCP_CL}-zone --descri
 
 
 echo ""
-echo "Completed build od GKE cluster:"
+echo "Completed build of GKE cluster:"
 echo "         GKE cluster:   $GCP_CL"
 echo "              domain:   $GCP_DM"
 echo "     loadbalancer ip:   $GCP_IP"

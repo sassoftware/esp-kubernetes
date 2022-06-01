@@ -7,7 +7,7 @@
 #
 show_usage() {
     echo "Usage: $0"
-    echo "          -n <namespace>             -- specify K8 namespace" 
+    echo "          -n <namespace>             -- specify K8s namespace"
     exit 1
 }
 
@@ -57,11 +57,11 @@ if [[ 0 -ne $? ]] ; then
 	kubectl create ns $ESP_NS
 	echo "return: $?"
 	if [[ 0 -ne $? ]] ; then
-	    echo "Create kubernetes namespace failed. Please investigate, exiting."
+	    echo "Create Kubernetes namespace failed. Please investigate, exiting."
 	    exit 1
 	fi
     else 
-	echo "Create the namspace yourself, then re-run script"
+	echo "Create the namespace yourself, then re-run script"
 	exit 1
     fi
 fi
@@ -119,14 +119,14 @@ if [ -f $DEPLOYMENT/postgres.yaml ] ; then
         if [ $? -eq 0 ]; then
 	    OK="y"
             echo ""
-            echo "  The postgres started sucessfuly."
+            echo "  The postgres DB started successfully."
 	    break;
         fi
         i=$((i+1));
     done;
     echo ""    
     if [[ "n" = "$OK" ]] ; then
-	echo "  After 100 iteration, could not start the postgres DB"
+	echo "  After 100 iterations, could not start the postgres DB"
 	echo "     aborting deployment"
 	exit 1;
     fi

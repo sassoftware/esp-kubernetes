@@ -12,7 +12,7 @@ az account show &>/dev/null ; [ 0 -ne $? ] && echo "not logged in to azure" && e
 show_usage() {
     echo "Usage: $0"
     echo ""
-    echo "required: -c <continer registry> -r <resource group>"
+    echo "required: -c <container registry> -r <resource group>"
     exit 1
 }   
 
@@ -32,7 +32,7 @@ while getopts "?c:r:" opt; do
 done
 
 [ -z $AZ_RG ]       && echo "resource group must be specified" && show_usage
-[ -z $AZ_CR ]       && echo "container registry must bespecified" && show_usage
+[ -z $AZ_CR ]       && echo "container registry must be specified" && show_usage
 
 az acr login --name $AZ_CR ; [ 0 -ne $? ] && echo "could not log into Azure Container Registry" && exit 1
 which docker &>/dev/null ; [ 0 -ne $? ] && echo "docker not found on path" && exit 1
