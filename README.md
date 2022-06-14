@@ -2,9 +2,8 @@
 
 Table of Contents
 
-* [SAS Event Stream Processing Lightweight Kubernetes](#sas-esp-lightweight-kubernetes)
+* [SAS Event Stream Processing Lightweight Kubernetes](#sas-event-stream-processing-lightweight-kubernetes)
   * [Overview](#overview)
-  * [Changes](#changes)
   * [Introduction](#introduction)
   * [Before You Start](#before-you-start)
   * [Azure Notes](#azure-notes)
@@ -18,7 +17,7 @@ Table of Contents
     * [Additional Prerequisites for a Multi-user Deployment](#additional-prerequisites-for-a-multi-user-deployment)
     * [Kubernetes Metrics Server](#kubernetes-metrics-server)
   * [Getting Started](#getting-started)
-    * [Retreive Required Files](#retreive-required-files)
+    * [Retrieve Required Files](#retrieve-required-files)
     * [Set the Environment Variables](#set-the-environment-variables)
     * [Location of the Public Domain Images](#location-of-the-public-domain-images)
     * [Define PostgreSQL/UAA Secrets](#define-postgresqluaa-secrets)
@@ -38,14 +37,10 @@ Table of Contents
 
 [SAS Event Stream Processing](https://go.documentation.sas.com/doc/en/espcdc/v_017/espov/home.htm) (ESP) enables you to quickly process and analyze a large number of continuously flowing events.
 ESP may be deployed in a Kubernetes (K8s) environment as part of a [SAS Viya](https://support.sas.com/en/software/sas-viya.html) offering (for more information, see the [SAS Viya: Deployment Guide](https://go.documentation.sas.com/doc/en/dplyml0phy0dkr/v_019/titlepage.htm)) or as a lightweight offering that does not require SAS Viya.
-This project contains files to assist you with a SAS ESP K8s lightweight deployment.
+This project contains files to assist you with a SAS ESP K8s lightweight deployment and has been tested against K8s version 1.23.
 
 **Note:** These instructions apply to SAS ESP version 2020.1 and later.
 For older SAS ESP versions, please see the available tags in this Git repository.
-
-## Changes
-
-Please see the [changelog](CHANGELOG.md) for a list of changes for SAS ESP versions.
 
 ## Introduction
 
