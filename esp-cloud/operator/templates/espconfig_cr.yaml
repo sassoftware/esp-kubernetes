@@ -1,6 +1,10 @@
-apiVersion: iot.sas.com/v1alpha1
+apiVersion: iot.sas.com/v1
 kind: ESPConfig
 metadata:
+  annotations:
+    esp.iot.sas.com/install-type: Lite
+    esp.iot.sas.com/multi-tenant: "false"
+    sas.com/tls-mode: none # Valid values: full-stack, front-door, truststores-only, none
   name: espconfig # this is the name the operator will look for
   namespace: TEMPLATE_ESP_NAMESPACE
 spec:
