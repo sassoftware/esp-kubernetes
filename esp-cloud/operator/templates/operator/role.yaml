@@ -1,113 +1,268 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  creationTimestamp: null
   name: sas-esp-operator
 rules:
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-      - pods/log
-      - services
-      - endpoints
-      - configmaps
-      - persistentvolumeclaims
-      - events
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - update
-      - patch
-      - delete
-  - apiGroups:
-      - extensions
-    resources:
-      - ingresses
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - update
-      - delete
-  - apiGroups:
-      - apiextensions.k8s.io
-    resources:
-      - customresourcedefinitions
-    verbs:
-      - list
-  - apiGroups:
-      - autoscaling
-    resources:
-      - horizontalpodautoscalers
-    verbs:
-      - get
-      - watch
-      - list
-      - create
-      - update
-      - delete
-  - apiGroups:
-      - apps
-    resources:
-      - deployments
-      - replicasets
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - update
-      - patch
-      - delete
-  - apiGroups:
-      - monitoring.coreos.com
-    resources:
-      - servicemonitors
-    verbs:
-      - get
-      - create
-  - apiGroups:
-      - apps
-    resourceNames:
-      - sas-esp-operator
-    resources:
-      - deployments/finalizers
-    verbs:
-      - update
-  - apiGroups:
-      - iot.sas.com
-    resources:
-      - '*'
-      - espupdates
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - update
-      - delete
-  - apiGroups:
-      - cert-manager.io
-    resources:
-      - certificates
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - update
-  - apiGroups:
-      - networking.k8s.io
-    resources:
-      - ingresses
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - update
-      - delete
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - endpoints
+  - persistentvolumeclaims
+  - pods
+  - pods/log
+  - secrets
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - replicasets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resourceNames:
+  - sas-esp-operator
+  resources:
+  - deployments/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - autoscaling
+  resources:
+  - horizontalpodautoscalers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - espconfigs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - espconfigs/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - espconfigs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - esploadbalancers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - esploadbalancers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - esploadbalancers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - esprouters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - esprouters/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - esprouters/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - espservers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - espservers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - espservers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - espupdates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - espupdates/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - iot.sas.com
+  resources:
+  - espupdates/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - projectcontour.io
+  resources:
+  - httpproxies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
