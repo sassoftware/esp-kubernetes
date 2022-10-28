@@ -74,3 +74,12 @@ rules:
     - get
     - create
     - update
+  - apiGroups:
+      - apps
+    resourceNames:
+      - sas-esp-operator
+    resources:
+      - deployments
+    verbs:
+      - get
+      - patch
