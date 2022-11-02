@@ -16,7 +16,8 @@ spec:
     meta.meteringport: "80"
     meta.meteringcontext: eventStreamProcessing/v1 # the API URL will be meteringhost:meteringport/meteringcontext/<endpoings>
     server.store-location: /mnt/data
-  operatorProperties: {} # the properties ESP operator use to configure projects
+  operatorProperties:
+    ccs.pvc.name: esp-pv
   #"server.tls.issuer": "letsencrypt-staging"
   limits:
     maxReplicas: "5"
