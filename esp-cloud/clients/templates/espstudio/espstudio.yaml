@@ -36,6 +36,13 @@ spec:
                 name: sas-event-stream-processing-studio-app # the service to hit
                 port:
                   number: 80 # externally exposed port
+          - path: /($)
+            pathType: Prefix
+            backend:
+              service:
+                name: sas-event-stream-processing-studio-app
+                port:
+                  number: 80
   tls:
     - hosts:
         - TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
