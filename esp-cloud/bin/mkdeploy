@@ -14,6 +14,13 @@ ESP_STD=$IMAGE_ESPSTUDIO
 ESP_SVR=$IMAGE_ESPSTRMVWR
 ESP_ESM=$IMAGE_ESPESM
 
+ESP_STORAGECLASS_RWX="${ESP_STORAGECLASS_RWX:-nfs-client}"
+# Verify ESP_STORAGECLASS_RWX based on K8s naming rules: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#dns-subdomain-names
+grep -qs '^[a-z0-9]\([a-z0-9-]\{1,251\}[a-z0-9]\|[a-z0-9]\)\?$' <<<"${ESP_STORAGECLASS_RWX}" || {
+    echo >&2 "Invalid ESP_STORAGECLASS_RWX '${ESP_STORAGECLASS_RWX}' value."
+    exit 1
+}
+
 # usage -- all args are required.
 #
 show_usage() {
@@ -243,6 +250,7 @@ EOF
     sed -i 's|TEMPLATE_ESP_AWS|'$ESP_AWS_COMMENT'|g' $i
     sed -i 's|TEMPLATE_ESP_GCP|'$ESP_GCP_COMMENT'|g' $i
     sed -i 's|TEMPLATE_ESP_NFS|'$ESP_NFS_COMMENT'|g' $i
+    sed -i "s|TEMPLATE_ESP_STORAGECLASS_RWX|${ESP_STORAGECLASS_RWX}|g" "${i}"
     sed -i 's|TEMPLATE_UAA_IMAGE|'$ESP_UAA'|g' $i
     sed -i 's|TEMPLATE_UAA_ADMIN|'$uaaUsername'|g' $i
     sed -i 's|TEMPLATE_UAA_CREDENTIALS|'$uaaCredentials'|g' $i

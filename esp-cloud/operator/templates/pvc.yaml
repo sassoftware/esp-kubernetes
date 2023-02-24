@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: esp-pv
 spec:
-  storageClassName: nfs-client
+  storageClassName: "TEMPLATE_ESP_STORAGECLASS_RWX"
   accessModes:
     - ReadWriteMany
   resources:

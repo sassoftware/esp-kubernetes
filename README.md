@@ -139,11 +139,23 @@ For more information about using these scripts, see [Getting Started](#getting-s
 
 ### Persistent Volume
 
-**Important**: To deploy the Docker images that you download, you must have a running Kubernetes cluster and two persistent volumes (PVs) available for use.  Work with your Kubernetes administrator to obtain access to a cluster with the required PVs. By default, the persistent volume claims (PVCs) use the Kubernetes storage class "nfs-client" and are dynamically provisioned.  You can change these settings appropriately for your specific installation.
+**Important**: To deploy the Docker images that you download, you must have a running Kubernetes cluster and two persistent volumes (PVs) available for use.
+Work with your Kubernetes administrator to obtain access to a cluster with the required PVs.
+By default, the persistent volume claims (PVCs) use the Kubernetes storage class "nfs-client" and are dynamically provisioned.
+You can change these settings appropriately for your specific installation.
+You have the option to set up a PV storage class that supports `ReadWriteMany` [access mode][k8s-pv-accessmodes] with a storage class name other than "nfs-client".
+If you use this option, use the `ESP_STORAGECLASS_RWX` environment variable to set the `ReadWriteMany` storage class name; for example:
 
-* The first PV is a backing store for the PostgreSQL database, which requires Write access to the persistent volume. Because the PostgreSQL pod is the only pod that writes to this PV, assign it the access mode **ReadWriteOnce**. A typical deployment with no stored projects or metadata uses about 68MB of storage. For a smaller deployment, 20GB of storage for the PV should be adequate.
+```shell
+export ESP_STORAGECLASS_RWX='my-rwx-storage-class-name'
+```
 
-* The second PV is used as a read/write location for running ESP projects.  Because SAS Event Stream Processing projects read and write on the PV simultaneously, you must give it the access mode **ReadWriteMany**.  The size of this PV depends on the amount of input and output data that you intend to store there. Determine the amount of data to be consumed (input data), estimate the amount of processed data to be written (output data), and specify the size accordingly.
+The first PV is a backing store for the PostgreSQL database, which requires Write access to the persistent volume. Because the PostgreSQL pod is the only pod that writes to this PV, assign it the access mode **ReadWriteOnce**. A typical deployment with no stored projects or metadata uses about 68MB of storage. For a smaller deployment, 20GB of storage for the PV should be adequate.
+
+The second PV is used as a read/write location for running ESP projects.
+Because SAS Event Stream Processing projects read and write to the PV simultaneously, the PV must support `ReadWriteMany` [access mode][k8s-pv-accessmodes].
+The size of this PV depends on the amount of input and output data that you intend to store there.
+Determine the amount of data to be consumed (input data), estimate the amount of processed data to be written (output data), and specify the size accordingly.
 
 ### Additional Prerequisites for a Multi-user Deployment
 
@@ -585,3 +597,5 @@ contains:
 * training courses
 * featured blogs
 * featured community topics
+
+[k8s-pv-accessmodes]: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
