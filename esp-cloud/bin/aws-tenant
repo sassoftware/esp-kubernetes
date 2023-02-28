@@ -45,9 +45,10 @@ echo "creating K8 namespace"
 kubectl get ns/$AWS_NS &> /dev/null
 [ 0 -ne $? ] && kubectl create ns $AWS_NS
 
-USE_EKS="no"
+USE_EKS="${USE_EKS:-}"
+[[ "${USE_EKS}" == 'yes' ]] && USE_EKS='true' || USE_EKS='false'
 
-if [[ "$USE_EKS" == "yes" ]] ; then
+if "${USE_EKS}"; then
     AWS_FS=$(aws efs describe-file-systems --query "FileSystems[?Name == \`${AWS_CL}-efs\`].FileSystemId" | jq .[0])
     AWS_FS=$(eval echo ${AWS_FS})
 
