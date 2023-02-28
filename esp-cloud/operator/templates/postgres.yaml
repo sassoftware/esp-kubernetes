@@ -78,13 +78,13 @@ spec:
         - name: config-data
           securityContext:
             readOnlyRootFilesystem: true
-          image: ghcr.io/skolodzieski/busybox:1.33.0
+          image: "TEMPLATE_ESP_SERVER_IMAGE"
           #
           # Our nfs PV is owned by sas:sas which is 1001:1001, so
           #    use those credentials to make <namespace>/{DB,input,output}
           #    directories.
           #
-          command: ['sh', '-c', 'mkdir -p /mnt/data/postgres']
+          command: ['bash', '-c', 'mkdir -p /mnt/data/postgres']
           volumeMounts:
             - name: data
               mountPath: /mnt/data

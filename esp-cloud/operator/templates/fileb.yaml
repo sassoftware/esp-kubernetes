@@ -93,18 +93,21 @@ spec:
               mountPath: /db
       initContainers:
         - name: config-data
-          image: ghcr.io/skolodzieski/busybox:1.33.0
+          image: "TEMPLATE_ESP_SERVER_IMAGE"
           #
           # Our nfs PV is owned by sas:sas which is 1001:1001, so
           #    use those credentials to make /mnt/data/{input,output}
           #    directories.
           #
+          command:
+            - 'bash'
+            - '-c'
+            - 'mkdir -p /mnt/data/input ; mkdir -p /mnt/data/output ; mkdir -p /mnt/data/mas-store ; touch /db/filebrowser.db'
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             runAsGroup: 1001
             runAsUser: 1001
-          command: ['sh', '-c', 'mkdir -p /mnt/data/input ; mkdir -p /mnt/data/output ; mkdir -p /mnt/data/mas-store ; touch /db/filebrowser.db']
           volumeMounts:
             - name: data
               mountPath: /mnt/data

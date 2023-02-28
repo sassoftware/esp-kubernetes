@@ -308,7 +308,6 @@ For more information, see [/esp-cloud](/esp-cloud).
 The deployment makes use of the following third party Docker images:
 
 ```text
-ghcr.io/skolodzieski/busybox       latest
 ghcr.io/skolodzieski/filebrowser   latest
 ghcr.io/skolodzieski/postgres      12.5 
 ```
@@ -421,24 +420,20 @@ In general, the processes associated with the ESP server run user:**sas**, group
 this choice of user and group means uid:**1001**, gid:**1001**. For example, when you deploy the open source filebrowser
 application, the associated processes have these assignments.
 
-In the YAML template file deploy/fileb.yaml, the relevant section is as follows:
+In the `deploy/fileb.yaml` YAML template file, the relevant section is similar to the following:
 
 ```yaml
-         initContainers:
-         - name: config-data
-           image: busybox
-           #
-           # Our nfs PV is owned by sas:sas which is 1001:1001, so
-           #    use those credentials to make <namespace>/{DB.input,output}
-           #    directories.
-           #
-           securityContext:
-             runAsUser:  1001
-             runAsGroup: 1001
-           command: ['sh', '-c', 'mkdir -p /mnt/data/input ; mkdir -p /mnt/data/output ; touch /db/filebrowser.db']
-           volumeMounts:
-           - mountPath: /mnt/data
-             name: data
+initContainers:
+    -
+        name: config-data
+        image: "TEMPLATE_ESP_SERVER_IMAGE"
+        command:
+            - 'bash'
+            - '-c'
+            - 'mkdir -p /mnt/data/input ; mkdir -p /mnt/data/output ; mkdir -p /mnt/data/mas-store ; touch /db/filebrowser.db'
+        securityContext:
+            runAsGroup: 1001
+            runAsUser: 1001
 ```
 
 This section specifies an initialization container that runs prior to starting the
