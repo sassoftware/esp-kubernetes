@@ -47,8 +47,6 @@ spec:
               value: "31416"
             - name: ESPOP_PUBLICHOSTNAME
               value: "TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN"
-            - name: ESPOP_LB__IMAGE
-              value: "TEMPLATE_ESP_LB_IMAGE"
             TEMPLATE_ESP_MULTI- name: ESPOP_OAUTH2PROXY
             TEMPLATE_ESP_MULTI  value: "oauth2" # oauth2 proxy's ingress path
             - name: ESPOP_ESPCONFIG # ESPConfig used to configure operator

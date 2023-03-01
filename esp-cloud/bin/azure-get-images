@@ -59,7 +59,6 @@ get_image IMAGE_ESPOAUTH2P ${BUILD_LEVEL}sas-esp-oauth2-proxy
 get_image IMAGE_ESPESM ${BUILD_LEVEL}sas-event-stream-manager-app
 get_image IMAGE_ESPSTRMVWR ${BUILD_LEVEL}sas-event-stream-processing-streamviewer-app
 get_image IMAGE_OPERATOR ${BUILD_LEVEL}sas-esp-operator
-get_image IMAGE_LOADBAL ${BUILD_LEVEL}sas-esp-load-balancer
 get_image IMAGE_ESPSTUDIO ${BUILD_LEVEL}sas-event-stream-processing-studio-app
 get_image IMAGE_METERBILL ${BUILD_LEVEL}sas-event-stream-processing-metering-app
 get_image IMAGE_ESPSRV ${BUILD_LEVEL}sas-event-stream-processing-server-app

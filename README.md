@@ -266,7 +266,6 @@ To prepare for deployment, follow these steps:
     ```text
     myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-event-stream-manager-app:7.9.17-20210114.1610585769219
     myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-event-stream-processing-metering-app:10.78.0-20201214.1607929237374
-    myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-esp-load-balancer:7.6.0-20201001.1601570347918
     myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-esp-operator:10.77.2-20201210.1607615447889
     myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-event-stream-processing-studio-app:7.9.15-20210114.1610585675385
     myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-event-stream-processing-streamviewer-app:7.9.17-20210114.1610584965330
@@ -279,7 +278,6 @@ Set the following environment variables before you use the deployment scripts. R
 
 ```shell
 IMAGE_ESPSRV      = "name of image for SAS Event Stream Processing Server"
-IMAGE_LOADBAL     = "name of image for SAS Event Stream Processing Load Balancer"
 IMAGE_METERBILL   = "name of image for SAS Event Stream Processing Metering Server"
 IMAGE_OPERATOR    = "name of image for SAS Event Stream Processing Operator"
 

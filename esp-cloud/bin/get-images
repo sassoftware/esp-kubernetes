@@ -22,7 +22,6 @@ getImages() {
     OPI="sas-esp-operator"
     SRI="sas-event-stream-processing-server-app"
     MTI="sas-event-stream-processing-metering-app"
-    LBI="sas-esp-load-balancer"
     O2PI="sas-esp-oauth2-proxy"
     ESMI="sas-event-stream-manager-app"
     STRI="sas-event-stream-processing-streamviewer-app"
@@ -33,7 +32,6 @@ getImages() {
      OP=`getTag3 $REPO1 $OPI`
      SR=`getTag3 $REPO1 $SRI`
      MT=`getTag3 $REPO1 $MTI`
-     LB=`getTag3 $REPO1 $LBI`
     O2P=`getTag3 $REPO1 $O2PI`
     ESM=`getTag3 $REPO1 $ESMI`
     STR=`getTag3 $REPO1 $STRI`
@@ -43,7 +41,6 @@ getImages() {
     export IMAGE_OPERATOR="${IMAGE_REGISTRY}/$REPO1/$OPI:$OP"
     export IMAGE_ESPSRV="${IMAGE_REGISTRY}/$REPO1/$SRI:$SR"
     export IMAGE_METERBILL="${IMAGE_REGISTRY}/$REPO1/$MTI:$MT"
-    export IMAGE_LOADBAL="${IMAGE_REGISTRY}/$REPO1/$LBI:$LB"
     export IMAGE_ESPSTUDIO="${IMAGE_REGISTRY}/$REPO1/$STUI:$STU"
     export IMAGE_ESPSTRMVWR="${IMAGE_REGISTRY}/$REPO1/$STRI:$STR"
     export IMAGE_ESPESM="${IMAGE_REGISTRY}/$REPO1/$ESMI:$ESM"

@@ -6,7 +6,6 @@
 ESP_OP=$IMAGE_OPERATOR
 ESP_SR=$IMAGE_ESPSRV
 ESP_MB=$IMAGE_METERBILL
-ESP_LB=$IMAGE_LOADBAL
 
 ESP_O2P=$IMAGE_ESPOAUTH2P
 ESP_UAA=$IMAGE_UAA
@@ -67,7 +66,7 @@ ESP_MULTI_COMMENT="#"
 ESP_OPEN_COMMENT=""
 
 SUBDIRS="operator"
-while getopts "?c:l:n:o:s:d:m:b:e:t:v:a:ryCMAWG" opt; do
+while getopts "?c:l:n:o:s:d:m:e:t:v:a:ryCMAWG" opt; do
     case "$opt" in
         \?)
             show_usage
@@ -104,8 +103,6 @@ while getopts "?c:l:n:o:s:d:m:b:e:t:v:a:ryCMAWG" opt; do
             ;;
         m)  ESP_MB=$OPTARG
             ;;
-        b)  ESP_LB=$OPTARG
-            ;;
         t)  ESP_STD=$OPTARG
             ;;
         v)  ESP_SVR=$OPTARG
@@ -132,7 +129,6 @@ done
 [ -z $ESP_OP ] && echo "ESP operator image not specified" && show_usage
 [ -z $ESP_SR ] && echo "ESP server image not specified" && show_usage
 [ -z $ESP_MB ] && echo "ESP metering server image not specified" && show_usage
-[ -z $ESP_LB ] && echo "ESP load balancer image not specified" && show_usage
 
 # studio, streamviewer and esm docker images
 #
@@ -184,7 +180,6 @@ if [[ "$ASKUSER" = "y" ]] ; then
     echo "TEMPLATE_ESP_OPERATOR_IMAGE <-- $ESP_OP"
     echo "TEMPLATE_ESP_SERVER_IMAGE   <-- $ESP_SR"
     echo "TEMPLATE_ESP_METER_IMAGE    <-- $ESP_MB"
-    echo "TEMPLATE_ESP_LB_IMAGE       <-- $ESP_LB"
 
     if [[ "yes" = "$CLIENTS" ]] ; then
         echo "TEMPLATE_ESM_IMAGE          <-- $ESP_ESM"
@@ -238,7 +233,6 @@ EOF
     sed -i 's|TEMPLATE_ESP_OPERATOR_IMAGE|'$ESP_OP'|g' $i
     sed -i 's|TEMPLATE_ESP_SERVER_IMAGE|'$ESP_SR'|g' $i
     sed -i 's|TEMPLATE_ESP_METER_IMAGE|'$ESP_MB'|g' $i
-    sed -i 's|TEMPLATE_ESP_LB_IMAGE|'$ESP_LB'|g' $i
     sed -i 's|TEMPLATE_ESM_IMAGE|'$ESP_ESM'|g' $i
     sed -i 's|TEMPLATE_ESPSTUDIO_IMAGE|'$ESP_STD'|g' $i
     sed -i 's|TEMPLATE_STREAMVIEWER_IMAGE|'$ESP_SVR'|g' $i

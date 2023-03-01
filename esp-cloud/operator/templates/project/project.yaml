@@ -49,12 +49,4 @@ spec:
                   - mountPath: /mnt/data # path persistent volume gets mounted to
                     name: data # the volume specified below
                     #                   subPath: TEMPLATE_ESP_NAMESPACE
-  loadBalancerTemplate: # deployment template for the project, overridden by ESPServer; ((...)) means a placeholder for the operator to fill in, ports 31415 and 31416 will be replaced if the project is configured to use different ports.
-    deployment:
-      apiVersion: ""
-      kind: ESPTemplate
-      spec: # required for deployment spec
-        template: # required
-          spec: # required
-            containers:
-              - name: ((PROJECT_SERVICE_NAME))
+  loadBalancerTemplate: {}

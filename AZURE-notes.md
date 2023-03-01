@@ -109,7 +109,6 @@ This script will look for the following env variables:
 * IMAGE_ESPESM
 * IMAGE_ESPSTRMVWR
 * IMAGE_OPERATOR
-* IMAGE_LOADBAL
 * IMAGE_ESPSTUDIO
 * IMAGE_METERBILL
 * IMAGE_ESPSRV
