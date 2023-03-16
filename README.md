@@ -297,7 +297,8 @@ IMAGE_ESPSRV=myregistry.mydomain.com/viya-4-x64_oci_linux_2-docker/sas-event-str
 
 Perform the SAS Event Stream Processing cloud deployment from a single directory, /esp-cloud. A single script enables the deployment of the ESP operator and the web-based clients.
 
-The deployment can be performed in Open mode (no TLS or user authentication), or in multi-user mode, which provides full authentication through a UAA server. In multi-user mode, TLS is enabled by default.
+The deployment can be performed in Open mode (no TLS or user authentication), or in multi-user mode, which provides full authentication through a UAA server.
+To enable TLS in multi-user mode, follow the [TLS instructions](TLS.md).
 
 For more information, see [/esp-cloud](/esp-cloud).
 
