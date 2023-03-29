@@ -285,6 +285,7 @@ IMAGE_ESPSTRMVWR  = "name of image for SAS Event Stream Processing Streamviewer"
 IMAGE_ESPSTUDIO   = "name of image for SAS Event Stream Processing Studio"
 
 IMAGE_ESPOAUTH2P  = "name of image for SAS Oauth2 Proxy"
+IMAGE_FILEBROWSER = "name of image for FileBrowser"
 IMAGE_UAA         = "name of image for Pivotal UAA Server"
 ```
 

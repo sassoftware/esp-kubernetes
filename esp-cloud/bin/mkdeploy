@@ -6,12 +6,12 @@
 ESP_OP=$IMAGE_OPERATOR
 ESP_SR=$IMAGE_ESPSRV
 ESP_MB=$IMAGE_METERBILL
-
 ESP_O2P=$IMAGE_ESPOAUTH2P
 ESP_UAA=$IMAGE_UAA
 ESP_STD=$IMAGE_ESPSTUDIO
 ESP_SVR=$IMAGE_ESPSTRMVWR
 ESP_ESM=$IMAGE_ESPESM
+ESP_FB="${IMAGE_FILEBROWSER:-ghcr.io/skolodzieski/filebrowser:v2.11.0}"
 
 ESP_STORAGECLASS_RWX="${ESP_STORAGECLASS_RWX:-nfs-client}"
 # Verify ESP_STORAGECLASS_RWX based on K8s naming rules: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#dns-subdomain-names
@@ -129,6 +129,7 @@ done
 [ -z $ESP_OP ] && echo "ESP operator image not specified" && show_usage
 [ -z $ESP_SR ] && echo "ESP server image not specified" && show_usage
 [ -z $ESP_MB ] && echo "ESP metering server image not specified" && show_usage
+[[ -z "${ESP_FB}" ]] && { echo "FileBrowser image not specified" ; show_usage ; }
 
 # studio, streamviewer and esm docker images
 #
@@ -180,6 +181,7 @@ if [[ "$ASKUSER" = "y" ]] ; then
     echo "TEMPLATE_ESP_OPERATOR_IMAGE <-- $ESP_OP"
     echo "TEMPLATE_ESP_SERVER_IMAGE   <-- $ESP_SR"
     echo "TEMPLATE_ESP_METER_IMAGE    <-- $ESP_MB"
+    echo "TEMPLATE_FILEBROWSER_IMAGE  <-- ${ESP_FB}"
 
     if [[ "yes" = "$CLIENTS" ]] ; then
         echo "TEMPLATE_ESM_IMAGE          <-- $ESP_ESM"
@@ -245,6 +247,7 @@ EOF
     sed -i 's|TEMPLATE_ESP_GCP|'$ESP_GCP_COMMENT'|g' $i
     sed -i 's|TEMPLATE_ESP_NFS|'$ESP_NFS_COMMENT'|g' $i
     sed -i "s|TEMPLATE_ESP_STORAGECLASS_RWX|${ESP_STORAGECLASS_RWX}|g" "${i}"
+    sed -i -e "s|TEMPLATE_FILEBROWSER_IMAGE|${ESP_FB}|g" "${i}"
     sed -i 's|TEMPLATE_UAA_IMAGE|'$ESP_UAA'|g' $i
     sed -i 's|TEMPLATE_UAA_ADMIN|'$uaaUsername'|g' $i
     sed -i 's|TEMPLATE_UAA_CREDENTIALS|'$uaaCredentials'|g' $i
