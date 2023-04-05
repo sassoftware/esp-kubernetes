@@ -6,12 +6,12 @@
 ESP_OP=$IMAGE_OPERATOR
 ESP_SR=$IMAGE_ESPSRV
 ESP_MB=$IMAGE_METERBILL
-ESP_O2P=$IMAGE_ESPOAUTH2P
 ESP_UAA=$IMAGE_UAA
 ESP_STD=$IMAGE_ESPSTUDIO
 ESP_SVR=$IMAGE_ESPSTRMVWR
 ESP_ESM=$IMAGE_ESPESM
 ESP_FB="${IMAGE_FILEBROWSER:-ghcr.io/skolodzieski/filebrowser:v2.11.0}"
+ESP_O2P="${IMAGE_OAUTH2P:-quay.io/oauth2-proxy/oauth2-proxy:v7.4.0}"
 
 ESP_STORAGECLASS_RWX="${ESP_STORAGECLASS_RWX:-nfs-client}"
 # Verify ESP_STORAGECLASS_RWX based on K8s naming rules: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#dns-subdomain-names
@@ -190,7 +190,7 @@ if [[ "$ASKUSER" = "y" ]] ; then
     fi
 
     if [[ "yes" = "$MULTI" ]] ; then
-        echo "TEMPLATE_ESP_OAUTH2P_IMAGE  <-- $ESP_O2P"
+        echo "TEMPLATE_OAUTH2P_IMAGE      <-- $ESP_O2P"
     fi
 
     [ "y" = "$RMDEPLOY" ] && echo && echo "directory $DEPLOYMENT will be removed and recreated."
@@ -238,7 +238,6 @@ EOF
     sed -i 's|TEMPLATE_ESM_IMAGE|'$ESP_ESM'|g' $i
     sed -i 's|TEMPLATE_ESPSTUDIO_IMAGE|'$ESP_STD'|g' $i
     sed -i 's|TEMPLATE_STREAMVIEWER_IMAGE|'$ESP_SVR'|g' $i
-    sed -i 's|TEMPLATE_ESP_OAUTH2P_IMAGE|'$ESP_O2P'|g' $i
 
     sed -i 's|TEMPLATE_ESP_OPEN|'$ESP_OPEN_COMMENT'|g' $i
     sed -i 's|TEMPLATE_ESP_MULTI|'$ESP_MULTI_COMMENT'|g' $i
@@ -248,6 +247,7 @@ EOF
     sed -i 's|TEMPLATE_ESP_NFS|'$ESP_NFS_COMMENT'|g' $i
     sed -i "s|TEMPLATE_ESP_STORAGECLASS_RWX|${ESP_STORAGECLASS_RWX}|g" "${i}"
     sed -i -e "s|TEMPLATE_FILEBROWSER_IMAGE|${ESP_FB}|g" "${i}"
+    sed -i -e "s|TEMPLATE_OAUTH2P_IMAGE|${ESP_O2P}|g" "${i}"
     sed -i 's|TEMPLATE_UAA_IMAGE|'$ESP_UAA'|g' $i
     sed -i 's|TEMPLATE_UAA_ADMIN|'$uaaUsername'|g' $i
     sed -i 's|TEMPLATE_UAA_CREDENTIALS|'$uaaCredentials'|g' $i

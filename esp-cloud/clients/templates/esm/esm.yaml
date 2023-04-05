@@ -23,6 +23,8 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /SASEventStreamManager/$2
     TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
     TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
+    TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/auth-response-headers: "Authorization"
+    TEMPLATE_ESP_MULTInginx.ingress.kubernetes.io/proxy-buffer-size: "8k"
 spec:
   ingressClassName: nginx
   rules:
@@ -84,15 +86,17 @@ spec:
             - name: SAS_ESP_COMMON_KUBERNETES_NAMESPACE
               value: TEMPLATE_ESP_NAMESPACE
             - name: SAS_ESP_COMMON_USER-AUTH-FIELD_ID
-              value: "Name"
+              value: "user_name"
             - name: SAS_ESP_COMMON_USER-AUTH-FIELD_NAME
-              value: "Email"
-            TEMPLATE_ESP_MULTI- name: SAS_ESP_COMMON_APP_AUTHZ_COOKIE_ENCRYPTED_ENABLED
+              value: "email"
+            TEMPLATE_ESP_MULTI- name: SAS_ESP_COMMON_APP_AUTHZ_TOKEN_OPENID
             TEMPLATE_ESP_MULTI  value: "true"
-            TEMPLATE_ESP_MULTI- name: SAS_ESP_COMMON_APP_AUTHZ_COOKIE_NAME
-            TEMPLATE_ESP_MULTI  value: "user"
-            TEMPLATE_ESP_MULTI- name: SAS_ESP_COMMON_APP_AUTHZ_COOKIE_ENCRYPTED_KEY_SECRET
-            TEMPLATE_ESP_MULTI  value: "sas-esp-oauth2-proxy"
+            TEMPLATE_ESP_MULTI- name: SAS_ESP_COMMON_APP_AUTHZ_TOKEN_ISSUER
+            TEMPLATE_ESP_MULTI  value: "https://TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN/uaa/oauth/token"
+            TEMPLATE_ESP_MULTI- name: SAS_ESP_COMMON_APP_AUTHZ_TOKEN_URI_KEYS
+            TEMPLATE_ESP_MULTI  value: "http://uaa-service/uaa/token_keys"
+            TEMPLATE_ESP_MULTI- name: SAS_ESP_COMMON_APP_AUTHZ_TOKEN_AUDIENCE
+            TEMPLATE_ESP_MULTI  value: "sv_client"
             #
             # Below is the postgres configuration
             #

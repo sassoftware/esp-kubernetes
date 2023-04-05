@@ -1,3 +1,48 @@
+---
+apiVersion: v1
+data:
+  oauth2-proxy.cfg: |
+    http_address              = "0.0.0.0:4180"
+    upstreams                 = "file:///dev/null"
+    reverse_proxy             = true
+    ssl_insecure_skip_verify  = true
+
+    # Provider Configuration
+    provider                = "oidc"
+    code_challenge_method   = "S256"
+    skip_provider_button    = true
+    skip_jwt_bearer_tokens  = true
+    whitelist_domains       = "TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN"
+    email_domains           = "*"
+    redirect_url            = "https://TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN/oauth2/callback"
+    oidc_issuer_url         = "https://TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN/uaa/oauth/token"
+    # OIDC discovery with UAA causes issues, provide required URLs manually:
+    skip_oidc_discovery     = true
+    login_url               = "https://TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN/uaa/oauth/authorize"
+    redeem_url              = "http://uaa-service/uaa/oauth/token"
+    validate_url            = "http://uaa-service/uaa/userinfo"
+    oidc_jwks_url           = "http://uaa-service/uaa/token_keys"
+    
+
+    # Cookie Configuration
+    cookie_name     = "esp_oauth2_proxy"
+    cookie_expire   = "12h"
+    cookie_refresh  = "60s"
+    cookie_secure   = true
+    cookie_domains  = "TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN"
+    cookie_samesite = "lax"
+
+    # Auth Response Headers
+    set_authorization_header  = true
+    set_xauthrequest          = true
+    pass_access_token         = true
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: oauth2-proxy
+    app.kubernetes.io/part-of: esp
+  name: oauth2-proxy-configmap
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,25 +67,7 @@ spec:
       serviceAccountName: "sas-esp-oproxy"
       containers:
         - args:
-            - --provider=uaa
-            # this is sent to browser, therefore esp-uaa.sas.com is an external url
-            - --login-url=https://TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN/uaa/oauth/authorize
-            # this is used by oauth_proxy to redeem code, it uses the service uaa
-            - --redeem-url=http://uaa-service/uaa/oauth/token
-            - --validate-url=http://uaa-service/uaa/userinfo
-            - --token-introspect-url=http://uaa-service/uaa/introspect
-            - --whitelist-domain=TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
-            - --passthrough-path=projects
-            - --email-domain=*
-            - --upstream=file:///dev/null
-            - --http-address=0.0.0.0:4180
-            - --cookie-name=esp_oauth2_proxy
-            - --cookie-expire=12h0m0s
-            - --cookie-secure=true
-            - --cookie-domain=TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN
-            - --cookie-samesite=lax
-          # Register a new application
-          # https://github.com/settings/applications/new
+            - --config=/config/oauth2-proxy.cfg
           env:
             - name: OAUTH2_PROXY_CLIENT_ID
               value: sv_client
@@ -61,8 +88,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.uid
-          #image: quay.io/pusher/oauth2_proxy:latest
-          image: TEMPLATE_ESP_OAUTH2P_IMAGE
+          image: TEMPLATE_OAUTH2P_IMAGE
           imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: false
@@ -74,6 +100,14 @@ spec:
           ports:
             - containerPort: 4180
               protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: oauth2-proxy-configmap
 ---
 apiVersion: v1
 kind: Service
@@ -95,6 +129,7 @@ kind: Ingress
 metadata:
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "8k"
     kubernetes.io/ingress.allow-http: "false"
   name: oauth2-proxy
 spec:

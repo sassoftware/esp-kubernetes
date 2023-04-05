@@ -22,7 +22,6 @@ getImages() {
     OPI="sas-esp-operator"
     SRI="sas-event-stream-processing-server-app"
     MTI="sas-event-stream-processing-metering-app"
-    O2PI="sas-esp-oauth2-proxy"
     ESMI="sas-event-stream-manager-app"
     STRI="sas-event-stream-processing-streamviewer-app"
     STUI="sas-event-stream-processing-studio-app"
@@ -32,7 +31,6 @@ getImages() {
      OP=`getTag3 $REPO1 $OPI`
      SR=`getTag3 $REPO1 $SRI`
      MT=`getTag3 $REPO1 $MTI`
-    O2P=`getTag3 $REPO1 $O2PI`
     ESM=`getTag3 $REPO1 $ESMI`
     STR=`getTag3 $REPO1 $STRI`
     STU=`getTag3 $REPO1 $STUI`
@@ -44,7 +42,7 @@ getImages() {
     export IMAGE_ESPSTUDIO="${IMAGE_REGISTRY}/$REPO1/$STUI:$STU"
     export IMAGE_ESPSTRMVWR="${IMAGE_REGISTRY}/$REPO1/$STRI:$STR"
     export IMAGE_ESPESM="${IMAGE_REGISTRY}/$REPO1/$ESMI:$ESM"
-    export IMAGE_ESPOAUTH2P="${IMAGE_REGISTRY}/$REPO1/$O2PI:$O2P"
+    export IMAGE_OAUTH2P='quay.io/oauth2-proxy/oauth2-proxy:v7.4.0'
     export IMAGE_UAA=ghcr.io/skolodzieski/uaa:75.18.0
 }
 

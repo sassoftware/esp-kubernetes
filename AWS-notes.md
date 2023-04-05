@@ -116,13 +116,13 @@ cluster namespace: sckolo
 
 This script looks for the following environment variables:
 
-* IMAGE_ESPOAUTH2P
 * IMAGE_ESPESM
 * IMAGE_ESPSTRMVWR
 * IMAGE_OPERATOR
 * IMAGE_ESPSTUDIO
 * IMAGE_METERBILL
 * IMAGE_ESPSRV
+* IMAGE_OAUTH2P
 
 Each environment variable needs to point to an accessible Docker image. The images are pulled, retagged, and pushed to the Amazon ECR. If the image contains **snapshot** or **release**, then **snapshot/** or **release/** is added to the repository name in the Amazon ECR.
 

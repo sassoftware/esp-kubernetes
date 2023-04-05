@@ -105,13 +105,13 @@ Start or Stop the AKS cluster. Stopping the cluster with this command avoids bei
 
 This script will look for the following env variables:
 
-* IMAGE_ESPOAUTH2P
 * IMAGE_ESPESM
 * IMAGE_ESPSTRMVWR
 * IMAGE_OPERATOR
 * IMAGE_ESPSTUDIO
 * IMAGE_METERBILL
 * IMAGE_ESPSRV
+* IMAGE_OAUTH2P
 
 each one should point to an accessable docker image. The images are pulled, retagged, and pushed to the specified Azure Container Registry. If the image contains **snapshot** or **release**, then **snapshot/** or **release/** is added to the repository name in Azure.
 

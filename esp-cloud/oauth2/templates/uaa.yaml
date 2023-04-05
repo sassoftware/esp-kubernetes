@@ -104,7 +104,7 @@ data:
           requireDigit: 1
           requireUpperCaseCharacter: 1
     issuer:
-      uri: http://localhost:8080/uaa
+      uri: https://TEMPLATE_ESP_NAMESPACE.TEMPLATE_ESP_DOMAIN/uaa
     encryption:
       active_key_label: CHANGE-THIS-KEY
       encryption_keys:

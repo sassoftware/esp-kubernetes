@@ -118,7 +118,7 @@ From this location, deploy the following Docker images that you obtained through
 
 From this location, deploy the following Docker images:
 
-* SAS Oauth2_proxy
+* OAuth2 Proxy
 * Pivotal User Account and Authentication (UAA) server (configured to store user credentials in PostgreSQL, but could also be reconfigured to read user credentials from alternative identity management (IM) systems)
 
 Each of these subdirectories contains README files with more specific, detailed instructions.
@@ -273,7 +273,7 @@ To prepare for deployment, follow these steps:
 
 ### Set the Environment Variables
 
-Set the following environment variables before you use the deployment scripts. Refer to the names of the Docker images in your mirror registry and to the names of the Docker images that you pulled for the OAuth2 proxy and the Pivotal UAA server.
+Set the following environment variables before you use the deployment scripts. Refer to the names of the Docker images in your mirror registry and to the names of the Docker images that you pulled for the OAuth2 Proxy and the Pivotal UAA server.
 
 ```shell
 IMAGE_ESPSRV      = "name of image for SAS Event Stream Processing Server"
@@ -284,8 +284,8 @@ IMAGE_ESPESM      = "name of image for SAS Event Stream Manager"
 IMAGE_ESPSTRMVWR  = "name of image for SAS Event Stream Processing Streamviewer"
 IMAGE_ESPSTUDIO   = "name of image for SAS Event Stream Processing Studio"
 
-IMAGE_ESPOAUTH2P  = "name of image for SAS Oauth2 Proxy"
 IMAGE_FILEBROWSER = "name of image for FileBrowser"
+IMAGE_OAUTH2P     = "name of image for OAuth2 Proxy"
 IMAGE_UAA         = "name of image for Pivotal UAA Server"
 ```
 
@@ -478,7 +478,7 @@ C  sas-event-stream-processing-studio-app-bf4f675f4-sfpjk            1/1     Run
 M  uaa-deployment-85d9fbf6bd-s8fwl                                   1/1     Running   0          25h
 ```
 
-The ESP operator, SAS Event Stream Processing Studio, SAS Event Stream Processing Streamviewer, PostgreSQL, oauth2_proxy, and Pivotal UAA are started by the YAML files that are supplied. After SAS Event Stream Processing Studio initializes, it creates a custom resource that causes the ESP operator to start a client-configuration server, named `sas-event-stream-processing-client-config-server`. The client-configuration server is a small ESP server that runs a dummy project. For more information, see [Understanding and Managing the Client-Configuration Server](https://documentation.sas.com/?cdcId=espcdc&cdcVersion=default&docsetId=espex&docsetTarget=n154fz2uzumjwrn111xqzu36wy93.htm) in SAS Event Stream Processing Help Center.
+The ESP operator, SAS Event Stream Processing Studio, SAS Event Stream Processing Streamviewer, PostgreSQL, OAuth2 Proxy, and Pivotal UAA are started by the YAML files that are supplied. After SAS Event Stream Processing Studio initializes, it creates a custom resource that causes the ESP operator to start a client-configuration server, named `sas-event-stream-processing-client-config-server`. The client-configuration server is a small ESP server that runs a dummy project. For more information, see [Understanding and Managing the Client-Configuration Server](https://documentation.sas.com/?cdcId=espcdc&cdcVersion=default&docsetId=espex&docsetTarget=n154fz2uzumjwrn111xqzu36wy93.htm) in SAS Event Stream Processing Help Center.
 
 An Ingress for each component should also appear in the namespace. For example:
 
