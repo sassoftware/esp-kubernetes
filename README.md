@@ -1,5 +1,11 @@
 # SAS Event Stream Processing Lightweight Kubernetes
 
+__CAUTION: The scripts provided in this repository to deploy SAS Event Stream Processing are no longer supported.__
+__It is highly recommended that you do not use them.__
+__Work is underway to replace them with a new easy-to-use deployment tool that enables you to manage standalone SAS Event Stream Processing deployments in various cloud environments.__
+__The deployment tool is designed to provide end-to-end automation of the deployment process while maintaining flexibility to enable customized deployment.__
+__More specific information about this new deployment tool will be made available in 2024.__
+
 Table of Contents
 
 * [Overview](#overview)
