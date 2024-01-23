@@ -53,7 +53,7 @@ When it completes, the script reports something like this:
 ```text
 Completed build of GKE cluster:""
          GKE cluster:   sckolo-cl
-              domain:   gcp.unx.sas.com
+              domain:   gcp.sas.com
      loadbalancer ip:   xxx.yyy.zzz.ttt
     KUBE CONFIG file:   /mnt/data/home/sckolo/scottC-k8.conf
 ```
@@ -158,7 +158,7 @@ Created Kubernetes namespace, private DNS record
 
 You must add an alias record to DNS that points
 
-   sckolo.gcp.unx.sas.com  --> 35.193.42.103
+   sckolo.gcp.sas.com  --> 35.193.42.103
 
 cluster namespace: sckolo
 ```
@@ -208,5 +208,5 @@ uaa-deployment-94ddb9b48-k9vgp
 Add a user account:
 
 ```shell
-./bin/uaatool -u sckolo.gcp.unx.sas.com -C uaaUSER:uaaPASS -a sk:scott.kolodzieski@sas.com:sckoloPW1
+./bin/uaatool -u sckolo.gcp.sas.com -C uaaUSER:uaaPASS -a sk:scott.kolodzieski@sas.com:sckoloPW1
 ```
