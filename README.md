@@ -6,7 +6,7 @@ __Work is underway to replace them with a new easy-to-use deployment tool that e
 __The deployment tool is designed to provide end-to-end automation of the deployment process while maintaining flexibility to enable customized deployment.__
 __More specific information about this new deployment tool will be made available in 2024.__
 
-Table of Contents
+## Table of Contents
 
 * [Overview](#overview)
 * [Introduction](#introduction)
