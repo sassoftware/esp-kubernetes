@@ -1,5 +1,3 @@
-Archive notice: This project is no longer under active development and was archived on 2024-11-12.
-
 # SAS Event Stream Processing Lightweight Kubernetes
 
 __CAUTION: The scripts provided in this repository to deploy SAS Event Stream Processing are no longer supported.__
